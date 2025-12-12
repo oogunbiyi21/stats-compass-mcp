@@ -22,7 +22,32 @@ stats-compass-mcp serve
 
 ### Configure your MCP client
 
-Add to your MCP client config (e.g., Claude Desktop, Cursor):
+#### For Claude Desktop (Recommended)
+
+The easiest way to run this server is using `uvx` (part of the [uv](https://github.com/astral-sh/uv) toolkit), which downloads and runs the server in an isolated environment without installation.
+
+Add this to your `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "stats-compass": {
+      "command": "uvx",
+      "args": ["stats-compass-mcp", "serve"]
+    }
+  }
+}
+```
+
+#### Manual Installation
+
+If you prefer to install it globally:
+
+```bash
+pip install stats-compass-mcp
+```
+
+Then configure your client:
 
 ```json
 {

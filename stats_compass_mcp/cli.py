@@ -4,7 +4,14 @@ CLI entrypoint for stats-compass-mcp.
 
 import argparse
 import sys
+import logging
 
+# Setup debug logging to file
+logging.basicConfig(
+    filename='/tmp/stats_compass_mcp_debug.log',
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 def main() -> None:
     """Main CLI entrypoint."""
