@@ -12,6 +12,12 @@ This package turns the `stats-compass-core` toolkit into an MCP (Model Context P
 pip install stats-compass-mcp
 ```
 
+### ⚠️ Important Note on Data Loading
+**Drag-and-drop file uploads are NOT supported.** 
+To load data, you must provide the **absolute file path** to the file on your local machine.
+- ✅ "Load the file at `/Users/me/data.csv`"
+- ❌ Dragging `data.csv` into the chat window
+
 ## Quick Start
 
 ### Start the server

@@ -39,6 +39,14 @@ def main() -> None:
     
     # list-tools command
     subparsers.add_parser("list-tools", help="List all available tools")
+
+    # install command
+    install_parser = subparsers.add_parser("install", help="Configure Claude Desktop automatically")
+    install_parser.add_argument(
+        "--dev",
+        action="store_true",
+        help="Configure for local development (uses current executable instead of uvx)",
+    )
     
     args = parser.parse_args()
     
@@ -48,6 +56,9 @@ def main() -> None:
     elif args.command == "list-tools":
         from .tools import list_tools
         list_tools()
+    elif args.command == "install":
+        from .install import install_claude_config
+        install_claude_config(dev_mode=args.dev)
     else:
         parser.print_help()
         sys.exit(1)

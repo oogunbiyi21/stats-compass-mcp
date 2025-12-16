@@ -13,11 +13,17 @@ from mcp.server.stdio import stdio_server
 from mcp.types import (
     Tool,
     TextContent,
+    ImageContent,
+    EmbeddedResource,
+    Prompt,
+    PromptMessage,
+    GetPromptResult,
 )
 from pydantic import BaseModel
 
 from stats_compass_core.state import DataFrameState
 from stats_compass_core.registry import registry
+from stats_compass_core.results import ChartResult, ClassificationCurveResult
 
 from .tools import get_all_tools
 
@@ -51,7 +57,7 @@ def create_server() -> Server:
         return mcp_tools
     
     @server.call_tool()
-    async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
+    async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent | ImageContent | EmbeddedResource]:
         """Execute a tool and return results."""
         logger.info(f"Tool called: {name} with args: {arguments}")
         
@@ -78,6 +84,27 @@ def create_server() -> Server:
             # Call the tool with state injected
             result = tool_info["function"](state, params)
             
+            # Handle ChartResult specifically
+            if isinstance(result, ChartResult) or isinstance(result, ClassificationCurveResult):
+                # If we have an image, return it as ImageContent
+                if result.image_base64:
+                    title = result.title if hasattr(result, "title") else result.curve_type
+                    logger.info(f"Returning chart image: {title}, size={len(result.image_base64)} bytes")
+                    image_content = ImageContent(
+                        type="image",
+                        data=result.image_base64,
+                        mimeType="image/png" # ClassificationCurveResult doesn't have image_format but it's always png
+                    )
+                    return [image_content]
+                
+                # If we have data (JSON format), return it as TextContent
+                # For ClassificationCurveResult, it always has data (x_values, y_values), so we just dump it
+                logger.info(f"Returning chart data")
+                return [TextContent(
+                    type="text",
+                    text=json.dumps(result.model_dump(), default=str, indent=2)
+                )]
+
             # Convert result to JSON-serializable format
             if isinstance(result, BaseModel):
                 result_data = result.model_dump()
@@ -101,6 +128,43 @@ def create_server() -> Server:
                 }),
             )]
     
+    @server.list_prompts()
+    async def list_prompts() -> list[Prompt]:
+        """List available prompts."""
+        return [
+            Prompt(
+                name="data-analyst",
+                description="Standard instructions for data analysis with Stats Compass",
+                arguments=[],
+            )
+        ]
+
+    @server.get_prompt()
+    async def get_prompt(name: str, arguments: dict[str, str] | None = None) -> GetPromptResult:
+        """Get a specific prompt."""
+        if name != "data-analyst":
+            raise ValueError(f"Prompt '{name}' not found")
+
+        return GetPromptResult(
+            description="Standard instructions for data analysis with Stats Compass",
+            messages=[
+                PromptMessage(
+                    role="user",
+                    content=TextContent(
+                        type="text",
+                        text="""You are a data analysis assistant powered by Stats Compass.
+
+CRITICAL INSTRUCTIONS:
+1.  **Prioritize Tools:** ALWAYS use the provided `stats-compass` tools for data loading, cleaning, analysis, and visualization. Do NOT write custom Python code or build React/HTML artifacts unless the tools are insufficient or the user explicitly asks for them.
+2.  **File Access:** You CANNOT see files dragged into the chat. You MUST ask the user for the absolute file path on their local machine and use `load_csv` or `load_excel`.
+3.  **Visualization:** Use the plotting tools (`histogram`, `scatter_plot`, etc.) to generate charts. These tools return images directly. Do NOT try to generate React components for charts unless explicitly asked.
+4.  **State Management:** Remember that data is stored in the server's state. You don't need to reload data for every operation. Use `list_dataframes` to see what's available.
+"""
+                    )
+                )
+            ]
+        )
+
     return server
 
 
