@@ -1,7 +1,7 @@
 <div align="center">
   <img src="./assets/logo/logo1.png" alt="Stats Compass Logo" width="200"/>
   
-  <h1>stats-compass-core</h1>
+  <h1>stats-compass-mcp</h1>
   
   <p>A stateful, MCP-compatible toolkit of pandas-based data tools for AI-powered data analysis.</p>
 </div>
