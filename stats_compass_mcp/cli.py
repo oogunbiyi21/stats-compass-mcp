@@ -47,6 +47,14 @@ def main() -> None:
         action="store_true",
         help="Configure for local development (uses current executable instead of uvx)",
     )
+
+    # install-vscode command
+    install_vscode_parser = subparsers.add_parser("install-vscode", help="Configure VS Code (Roo Code) automatically")
+    install_vscode_parser.add_argument(
+        "--dev",
+        action="store_true",
+        help="Configure for local development (uses current executable instead of uvx)",
+    )
     
     args = parser.parse_args()
     
@@ -59,6 +67,9 @@ def main() -> None:
     elif args.command == "install":
         from .install import install_claude_config
         install_claude_config(dev_mode=args.dev)
+    elif args.command == "install-vscode":
+        from .install import install_vscode_config
+        install_vscode_config(dev_mode=args.dev)
     else:
         parser.print_help()
         sys.exit(1)

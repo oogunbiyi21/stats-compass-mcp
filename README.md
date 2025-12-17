@@ -36,11 +36,19 @@ stats-compass-mcp serve
 
 ### Configure your MCP client
 
-#### For Claude Desktop (Recommended)
+#### 1. Claude Desktop (Recommended)
 
-The easiest way to run this server is using `uvx` (part of the [uv](https://github.com/astral-sh/uv) toolkit), which downloads and runs the server in an isolated environment without installation.
+You can configure Claude Desktop automatically:
 
-Add this to your `claude_desktop_config.json`:
+```bash
+# Install the package
+pip install stats-compass-mcp
+
+# Run the auto-configuration
+stats-compass-mcp install
+```
+
+Or manually add this to your `claude_desktop_config.json`:
 
 ```json
 {
@@ -53,25 +61,37 @@ Add this to your `claude_desktop_config.json`:
 }
 ```
 
-#### Manual Installation
+#### 2. VS Code (Roo Code / Cline)
 
-If you prefer to install it globally:
+If you use the **Roo Code** (formerly Cline) extension in VS Code:
 
 ```bash
+# Install the package
 pip install stats-compass-mcp
+
+# Run the auto-configuration
+stats-compass-mcp install-vscode
 ```
 
-Then configure your client:
+Or manually add this to your `cline_mcp_settings.json`:
 
 ```json
 {
   "mcpServers": {
     "stats-compass": {
-      "command": "stats-compass-mcp",
-      "args": ["serve"]
+      "command": "uvx",
+      "args": ["stats-compass-mcp", "serve"]
     }
   }
 }
+```
+
+#### 3. Claude Code (CLI)
+
+To use Stats Compass with the Claude CLI:
+
+```bash
+claude mcp add stats-compass -- uvx stats-compass-mcp serve
 ```
 
 ## Available Tools
@@ -176,7 +196,18 @@ If you want to contribute to `stats-compass-mcp`, it helps to understand how the
     poetry install
     ```
 
-2.  **Run the Server**:
+2.  **Configure for Development**:
+    You can automatically configure your MCP clients to use your local development version (instead of the published PyPI version):
+    
+    ```bash
+    # For Claude Desktop
+    poetry run stats-compass-mcp install --dev
+    
+    # For VS Code (Roo Code)
+    poetry run stats-compass-mcp install-vscode --dev
+    ```
+
+3.  **Run the Server**:
     ```bash
     poetry run stats-compass-mcp serve
     ```
