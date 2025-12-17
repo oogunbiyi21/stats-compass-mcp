@@ -2154,26 +2154,28 @@ full = ["httpx (>=0.27.0,<0.29.0)", "itsdangerous", "jinja2", "python-multipart 
 
 [[package]]
 name = "stats-compass-core"
-version = "0.1.11"
+version = "0.1.12"
 description = "A clean toolkit of deterministic pandas-based data tools"
 optional = false
-python-versions = "^3.11"
+python-versions = "<4.0,>=3.11"
 groups = ["main"]
-files = []
-develop = true
+files = [
+    {file = "stats_compass_core-0.1.12-py3-none-any.whl", hash = "sha256:230fb558fd0142336a169d190e8059de7072bb2f823037f3bce0fe8b4774ebe0"},
+    {file = "stats_compass_core-0.1.12.tar.gz", hash = "sha256:88bc4aca8d221da83134a4f8a5e37f3549dadcbc17b38567eb6de6b40a405ce4"},
+]
 
 [package.dependencies]
-joblib = "^1.5.2"
-matplotlib = {version = "^3.6.0", optional = true}
-numpy = "^2.0.0"
-openpyxl = {version = "^3.1.0", optional = true}
-pandas = "^2.0.0"
-pyarrow = {version = "^14.0.0", optional = true}
-pydantic = "^2.0.0"
-scikit-learn = {version = "^1.3.0", optional = true}
-scipy = "^1.13.0"
-seaborn = {version = "^0.12.0", optional = true}
-statsmodels = {version = "^0.14.0", optional = true}
+joblib = ">=1.5.2,<2.0.0"
+matplotlib = {version = ">=3.6.0,<4.0.0", optional = true, markers = "extra == \"plots\" or extra == \"timeseries\" or extra == \"all\""}
+numpy = ">=2.0.0,<3.0.0"
+openpyxl = {version = ">=3.1.0,<4.0.0", optional = true, markers = "extra == \"excel\" or extra == \"all\""}
+pandas = ">=2.0.0,<3.0.0"
+pyarrow = {version = ">=14.0.0,<15.0.0", optional = true, markers = "extra == \"parquet\" or extra == \"all\""}
+pydantic = ">=2.0.0,<3.0.0"
+scikit-learn = {version = ">=1.3.0,<2.0.0", optional = true, markers = "extra == \"ml\" or extra == \"all\""}
+scipy = ">=1.13.0,<2.0.0"
+seaborn = {version = ">=0.12.0,<0.13.0", optional = true, markers = "extra == \"plots\" or extra == \"all\""}
+statsmodels = {version = ">=0.14.0,<0.15.0", optional = true, markers = "extra == \"timeseries\" or extra == \"all\""}
 
 [package.extras]
 all = ["matplotlib (>=3.6.0,<4.0.0)", "openpyxl (>=3.1.0,<4.0.0)", "pyarrow (>=14.0.0,<15.0.0)", "scikit-learn (>=1.3.0,<2.0.0)", "seaborn (>=0.12.0,<0.13.0)", "statsmodels (>=0.14.0,<0.15.0)"]
@@ -2182,10 +2184,6 @@ ml = ["scikit-learn (>=1.3.0,<2.0.0)"]
 parquet = ["pyarrow (>=14.0.0,<15.0.0)"]
 plots = ["matplotlib (>=3.6.0,<4.0.0)", "seaborn (>=0.12.0,<0.13.0)"]
 timeseries = ["matplotlib (>=3.6.0,<4.0.0)", "statsmodels (>=0.14.0,<0.15.0)"]
-
-[package.source]
-type = "directory"
-url = "../stats-compass-core"
 
 [[package]]
 name = "statsmodels"
@@ -2319,4 +2317,4 @@ standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "c4a591bb3ee775aa77e3f370ca6114378637d7ee00484322b4f62d7bcbeb5be2"
+content-hash = "a13e64b6f10e48a6f1241f8005699793f0cf380fa6dcc69159c60017152fbb31"
