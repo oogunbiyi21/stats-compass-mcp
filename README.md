@@ -152,20 +152,40 @@ Once connected, the following tools are available to LLMs:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Development
+## Contributing
 
-```bash
-# Clone and install
-git clone https://github.com/oogunbiyi21/stats-compass-mcp.git
-cd stats-compass-mcp
-poetry install
+### Architecture Overview
 
-# Run tests
-poetry run pytest
+If you want to contribute to `stats-compass-mcp`, it helps to understand how the pieces fit together:
 
-# Run the server locally
-poetry run stats-compass-mcp serve
-```
+1.  **Entry Point**: The `pyproject.toml` defines the script `stats-compass-mcp = "stats_compass_mcp.cli:main"`. This is what runs when you execute the command.
+2.  **CLI (`cli.py`)**: Parses command-line arguments and launches the server.
+3.  **Server (`server.py`)**:
+    *   Initializes a `DataFrameState` (from `stats-compass-core`) to hold data in memory during the session.
+    *   Discovers tools dynamically using `registry.auto_discover()` and `get_all_tools()`.
+    *   Registers `list_tools` and `call_tool` handlers to communicate with the MCP client.
+    *   Executes tools by injecting the session `state` into the function calls.
+4.  **Communication**: Uses `stdio` transport to exchange JSON-RPC messages with the client (Claude, etc.).
+
+### Local Development
+
+1.  **Clone and Install**:
+    ```bash
+    git clone https://github.com/oogunbiyi21/stats-compass-mcp.git
+    cd stats-compass-mcp
+    poetry install
+    ```
+
+2.  **Run the Server**:
+    ```bash
+    poetry run stats-compass-mcp serve
+    ```
+
+3.  **Test with MCP Inspector**:
+    You can use the [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to test the server interactively:
+    ```bash
+    npx @modelcontextprotocol/inspector poetry run stats-compass-mcp serve
+    ```
 
 ## Related Projects
 
