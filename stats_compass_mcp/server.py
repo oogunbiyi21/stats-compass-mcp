@@ -120,12 +120,15 @@ def create_server() -> Server:
             
         except Exception as e:
             logger.error(f"Tool error: {e}")
+            
+            # Create a user-friendly error message
+            error_msg = str(e)
+            if isinstance(e, FileNotFoundError):
+                error_msg = f"File not found. Please ensure you are using an absolute path to a file on the local machine. Error: {e}"
+            
             return [TextContent(
                 type="text",
-                text=json.dumps({
-                    "error": str(e),
-                    "error_type": type(e).__name__,
-                }),
+                text=f"Error executing tool '{name}': {error_msg} ({type(e).__name__})"
             )]
     
     @server.list_prompts()
