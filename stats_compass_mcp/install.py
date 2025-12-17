@@ -22,9 +22,9 @@ def get_vscode_config_path() -> Path | None:
     system = platform.system()
     
     if system == "Darwin":  # macOS
-        return Path.home() / "Library" / "Application Support" / "Code" / "User" / "globalStorage" / "rooveterinaryinc.roo-cline" / "settings" / "cline_mcp_settings.json"
+        return Path.home() / "Library" / "Application Support" / "Code" / "User" / "globalStorage" / "rooveterinaryinc.roo-cline" / "settings" / "mcp_settings.json"
     elif system == "Windows":
-        return Path(os.environ["APPDATA"]) / "Code" / "User" / "globalStorage" / "rooveterinaryinc.roo-cline" / "settings" / "cline_mcp_settings.json"
+        return Path(os.environ["APPDATA"]) / "Code" / "User" / "globalStorage" / "rooveterinaryinc.roo-cline" / "settings" / "mcp_settings.json"
     else:
         return None
 
@@ -173,7 +173,7 @@ def install_vscode_config(dev_mode: bool = False):
     try:
         with open(config_path, "w") as f:
             json.dump(config, f, indent=2)
-        print("✅ Successfully updated cline_mcp_settings.json")
+        print("✅ Successfully updated mcp_settings.json")
         print("\n🎉 Setup complete! Please reload VS Code to see 'stats-compass' in Roo Code.")
         
     except Exception as e:

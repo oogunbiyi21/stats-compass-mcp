@@ -73,7 +73,7 @@ pip install stats-compass-mcp
 stats-compass-mcp install-vscode
 ```
 
-Or manually add this to your `cline_mcp_settings.json`:
+Or manually add this to your `mcp_settings.json`:
 
 ```json
 {

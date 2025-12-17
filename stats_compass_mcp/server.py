@@ -42,6 +42,18 @@ def create_server() -> Server:
     # Load all tools from stats-compass-core
     registry.auto_discover()
     tools = get_all_tools()
+
+    # Write out the current tool schemas for easier client-debugging
+    try:
+        debug_dump = [
+            {"name": t["name"], "input_schema": t.get("input_schema", {})}
+            for t in tools
+        ]
+        with open("/tmp/stats_compass_mcp_tools_debug.json", "w", encoding="utf-8") as f:
+            json.dump(debug_dump, f, indent=2)
+        logger.info("Wrote tool schemas to /tmp/stats_compass_mcp_tools_debug.json")
+    except Exception as exc:  # pragma: no cover - only used for local debugging
+        logger.debug(f"Could not write debug tool schema dump: {exc}")
     
     @server.list_tools()
     async def list_tools() -> list[Tool]:
