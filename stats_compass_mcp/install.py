@@ -18,13 +18,15 @@ def get_claude_config_path() -> Path | None:
         return None
 
 def get_vscode_config_path() -> Path | None:
-    """Get the path to the Roo Code (VS Code) config file based on OS."""
+    """Get the path to the VS Code MCP config file based on OS."""
     system = platform.system()
     
     if system == "Darwin":  # macOS
-        return Path.home() / "Library" / "Application Support" / "Code" / "User" / "globalStorage" / "rooveterinaryinc.roo-cline" / "settings" / "mcp_settings.json"
+        return Path.home() / "Library" / "Application Support" / "Code" / "User" / "mcp.json"
     elif system == "Windows":
-        return Path(os.environ["APPDATA"]) / "Code" / "User" / "globalStorage" / "rooveterinaryinc.roo-cline" / "settings" / "mcp_settings.json"
+        return Path(os.environ["APPDATA"]) / "Code" / "User" / "mcp.json"
+    elif system == "Linux":
+        return Path.home() / ".config" / "Code" / "User" / "mcp.json"
     else:
         return None
 
@@ -106,13 +108,13 @@ def install_claude_config(dev_mode: bool = False):
 
 def install_vscode_config(dev_mode: bool = False):
     """
-    Configure VS Code (Roo Code) for Stats Compass.
+    Configure VS Code (GitHub Copilot) for Stats Compass.
     
     Args:
         dev_mode: If True, points to the current executable instead of using uvx.
     """
-    print("🧭 Stats Compass - VS Code (Roo Code) Setup")
-    print("===========================================")
+    print("🧭 Stats Compass - VS Code Setup")
+    print("================================")
     
     config_path = get_vscode_config_path()
     if not config_path:
@@ -123,8 +125,8 @@ def install_vscode_config(dev_mode: bool = False):
     
     # Ensure directory exists
     if not config_path.parent.exists():
-        print(f"❌ Roo Code settings directory not found at {config_path.parent}")
-        print("   Please install the Roo Code extension in VS Code first.")
+        print(f"❌ VS Code User directory not found at {config_path.parent}")
+        print("   Please install VS Code first.")
         return
         
     # Read existing config or create new
@@ -163,18 +165,18 @@ def install_vscode_config(dev_mode: bool = False):
             "args": ["stats-compass-mcp", "serve"]
         }
     
-    # Update config
-    if "mcpServers" not in config:
-        config["mcpServers"] = {}
+    # Update config (VS Code uses 'servers' not 'mcpServers')
+    if "servers" not in config:
+        config["servers"] = {}
         
-    config["mcpServers"]["stats-compass"] = mcp_config
+    config["servers"]["stats-compass"] = mcp_config
     
     # Write back
     try:
         with open(config_path, "w") as f:
             json.dump(config, f, indent=2)
-        print("✅ Successfully updated mcp_settings.json")
-        print("\n🎉 Setup complete! Please reload VS Code to see 'stats-compass' in Roo Code.")
+        print("✅ Successfully updated mcp.json")
+        print("\n🎉 Setup complete! Please reload VS Code to use 'stats-compass' with GitHub Copilot.")
         
     except Exception as e:
         print(f"❌ Failed to write config: {e}")

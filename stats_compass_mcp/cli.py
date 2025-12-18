@@ -49,7 +49,7 @@ def main() -> None:
     )
 
     # install-vscode command
-    install_vscode_parser = subparsers.add_parser("install-vscode", help="Configure VS Code (Roo Code) automatically")
+    install_vscode_parser = subparsers.add_parser("install-vscode", help="Configure VS Code (GitHub Copilot) automatically")
     install_vscode_parser.add_argument(
         "--dev",
         action="store_true",

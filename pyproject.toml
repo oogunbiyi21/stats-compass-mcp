@@ -21,9 +21,9 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.11"
-stats-compass-core = {version = "^0.1.12", extras = ["all"]}
+# stats-compass-core = {version = "^0.1.12", extras = ["all"]}
 # For local development, uncomment the line below and comment out the version line above:
-# stats-compass-core = {path = "../stats-compass-core", develop = true, extras = ["all"]}
+stats-compass-core = {path = "../stats-compass-core", develop = true, extras = ["all"]}
 mcp = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]

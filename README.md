@@ -61,9 +61,9 @@ Or manually add this to your `claude_desktop_config.json`:
 }
 ```
 
-#### 2. VS Code (Roo Code / Cline)
+#### 2. VS Code (GitHub Copilot)
 
-If you use the **Roo Code** (formerly Cline) extension in VS Code:
+VS Code has native MCP support via GitHub Copilot:
 
 ```bash
 # Install the package
@@ -73,11 +73,11 @@ pip install stats-compass-mcp
 stats-compass-mcp install-vscode
 ```
 
-Or manually add this to your `mcp_settings.json`:
+Or manually add this to your VS Code `mcp.json` (located at `~/Library/Application Support/Code/User/mcp.json` on macOS):
 
 ```json
 {
-  "mcpServers": {
+  "servers": {
     "stats-compass": {
       "command": "uvx",
       "args": ["stats-compass-mcp", "serve"]
@@ -130,13 +130,22 @@ Once connected, the following tools are available to LLMs:
 - `scatter_plot` - Scatter plots
 - `bar_chart` - Bar charts
 - `lineplot` - Line plots
+- `confusion_matrix_plot` - Confusion matrix heatmap
+- `roc_curve_plot` - ROC curves for classification
+- `precision_recall_curve_plot` - Precision-recall curves
+- `feature_importance` - Feature importance bar charts
 
 ### Machine Learning
 - `train_linear_regression` - Linear regression
 - `train_logistic_regression` - Logistic regression
 - `train_random_forest_classifier` - Random forest classification
 - `train_random_forest_regressor` - Random forest regression
-- `evaluate_model` - Model evaluation metrics
+- `train_gradient_boosting_classifier` - Gradient boosting classification
+- `train_gradient_boosting_regressor` - Gradient boosting regression
+- `evaluate_classification_model` - Classification metrics (accuracy, precision, recall, F1)
+- `evaluate_regression_model` - Regression metrics (R², MAE, RMSE)
+
+> **New in v0.1.13**: Training tools now automatically create a predictions DataFrame with predictions and probability columns for easy evaluation and plotting.
 
 ### Time Series (ARIMA)
 - `check_stationarity` - ADF/KPSS tests
@@ -203,7 +212,7 @@ If you want to contribute to `stats-compass-mcp`, it helps to understand how the
     # For Claude Desktop
     poetry run stats-compass-mcp install --dev
     
-    # For VS Code (Roo Code)
+    # For VS Code (GitHub Copilot)
     poetry run stats-compass-mcp install-vscode --dev
     ```
 
