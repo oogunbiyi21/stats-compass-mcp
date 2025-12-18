@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stats-compass-mcp"
-version = "0.1.8"
+version = "0.1.9"
 description = "MCP server exposing stats-compass-core tools to LLMs like ChatGPT, Claude, and Gemini"
 authors = ["Olatunji Ogunbiyi <oogunbiyi21@users.noreply.github.com>"]
 license = "MIT"
@@ -21,9 +21,9 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.11"
-# stats-compass-core = {version = "^0.1.12", extras = ["all"]}
+stats-compass-core = {version = "^0.1.14", extras = ["all"]}
 # For local development, uncomment the line below and comment out the version line above:
-stats-compass-core = {path = "../stats-compass-core", develop = true, extras = ["all"]}
+# stats-compass-core = {path = "../stats-compass-core", develop = true, extras = ["all"]}
 mcp = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
