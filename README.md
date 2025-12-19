@@ -4,15 +4,34 @@
   <h1>stats-compass-mcp</h1>
   
   <p>A stateful, MCP-compatible toolkit of pandas-based data tools for AI-powered data analysis.</p>
+
+  [![PyPI version](https://badge.fury.io/py/stats-compass-mcp.svg)](https://badge.fury.io/py/stats-compass-mcp)
+  [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 </div>
+
+> ⚠️ **Status: Early developer release (v0.1)**  
+> Optimized for Claude Desktop. VS Code Copilot support is beta.  
+> Gemini and GPT tool calling may be inconsistent.
 
 # stats-compass-mcp
 
-MCP server that exposes [stats-compass-core](https://pypi.org/project/stats-compass-core/) tools to LLMs like ChatGPT, Claude, and Gemini.
+Stats Compass MCP turns the [stats-compass-core](https://pypi.org/project/stats-compass-core/) toolkit into an MCP server that AI agents can call in a reproducible, stateful way across workflows.
 
 ## What is this?
 
-This package turns the `stats-compass-core` toolkit into an MCP (Model Context Protocol) server. Once running, any MCP-compatible client (ChatGPT, Claude, Cursor, VS Code, etc.) can use your data analysis tools directly.
+This package turns the `stats-compass-core` toolkit into an MCP (Model Context Protocol) server. Once running, any MCP-compatible client can use your data analysis tools directly.
+
+### Client Compatibility
+
+| Client | Status | Notes |
+|--------|--------|-------|
+| Claude Desktop | ✅ Supported | Recommended. Best tool selection. |
+| VS Code Copilot Chat | ✅ Supported (Beta) | Native MCP integration. May need restart after config changes. |
+| Cursor | ⚠️ Experimental | Pending official MCP release. |
+| GPT / ChatGPT | ⚠️ Partial | Tool calling may be inconsistent with large toolsets. |
+| Gemini | ⚠️ Unstable | May throw errors with complex schemas. |
+| Roo Code | ❌ Unsupported | Incompatible JSON Schema validation. |
 
 ## Installation
 
@@ -226,6 +245,23 @@ If you want to contribute to `stats-compass-mcp`, it helps to understand how the
     ```bash
     npx @modelcontextprotocol/inspector poetry run stats-compass-mcp serve
     ```
+
+## Known Limitations
+
+- **Local files only**: The MCP server runs on your machine. It cannot access files in cloud sandboxes or drag-and-drop uploads. You must provide absolute file paths.
+- **One MCP client at a time**: Running multiple clients connected to the same server may cause state conflicts.
+- **VS Code schema caching**: VS Code caches tool schemas aggressively. After updating the package, restart VS Code or run `stats-compass-mcp install-vscode` again.
+- **Gemini instability**: Gemini clients may fail with 400 errors on complex tool schemas. This is a known Gemini limitation, not a Stats Compass bug.
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| Tools don't appear in VS Code | Restart VS Code. Check `mcp.json` path is correct. |
+| "File not found" errors | Use absolute paths, not relative. Check file exists with `list_files`. |
+| Schema validation errors | Ensure you're on the latest version. Run `pip install --upgrade stats-compass-mcp`. |
+| Gemini 400 errors | Known issue. Use Claude Desktop or VS Code Copilot instead. |
+| Stale tools after update | Run `stats-compass-mcp install-vscode --dev` to refresh config. Restart VS Code. |
 
 ## Related Projects
 
