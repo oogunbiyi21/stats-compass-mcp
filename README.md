@@ -16,6 +16,8 @@
 
 # stats-compass-mcp
 
+<img src="./assets/demos/stats_compass_mcp_1.gif" alt="Demo 1: Loading and exploring data" width="800"/>
+
 Stats Compass MCP turns the [stats-compass-core](https://pypi.org/project/stats-compass-core/) toolkit into an MCP server that AI agents can call in a reproducible, stateful way across workflows.
 
 ## What is this?
@@ -115,6 +117,8 @@ claude mcp add stats-compass -- uvx stats-compass-mcp serve
 
 ## Available Tools
 
+<img src="./assets/demos/stats_compass_mcp_2.gif" alt="Demo 2: Cleaning and transforming data" width="800"/>
+
 Once connected, the following tools are available to LLMs:
 
 ### Data Loading & Management
@@ -171,6 +175,8 @@ Once connected, the following tools are available to LLMs:
 - `fit_arima` - Fit ARIMA models
 - `forecast_arima` - Generate forecasts
 - `find_optimal_arima` - Auto parameter search
+
+<img src="./assets/demos/stats_compass_mcp_3.gif" alt="Demo 3: Visualization and ML" width="800"/>
 
 ## How It Works
 
