@@ -18,7 +18,7 @@
 
 <img src="./assets/demos/stats_compass_mcp_1.gif" alt="Demo 1: Loading and exploring data" width="800"/>
 
-Stats Compass MCP turns the [stats-compass-core](https://pypi.org/project/stats-compass-core/) toolkit into an MCP server that AI agents can call in a reproducible, stateful way across workflows.
+Stats Compass MCP turns the [stats-compass-core](https://github.com/oogunbiyi21/stats-compass-core/) toolkit into an MCP server that AI agents can call in a reproducible, stateful way across workflows.
 
 ## What is this?
 
