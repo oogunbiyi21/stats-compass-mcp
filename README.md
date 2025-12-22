@@ -41,6 +41,8 @@ This package turns the `stats-compass-core` toolkit into an MCP (Model Context P
 pip install stats-compass-mcp
 ```
 
+> **Prerequisite:** The MCP configurations below use `uvx`, which requires [uv](https://docs.astral.sh/uv/getting-started/installation/) to be installed.
+
 ### ⚠️ Important Note on Data Loading
 **Drag-and-drop file uploads are NOT supported.** 
 To load data, you must provide the **absolute file path** to the file on your local machine.
