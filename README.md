@@ -11,7 +11,7 @@
 </div>
 
 > ⚠️ **Status: Early developer release (v0.1)**  
-> Optimized for Claude Desktop. VS Code Copilot support is beta.  
+> Optimized for Claude models  
 > Gemini and GPT tool calling may be inconsistent.
 
 # stats-compass-mcp
@@ -170,7 +170,6 @@ Once connected, the following tools are available to LLMs:
 - `evaluate_classification_model` - Classification metrics (accuracy, precision, recall, F1)
 - `evaluate_regression_model` - Regression metrics (R², MAE, RMSE)
 
-> **New in v0.1.13**: Training tools now automatically create a predictions DataFrame with predictions and probability columns for easy evaluation and plotting.
 
 ### Time Series (ARIMA)
 - `check_stationarity` - ADF/KPSS tests
