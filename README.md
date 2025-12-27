@@ -201,7 +201,7 @@ Once connected, the following tools are available to LLMs:
 │  ┌─────────────────────────────────────────────────────┐    │
 │  │           stats-compass-core (PyPI)                 │    │
 │  │  • DataFrameState (server-side state)               │    │
-│  │  • 40+ deterministic tools                          │    │
+│  │  • 20+ deterministic tools                          │    │
 │  │  • Pydantic schemas for all inputs/outputs          │    │
 │  └─────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
