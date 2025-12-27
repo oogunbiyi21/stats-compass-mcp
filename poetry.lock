@@ -2160,7 +2160,7 @@ full = ["httpx (>=0.27.0,<0.29.0)", "itsdangerous", "jinja2", "python-multipart 
 
 [[package]]
 name = "stats-compass-core"
-version = "0.1.13"
+version = "0.1.14"
 description = "A clean toolkit of deterministic pandas-based data tools"
 optional = false
 python-versions = "^3.11"

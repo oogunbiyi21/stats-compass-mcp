@@ -24,12 +24,64 @@ from pydantic import BaseModel
 from stats_compass_core.state import DataFrameState
 from stats_compass_core.registry import registry
 from stats_compass_core.results import ChartResult, ClassificationCurveResult
+from stats_compass_core.workflows.results import WorkflowResult
+from stats_compass_core.parent.schemas import ExecuteResult
 
 from .tools import get_all_tools
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+def summarize_workflow_result(result_data: dict) -> dict:
+    """
+    Create a compact summary of workflow results for MCP responses.
+    
+    Returns a much smaller JSON payload that still captures the key information
+    without the verbose step-by-step details.
+    """
+    # Build step summaries - just name, status, and key metrics
+    step_summaries = []
+    for step in result_data.get("steps", []):
+        summary = {
+            "step": step.get("step_name"),
+            "status": step.get("status"),
+        }
+        # Include error if failed
+        if step.get("status") == "failed" and step.get("error"):
+            summary["error"] = step["error"]
+        # Include key metrics from result if present
+        if step.get("result") and isinstance(step["result"], dict):
+            # Cherry-pick useful fields
+            result = step["result"]
+            if "accuracy" in result:
+                summary["accuracy"] = result["accuracy"]
+            if "rmse" in result:
+                summary["rmse"] = result["rmse"]
+            if "r2" in result:
+                summary["r2"] = result["r2"]
+            if "is_stationary" in result:
+                summary["is_stationary"] = result["is_stationary"]
+        step_summaries.append(summary)
+    
+    # Build compact summary
+    artifacts = result_data.get("artifacts", {})
+    return {
+        "workflow": result_data.get("workflow_name"),
+        "status": result_data.get("status"),
+        "duration_ms": result_data.get("total_duration_ms"),
+        "input_dataframe": result_data.get("input_dataframe"),
+        "steps": step_summaries,
+        "outputs": {
+            "dataframes_created": artifacts.get("dataframes_created", []),
+            "models_created": artifacts.get("models_created", []),
+            "charts_generated": artifacts.get("charts_generated", 0),
+            "final_dataframe": artifacts.get("final_dataframe"),
+        },
+        "error_summary": result_data.get("error_summary"),
+        "suggestion": result_data.get("suggestion"),
+    }
 
 
 def create_server() -> Server:
@@ -96,26 +148,29 @@ def create_server() -> Server:
             # Call the tool with state injected
             result = tool_info["function"](state, params)
             
-            # Handle ChartResult specifically
+            # Handle ChartResult specifically - image first, then metadata
             if isinstance(result, ChartResult) or isinstance(result, ClassificationCurveResult):
-                # If we have an image, return it as ImageContent
+                contents: list[TextContent | ImageContent | EmbeddedResource] = []
+                
+                # Image first if we have one
                 if result.image_base64:
                     title = result.title if hasattr(result, "title") else result.curve_type
                     logger.info(f"Returning chart image: {title}, size={len(result.image_base64)} bytes")
-                    image_content = ImageContent(
+                    contents.append(ImageContent(
                         type="image",
                         data=result.image_base64,
-                        mimeType="image/png" # ClassificationCurveResult doesn't have image_format but it's always png
-                    )
-                    return [image_content]
+                        mimeType="image/png"
+                    ))
                 
-                # If we have data (JSON format), return it as TextContent
-                # For ClassificationCurveResult, it always has data (x_values, y_values), so we just dump it
-                logger.info(f"Returning chart data")
-                return [TextContent(
+                # Then text metadata (strip the base64 from the JSON)
+                result_data = result.model_dump()
+                if "image_base64" in result_data:
+                    result_data["image_base64"] = "[IMAGE_RETURNED_ABOVE]" if result.image_base64 else None
+                contents.append(TextContent(
                     type="text",
-                    text=json.dumps(result.model_dump(), default=str, indent=2)
-                )]
+                    text=json.dumps(result_data, default=str, indent=2)
+                ))
+                return contents
 
             # Convert result to JSON-serializable format
             if isinstance(result, BaseModel):
@@ -124,6 +179,60 @@ def create_server() -> Server:
                 result_data = result.to_dict()
             else:
                 result_data = result
+            
+            # Handle WorkflowResult: summarize text, return charts as images FIRST
+            if isinstance(result, WorkflowResult):
+                # Extract chart images
+                chart_images = []
+                for chart in result.artifacts.charts:
+                    if chart.base64_image:
+                        chart_images.append(ImageContent(
+                            type="image",
+                            data=chart.base64_image,
+                            mimeType="image/png"
+                        ))
+                
+                # Create compact summary instead of full verbose output
+                summary_data = summarize_workflow_result(result_data)
+                logger.info(f"Workflow result: returning {len(chart_images)} charts + summary")
+                
+                # Return images FIRST, then text summary (so charts appear before JSON)
+                contents: list[TextContent | ImageContent | EmbeddedResource] = []
+                contents.extend(chart_images)
+                contents.append(TextContent(
+                    type="text",
+                    text=json.dumps(summary_data, default=str, indent=2),
+                ))
+                return contents
+            
+            # Handle ExecuteResult from parent tools (execute_cleaning, execute_plots, etc.)
+            # The nested result may contain image_base64 from chart tools
+            if isinstance(result, ExecuteResult) and result.result:
+                nested_result = result.result
+                # Check if nested result has an image
+                if isinstance(nested_result, dict) and nested_result.get("image_base64"):
+                    contents: list[TextContent | ImageContent | EmbeddedResource] = []
+                    
+                    # Image FIRST
+                    contents.append(ImageContent(
+                        type="image",
+                        data=nested_result["image_base64"],
+                        mimeType="image/png"
+                    ))
+                    
+                    # Strip base64 from text response
+                    result_data_stripped = result_data.copy()
+                    if result_data_stripped.get("result"):
+                        result_data_stripped["result"] = {
+                            k: ("[IMAGE_RETURNED_ABOVE]" if k == "image_base64" else v)
+                            for k, v in result_data_stripped["result"].items()
+                        }
+                    
+                    contents.append(TextContent(
+                        type="text",
+                        text=json.dumps(result_data_stripped, default=str, indent=2)
+                    ))
+                    return contents
             
             return [TextContent(
                 type="text",

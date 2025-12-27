@@ -44,7 +44,14 @@ def _normalize_schema(schema: dict[str, Any]) -> dict[str, Any]:
 
 def get_all_tools() -> list[dict[str, Any]]:
     """
-    Get all registered tools from stats-compass-core.
+    Get all MCP-exposed tools from stats-compass-core.
+    
+    Filters tools by tier:
+    - util: Always exposed (load_csv, list_dataframes, etc.)
+    - parent: Category controllers (describe_*, execute_*)
+    - workflow: High-level pipelines (run_eda_report, run_preprocessing)
+    
+    Sub-tier tools are NOT exposed directly - they're accessed via execute_* dispatchers.
     
     Returns:
         List of tool metadata dicts with name, category, description, and schema.
@@ -53,13 +60,25 @@ def get_all_tools() -> list[dict[str, Any]]:
     registry.auto_discover()
     
     tools = []
-    for metadata in registry.list_tools():
+    # Use list_exposed_tools() which filters to util, parent, workflow tiers
+    for metadata in registry.list_exposed_tools():
+        # Build MCP tool name:
+        # - Parent tools (describe_*, execute_*) already have category context, just use original name
+        # - Other tools get category prefix for namespacing
+        if metadata.tier == "parent":
+            # describe_cleaning, execute_plots, etc. - no prefix needed
+            mcp_name = metadata.name
+        else:
+            # data_load_csv, workflows_run_eda_report, etc.
+            mcp_name = f"{metadata.category}_{metadata.name}"
+        
         tool_info: dict[str, Any] = {
-            "name": f"{metadata.category}_{metadata.name}",
+            "name": mcp_name,
             "category": metadata.category,
             "original_name": metadata.name,
             "description": metadata.description,
             "function": metadata.function,
+            "tier": metadata.tier,
         }
         
         # Add JSON schema if available
@@ -76,26 +95,39 @@ def get_all_tools() -> list[dict[str, Any]]:
 
 
 def list_tools() -> None:
-    """Print all available tools to stdout."""
+    """Print all available MCP-exposed tools to stdout."""
     tools = get_all_tools()
     
-    print(f"\n📊 Stats Compass MCP Tools ({len(tools)} available)\n")
+    print(f"\n📊 Stats Compass MCP Tools ({len(tools)} exposed)\n")
     print("=" * 60)
     
-    # Group by category
-    by_category: dict[str, list[dict[str, Any]]] = {}
+    # Group by tier
+    by_tier: dict[str, list[dict[str, Any]]] = {}
     for tool in tools:
-        cat = tool["category"]
-        if cat not in by_category:
-            by_category[cat] = []
-        by_category[cat].append(tool)
+        tier = tool.get("tier", "sub")
+        if tier not in by_tier:
+            by_tier[tier] = []
+        by_tier[tier].append(tool)
     
-    for category, cat_tools in sorted(by_category.items()):
-        print(f"\n🔧 {category.upper()} ({len(cat_tools)} tools)")
+    tier_icons = {"util": "🔧", "parent": "📂", "workflow": "🚀"}
+    tier_labels = {
+        "util": "UTILITY (always available)",
+        "parent": "PARENT (describe/execute dispatchers)",
+        "workflow": "WORKFLOW (high-level pipelines)",
+    }
+    
+    for tier in ["util", "parent", "workflow"]:
+        tier_tools = by_tier.get(tier, [])
+        if not tier_tools:
+            continue
+        icon = tier_icons.get(tier, "•")
+        label = tier_labels.get(tier, tier.upper())
+        print(f"\n{icon} {label} ({len(tier_tools)} tools)")
         print("-" * 40)
-        for tool in cat_tools:
+        for tool in tier_tools:
             desc = tool["description"][:50] + "..." if len(tool["description"]) > 50 else tool["description"]
-            print(f"  • {tool['original_name']}: {desc}")
+            print(f"  • {tool['name']}: {desc}")
     
     print("\n" + "=" * 60)
+    print("Sub-tools (47) are accessed via execute_* dispatchers.")
     print("Run 'stats-compass-mcp serve' to start the MCP server.\n")
