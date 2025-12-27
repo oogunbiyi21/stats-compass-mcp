@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stats-compass-mcp"
-version = "0.1.9"
+version = "0.1.10"
 description = "MCP server exposing stats-compass-core tools to LLMs like ChatGPT, Claude, and Gemini"
 authors = ["Olatunji Ogunbiyi <oogunbiyi21@users.noreply.github.com>"]
 license = "MIT"
