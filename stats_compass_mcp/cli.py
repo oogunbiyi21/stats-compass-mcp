@@ -22,54 +22,65 @@ def main() -> None:
     
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
     
-    # serve command
-    serve_parser = subparsers.add_parser("serve", help="Start the MCP server")
-    serve_parser.add_argument(
-        "--transport",
-        choices=["stdio", "sse"],
-        default="stdio",
-        help="Transport protocol (default: stdio)",
+    # serve command (local stdio server)
+    serve_parser = subparsers.add_parser("serve", help="Start the local MCP server (stdio)")
+    
+    # serve-remote command (FastMCP HTTP server)
+    remote_parser = subparsers.add_parser("serve-remote", help="Start the remote HTTP server")
+    remote_parser.add_argument(
+        "--host",
+        default="0.0.0.0",
+        help="Host to bind to (default: 0.0.0.0)",
     )
-    serve_parser.add_argument(
+    remote_parser.add_argument(
         "--port",
         type=int,
         default=8000,
-        help="Port for SSE transport (default: 8000)",
+        help="Port to bind to (default: 8000)",
     )
     
     # list-tools command
     subparsers.add_parser("list-tools", help="List all available tools")
 
-    # install command
-    install_parser = subparsers.add_parser("install", help="Configure Claude Desktop automatically")
-    install_parser.add_argument(
-        "--dev",
-        action="store_true",
-        help="Configure for local development (uses current executable instead of uvx)",
-    )
-
-    # install-vscode command
-    install_vscode_parser = subparsers.add_parser("install-vscode", help="Configure VS Code (GitHub Copilot) automatically")
-    install_vscode_parser.add_argument(
-        "--dev",
-        action="store_true",
-        help="Configure for local development (uses current executable instead of uvx)",
+    # install command (local server)
+    install_parser = subparsers.add_parser("install", help="Install local server for Claude Desktop/VS Code")
+    
+    # install-remote command (bridge to remote server)
+    install_remote_parser = subparsers.add_parser("install-remote", help="Install remote server bridge for Claude Desktop/VS Code")
+    install_remote_parser.add_argument(
+        "--url",
+        default="http://localhost:8000/mcp/v1/",
+        help="Remote server URL (default: http://localhost:8000/mcp/v1/)",
     )
     
     args = parser.parse_args()
     
     if args.command == "serve":
-        from .server import run_server
-        run_server(transport=args.transport, port=args.port)
+        from stats_compass_mcp.local.server import run_server
+        run_server()
+    elif args.command == "serve-remote":
+        import uvicorn
+        from stats_compass_mcp.remote.server import mcp
+        uvicorn.run(
+            mcp.http_app(),
+            host=args.host,
+            port=args.port,
+            log_level="info"
+        )
     elif args.command == "list-tools":
-        from .tools import list_tools
-        list_tools()
+        from stats_compass_mcp.local.tools import get_all_tools
+        from stats_compass_core.registry import registry
+        registry.auto_discover()
+        tools = get_all_tools()
+        print(f"Found {len(tools)} tools:\n")
+        for tool in tools:
+            print(f"  {tool['name']}: {tool['description'][:60]}...")
     elif args.command == "install":
-        from .install import install_claude_config
-        install_claude_config(dev_mode=args.dev)
-    elif args.command == "install-vscode":
-        from .install import install_vscode_config
-        install_vscode_config(dev_mode=args.dev)
+        from stats_compass_mcp.local.install import main as install_main
+        install_main()
+    elif args.command == "install-remote":
+        from stats_compass_mcp.remote.install import main as install_remote_main
+        install_remote_main(server_url=args.url)
     else:
         parser.print_help()
         sys.exit(1)

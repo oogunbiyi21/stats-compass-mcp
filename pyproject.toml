@@ -21,10 +21,12 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.11"
-stats-compass-core = {version = "^0.1.15", extras = ["all"]}
+stats-compass-core = {version = "^0.1.16", extras = ["all"]}
 # For local development, uncomment the line below and comment out the version line above:
 # stats-compass-core = {path = "../stats-compass-core", develop = true, extras = ["all"]}
 mcp = "^1.0.0"
+fastmcp = "^2.14.2"
+boto3 = "^1.42.25"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"
@@ -34,6 +36,8 @@ mypy = "^1.0.0"
 
 [tool.poetry.scripts]
 stats-compass-mcp = "stats_compass_mcp.cli:main"
+stats-compass-remote = "stats_compass_mcp.remote:main"
+stats-compass-bridge = "stats_compass_mcp.remote.bridge:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

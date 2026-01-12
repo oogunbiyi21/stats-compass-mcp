@@ -1,6 +1,6 @@
 """Tests for tool loading."""
 
-from stats_compass_mcp.tools import get_all_tools
+from stats_compass_mcp.local.tools import get_all_tools
 
 
 def _find_array_nodes_without_items(schema: dict) -> list[str]:
