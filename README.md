@@ -68,7 +68,7 @@ You can configure Claude Desktop automatically:
 pip install stats-compass-mcp
 
 # Run the auto-configuration
-stats-compass-mcp install
+stats-compass-mcp install-local
 ```
 
 Or manually add this to your `claude_desktop_config.json`:
@@ -93,7 +93,7 @@ VS Code has native MCP support via GitHub Copilot:
 pip install stats-compass-mcp
 
 # Run the auto-configuration
-stats-compass-mcp install-vscode
+stats-compass-mcp install-local
 ```
 
 Or manually add this to your VS Code `mcp.json` (located at `~/Library/Application Support/Code/User/mcp.json` on macOS):
@@ -157,8 +157,20 @@ Claude Desktop only supports STDIO, so you need the bridge to convert STDIO ↔ 
 {
   "mcpServers": {
     "stats-compass-remote": {
-      "command": "stats-compass-bridge",
-      "args": ["http://localhost:8000/mcp"]
+      "command": "uvx",
+      "args": ["stats-compass-mcp", "bridge", "http://localhost:8000/mcp"]
+    }
+  }
+}
+```
+
+For a custom remote server URL:
+```json
+{
+  "mcpServers": {
+    "stats-compass-remote": {
+      "command": "uvx",
+      "args": ["stats-compass-mcp", "bridge", "https://your-server.com/mcp"]
     }
   }
 }
@@ -325,11 +337,8 @@ If you want to contribute to `stats-compass-mcp`, it helps to understand how the
     You can automatically configure your MCP clients to use your local development version (instead of the published PyPI version):
     
     ```bash
-    # For Claude Desktop
-    poetry run stats-compass-mcp install --dev
-    
-    # For VS Code (GitHub Copilot)
-    poetry run stats-compass-mcp install-vscode --dev
+    # For Claude Desktop / VS Code
+    poetry run stats-compass-mcp install-local --dev
     ```
 
 3.  **Run the Server**:
@@ -347,7 +356,7 @@ If you want to contribute to `stats-compass-mcp`, it helps to understand how the
 
 - **Local files only**: The MCP server runs on your machine. It cannot access files in cloud sandboxes or drag-and-drop uploads. You must provide absolute file paths.
 - **One MCP client at a time**: Running multiple clients connected to the same server may cause state conflicts.
-- **VS Code schema caching**: VS Code caches tool schemas aggressively. After updating the package, restart VS Code or run `stats-compass-mcp install-vscode` again.
+- **VS Code schema caching**: VS Code caches tool schemas aggressively. After updating the package, restart VS Code or run `stats-compass-mcp install-local` again.
 - **Gemini instability**: Gemini clients may fail with 400 errors on complex tool schemas. This is a known Gemini limitation, not a Stats Compass bug.
 
 ## Troubleshooting
@@ -358,7 +367,7 @@ If you want to contribute to `stats-compass-mcp`, it helps to understand how the
 | "File not found" errors | Use absolute paths, not relative. Check file exists with `list_files`. |
 | Schema validation errors | Ensure you're on the latest version. Run `pip install --upgrade stats-compass-mcp`. |
 | Gemini 400 errors | Known issue. Use Claude Desktop or VS Code Copilot instead. |
-| Stale tools after update | Run `stats-compass-mcp install-vscode --dev` to refresh config. Restart VS Code. |
+| Stale tools after update | Run `stats-compass-mcp install-local` to refresh config. Restart VS Code. |
 
 ## Related Projects
 

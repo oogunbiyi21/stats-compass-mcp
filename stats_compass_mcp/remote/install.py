@@ -42,7 +42,7 @@ def get_project_root() -> Path:
     return Path(__file__).parent.parent.parent
 
 
-def install_claude_desktop(server_url: str) -> None:
+def install_claude_desktop(server_url: str, use_uvx: bool = True) -> None:
     """Install bridge configuration for Claude Desktop."""
     config_path = get_config_path()
     config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -58,32 +58,41 @@ def install_claude_desktop(server_url: str) -> None:
     if "mcpServers" not in config:
         config["mcpServers"] = {}
     
-    # Get Python executable and project root
-    python_path = sys.executable
-    project_root = get_project_root()
-    
-    # Add stats-compass-remote server (via bridge)
-    config["mcpServers"]["stats-compass-remote"] = {
-        "command": python_path,
-        "args": ["-m", "stats_compass_mcp.remote.bridge", server_url],
-        "env": {
-            "PYTHONPATH": str(project_root)
+    if use_uvx:
+        # Portable uvx-based config (recommended)
+        config["mcpServers"]["stats-compass-remote"] = {
+            "command": "uvx",
+            "args": ["stats-compass-mcp", "bridge", server_url]
         }
-    }
+        print(f"✓ Installed stats-compass-remote bridge in Claude Desktop config (uvx)")
+        print(f"  Config: {config_path}")
+        print(f"  Command: uvx stats-compass-mcp bridge {server_url}")
+    else:
+        # Development mode with local Python
+        python_path = sys.executable
+        project_root = get_project_root()
+        
+        config["mcpServers"]["stats-compass-remote"] = {
+            "command": python_path,
+            "args": ["-m", "stats_compass_mcp.remote.bridge", server_url],
+            "env": {
+                "PYTHONPATH": str(project_root)
+            }
+        }
+        print(f"✓ Installed stats-compass-remote bridge in Claude Desktop config (dev)")
+        print(f"  Config: {config_path}")
+        print(f"  Python: {python_path}")
+        print(f"  Project: {project_root}")
     
     # Write updated config
     with open(config_path, "w") as f:
         json.dump(config, f, indent=2)
     
-    print(f"✓ Installed stats-compass-remote bridge in Claude Desktop config")
-    print(f"  Config: {config_path}")
-    print(f"  Python: {python_path}")
     print(f"  Server URL: {server_url}")
-    print(f"  Project: {project_root}")
     print("\nRestart Claude Desktop to activate the server.")
 
 
-def install_vscode(server_url: str) -> None:
+def install_vscode(server_url: str, use_uvx: bool = True) -> None:
     """Install bridge configuration for VS Code."""
     config_path = get_vscode_config_path()
     config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -99,46 +108,56 @@ def install_vscode(server_url: str) -> None:
     if "mcpServers" not in config:
         config["mcpServers"] = {}
     
-    # Get Python executable and project root
-    python_path = sys.executable
-    project_root = get_project_root()
-    
-    # Add stats-compass-remote server (via bridge)
-    config["mcpServers"]["stats-compass-remote"] = {
-        "command": python_path,
-        "args": ["-m", "stats_compass_mcp.remote.bridge", server_url],
-        "env": {
-            "PYTHONPATH": str(project_root)
+    if use_uvx:
+        # Portable uvx-based config (recommended)
+        config["mcpServers"]["stats-compass-remote"] = {
+            "command": "uvx",
+            "args": ["stats-compass-mcp", "bridge", server_url]
         }
-    }
+        print(f"✓ Installed stats-compass-remote bridge in VS Code config (uvx)")
+        print(f"  Config: {config_path}")
+        print(f"  Command: uvx stats-compass-mcp bridge {server_url}")
+    else:
+        # Development mode with local Python
+        python_path = sys.executable
+        project_root = get_project_root()
+        
+        config["mcpServers"]["stats-compass-remote"] = {
+            "command": python_path,
+            "args": ["-m", "stats_compass_mcp.remote.bridge", server_url],
+            "env": {
+                "PYTHONPATH": str(project_root)
+            }
+        }
+        print(f"✓ Installed stats-compass-remote bridge in VS Code config (dev)")
+        print(f"  Config: {config_path}")
+        print(f"  Python: {python_path}")
+        print(f"  Project: {project_root}")
     
     # Write updated config
     with open(config_path, "w") as f:
         json.dump(config, f, indent=2)
     
-    print(f"✓ Installed stats-compass-remote bridge in VS Code config")
-    print(f"  Config: {config_path}")
-    print(f"  Python: {python_path}")
     print(f"  Server URL: {server_url}")
-    print(f"  Project: {project_root}")
     print("\nRestart VS Code to activate the server.")
 
 
-def main(server_url: str | None = None):
+def main(server_url: str | None = None, use_uvx: bool = True):
     """Main installation function."""
     print("Stats Compass Remote MCP Server Installer")
     print("=" * 50)
     print()
     
-    # Check if in virtual environment
-    if not hasattr(sys, 'base_prefix') or sys.base_prefix == sys.prefix:
-        print("⚠️  Warning: Not running in a virtual environment")
-        print("   Consider using a venv or conda environment")
-        print()
+    # Check if in virtual environment (only relevant for dev mode)
+    if not use_uvx:
+        if not hasattr(sys, 'base_prefix') or sys.base_prefix == sys.prefix:
+            print("⚠️  Warning: Not running in a virtual environment")
+            print("   Consider using a venv or conda environment")
+            print()
     
     # Get server URL if not provided
     if not server_url:
-        default_url = "http://localhost:8000/mcp/v1/"
+        default_url = "http://localhost:8000/mcp"
         print(f"Enter remote server URL (default: {default_url})")
         server_url = input("URL: ").strip() or default_url
         print()
@@ -151,6 +170,11 @@ def main(server_url: str | None = None):
     if not server_url.endswith("/"):
         server_url += "/"
     
+    # Show install mode
+    mode_str = "uvx (portable)" if use_uvx else "dev (local Python)"
+    print(f"Install mode: {mode_str}")
+    print()
+    
     # Ask which to install
     print("Install for:")
     print("  1. Claude Desktop")
@@ -162,13 +186,13 @@ def main(server_url: str | None = None):
     print()
     
     if choice == "1":
-        install_claude_desktop(server_url)
+        install_claude_desktop(server_url, use_uvx)
     elif choice == "2":
-        install_vscode(server_url)
+        install_vscode(server_url, use_uvx)
     elif choice == "3":
-        install_claude_desktop(server_url)
+        install_claude_desktop(server_url, use_uvx)
         print()
-        install_vscode(server_url)
+        install_vscode(server_url, use_uvx)
     else:
         print("Invalid choice")
         sys.exit(1)
@@ -177,7 +201,10 @@ def main(server_url: str | None = None):
     print("=" * 50)
     print("Next steps:")
     print("  1. Start the remote server:")
-    print(f"     python -m stats_compass_mcp.remote.server")
+    if use_uvx:
+        print("     uvx stats-compass-mcp serve-remote")
+    else:
+        print("     python -m stats_compass_mcp.remote.server")
     print("  2. Restart Claude Desktop / VS Code")
     print("  3. The bridge will connect to your server")
 
