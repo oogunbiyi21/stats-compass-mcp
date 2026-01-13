@@ -117,6 +117,69 @@ To use Stats Compass with the Claude CLI:
 claude mcp add stats-compass -- uvx stats-compass-mcp serve
 ```
 
+## Remote Server Mode
+
+For multi-client setups or running the server on a different machine, use the **remote server** which exposes an HTTP endpoint instead of STDIO.
+
+### Start the Remote Server
+
+```bash
+# From the package
+stats-compass-remote
+
+# Or with poetry (development)
+poetry run stats-compass-remote
+```
+
+The server runs at `http://localhost:8000` by default.
+
+### Configure Clients for Remote Mode
+
+#### VS Code (Direct HTTP - Recommended)
+
+VS Code can connect directly to HTTP MCP servers. Add to your `mcp.json`:
+
+```json
+{
+  "servers": {
+    "stats-compass-remote": {
+      "url": "http://localhost:8000/mcp"
+    }
+  }
+}
+```
+
+#### Claude Desktop (Requires Bridge)
+
+Claude Desktop only supports STDIO, so you need the bridge to convert STDIO ↔ HTTP. The bridge will automatically start the remote server if it's not already running.
+
+```json
+{
+  "mcpServers": {
+    "stats-compass-remote": {
+      "command": "stats-compass-bridge",
+      "args": ["http://localhost:8000/mcp"]
+    }
+  }
+}
+```
+
+### Remote Server Benefits
+
+- **Session isolation**: Each client gets its own isolated session
+- **Multi-client support**: Multiple clients can connect simultaneously
+- **Deployment flexibility**: Run on a remote machine or container
+- **Workflow tools**: Access to high-level workflow tools (EDA, Classification, Regression, Time Series)
+
+### Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `8000` | Server port |
+| `HOST` | `0.0.0.0` | Server host |
+| `MAX_SESSIONS` | `100` | Maximum concurrent sessions |
+| `MEMORY_LIMIT_MB` | `500` | Memory limit per session (MB) |
+
 ## Available Tools
 
 <img src="./assets/demos/stats_compass_mcp_2.gif" alt="Demo 2: Cleaning and transforming data" width="800"/>
@@ -181,12 +244,14 @@ Once connected, the following tools are available to LLMs:
 
 ## How It Works
 
+### Local Mode (STDIO)
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    MCP Client                               │
 │         (ChatGPT, Claude, Cursor, VS Code)                  │
 └─────────────────────────┬───────────────────────────────────┘
-                          │ MCP Protocol
+                          │ MCP Protocol (STDIO)
                           ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                stats-compass-mcp                            │
@@ -203,6 +268,31 @@ Once connected, the following tools are available to LLMs:
 │  │  • DataFrameState (server-side state)               │    │
 │  │  • 20+ deterministic tools                          │    │
 │  │  • Pydantic schemas for all inputs/outputs          │    │
+│  └─────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Remote Mode (HTTP)
+
+```
+┌─────────────────┐     ┌─────────────────┐
+│  Claude Desktop │     │   VS Code       │
+│  (via bridge)   │     │  (direct HTTP)  │
+└────────┬────────┘     └────────┬────────┘
+         │ STDIO→HTTP            │ HTTP
+         ▼                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│              stats-compass-remote (HTTP:8000)               │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │              Session Manager                        │    │
+│  │  • Isolates state per client session                │    │
+│  │  • Memory limits and session cleanup                │    │
+│  └─────────────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │           Workflow + Parent Tools                   │    │
+│  │  • EDA Report, Classification, Regression           │    │
+│  │  • Time Series Forecasting                          │    │
+│  │  • Data loading, cleaning, transforms               │    │
 │  └─────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
 ```
