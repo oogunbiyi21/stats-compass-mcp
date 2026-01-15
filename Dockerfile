@@ -12,15 +12,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install poetry
 RUN pip install poetry
 
-# Copy dependency files
-COPY pyproject.toml poetry.lock ./
+# Copy dependency files and source
+COPY pyproject.toml poetry.lock README.md ./
+COPY stats_compass_mcp/ ./stats_compass_mcp/
 
 # Install dependencies (no dev, no virtualenv in container)
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev --no-interaction --no-ansi
-
-# Copy application code
-COPY stats_compass_mcp/ ./stats_compass_mcp/
+    && poetry install --only=main --no-interaction --no-ansi
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
@@ -38,9 +36,9 @@ ENV LOCAL_STORAGE_PATH=/tmp/stats-compass-uploads
 # Expose port
 EXPOSE 8000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/mcp -H "Accept: text/event-stream" || exit 1
+# Health check - verify server is listening (any response means it's up)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -s --max-time 5 http://localhost:8000/mcp > /dev/null && exit 0 || exit 1
 
 # Run server
-CMD ["python", "-m", "stats_compass_mcp.fastmcp_server"]
+CMD ["python", "-m", "stats_compass_mcp.remote"]

@@ -29,7 +29,7 @@ services:
       - uploads:/tmp/stats-compass-uploads
 
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/mcp", "-H", "Accept: text/event-stream" ]
+      test: [ "CMD", "curl", "-s", "--max-time", "5", "http://localhost:8000/mcp" ]
       interval: 30s
       timeout: 10s
       retries: 3

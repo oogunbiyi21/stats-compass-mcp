@@ -133,13 +133,13 @@ def create_server() -> Server:
             
             # Handle WorkflowResult: summarize text, return charts as images FIRST
             if isinstance(result, WorkflowResult):
-                # Extract chart images
+                # Extract chart images from workflow steps
                 chart_images = []
-                for chart in result.artifacts.charts:
-                    if chart.base64_image:
+                for step in result.steps:
+                    if step.image_base64:
                         chart_images.append(ImageContent(
                             type="image",
-                            data=chart.base64_image,
+                            data=step.image_base64,
                             mimeType="image/png"
                         ))
                 
