@@ -1,5 +1,5 @@
 """
-Image processing utilities for FastMCP remote server.
+Image processing utilities for FastMCP server.
 
 Converts base64 images from stats-compass-core results to MCP ImageContent.
 """

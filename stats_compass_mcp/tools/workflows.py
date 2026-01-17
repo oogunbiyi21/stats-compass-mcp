@@ -1,5 +1,5 @@
 """
-Workflow FastMCP tools for remote Stats Compass server.
+Workflow tools for Stats Compass MCP server.
 
 These wrap stats-compass-core workflow functions with session isolation.
 """
@@ -25,8 +25,8 @@ from stats_compass_core.workflows.classification import RunClassificationInput
 from stats_compass_core.workflows.regression import RunRegressionInput
 from stats_compass_core.workflows.timeseries import RunTimeseriesForecastInput
 
-from stats_compass_mcp.remote.session import SessionManager, get_session
-from stats_compass_mcp.remote.image_utils import with_images
+from stats_compass_mcp.session import SessionManager, get_session
+from stats_compass_mcp.image_utils import with_images
 
 
 def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
@@ -41,6 +41,13 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         """
         Run comprehensive EDA report: descriptive stats, correlations, 
         missing data analysis, and auto-generated visualizations.
+        
+        Args:
+            dataframe_name: Name of DataFrame to analyze (default: active)
+            config: Optional EDA configuration dict
+        
+        Returns:
+            Workflow result with steps, metrics, and charts.
         """
         session = get_session(ctx, session_manager)
         eda_config = EDAConfig(**config) if config else None
@@ -58,6 +65,14 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         """
         Run data preprocessing pipeline: analyze missing data, apply imputation,
         handle outliers, and remove duplicates.
+        
+        Args:
+            dataframe_name: Name of DataFrame to preprocess (default: active)
+            save_as: Name for the cleaned DataFrame (default: auto-generated)
+            config: Optional preprocessing configuration dict
+        
+        Returns:
+            Workflow result with steps and cleaned DataFrame name.
         """
         session = get_session(ctx, session_manager)
         preproc_config = PreprocessingConfig(**config) if config else None
@@ -78,6 +93,15 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         """
         Run classification workflow: train model, evaluate performance,
         generate confusion matrix, ROC curve, and feature importance plots.
+        
+        Args:
+            target_column: Column with class labels to predict
+            dataframe_name: Name of DataFrame (default: active)
+            feature_columns: Feature columns (default: all numeric except target)
+            config: Optional classification configuration dict
+        
+        Returns:
+            Workflow result with metrics, model ID, and diagnostic charts.
         """
         session = get_session(ctx, session_manager)
         class_config = ClassificationConfig(**config) if config else None
@@ -101,6 +125,15 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         """
         Run regression workflow: train model, evaluate with RMSE/MAE/R²,
         generate feature importance plots.
+        
+        Args:
+            target_column: Column with continuous values to predict
+            dataframe_name: Name of DataFrame (default: active)
+            feature_columns: Feature columns (default: all numeric except target)
+            config: Optional regression configuration dict
+        
+        Returns:
+            Workflow result with metrics, model ID, and charts.
         """
         session = get_session(ctx, session_manager)
         reg_config = RegressionConfig(**config) if config else None
@@ -124,6 +157,15 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         """
         Run time series forecasting: check stationarity, fit ARIMA model,
         generate forecasts and visualization.
+        
+        Args:
+            target_column: Column with values to forecast
+            dataframe_name: Name of DataFrame (default: active)
+            date_column: Column with dates (default: uses index)
+            config: Optional time series configuration dict
+        
+        Returns:
+            Workflow result with forecasts and forecast chart.
         """
         session = get_session(ctx, session_manager)
         ts_config = TimeSeriesConfig(**config) if config else None

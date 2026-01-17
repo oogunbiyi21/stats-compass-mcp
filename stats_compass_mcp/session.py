@@ -1,8 +1,11 @@
 """
-Session management for remote Stats Compass server.
+Session management for Stats Compass MCP server.
 
 Provides isolated DataFrameState per session, enabling multiple
 users to work independently without data leakage.
+
+For local/stdio transport: Only one session exists (the default).
+For remote/HTTP transport: Multiple sessions, one per MCP session ID.
 
 NOTE: This is single-instance only (in-memory sessions).
 For production with multiple workers/containers, sessions would
@@ -120,110 +123,90 @@ class SessionManager:
         if not session_id:
             raise ValueError("session_id is required")
         
-        # Existing session
         if session_id in self._sessions:
             session = self._sessions[session_id]
             session.touch()
             return session
         
-        # Check capacity before creating
+        # Check capacity and evict if needed
         if len(self._sessions) >= self.max_sessions:
-            self._cleanup_oldest()
+            self._evict_oldest()
         
         # Create new session
-        session = Session(
-            session_id=session_id,
-            memory_limit_mb=self.memory_limit_mb
-        )
-        self._sessions[session.session_id] = session
-        logger.info(f"Created session: {session.session_id}")
+        session = Session(session_id, self.memory_limit_mb)
+        self._sessions[session_id] = session
+        logger.info(f"Created new session: {session_id}")
+        return session
+    
+    def get(self, session_id: str) -> Session | None:
+        """Get session by ID (returns None if not found)."""
+        session = self._sessions.get(session_id)
+        if session:
+            session.touch()
         return session
     
     def delete(self, session_id: str) -> bool:
-        """
-        Delete a session explicitly.
-        
-        Returns True if deleted, False if not found.
-        """
+        """Delete a session. Returns True if deleted."""
         if session_id in self._sessions:
             del self._sessions[session_id]
             logger.info(f"Deleted session: {session_id}")
             return True
         return False
     
-    def _cleanup_oldest(self) -> None:
-        """
-        Remove oldest sessions to make room for new ones.
-        
-        Called when at max_sessions capacity.
-        Removes the oldest 10% (minimum 1) by last_active time.
-        """
+    def _evict_oldest(self) -> None:
+        """Evict the oldest session by last_active timestamp."""
         if not self._sessions:
             return
         
-        # Sort by last_active, oldest first
-        sorted_sessions = sorted(
-            self._sessions.items(),
-            key=lambda x: x[1].last_active
+        oldest_id = min(
+            self._sessions.keys(),
+            key=lambda k: self._sessions[k].last_active
         )
-        
-        # Remove oldest 10% (min 1)
-        to_remove = max(1, len(sorted_sessions) // 10)
-        
-        for sid, _ in sorted_sessions[:to_remove]:
-            del self._sessions[sid]
-            logger.info(f"Evicted session (capacity): {sid}")
-        
-        logger.info(f"Evicted {to_remove} sessions for capacity")
+        del self._sessions[oldest_id]
+        logger.info(f"Evicted oldest session: {oldest_id}")
     
     def get_stats(self) -> dict:
-        """
-        Get manager statistics for monitoring/admin.
-        
-        Returns summary of all active sessions.
-        """
+        """Get statistics for monitoring."""
         return {
             "active_sessions": len(self._sessions),
             "max_sessions": self.max_sessions,
-            "memory_limit_mb_per_session": self.memory_limit_mb,
+            "memory_limit_per_session_mb": self.memory_limit_mb,
             "sessions": [
-                session.get_info() 
-                for session in self._sessions.values()
+                {
+                    "session_id": s.session_id[:8] + "...",  # Truncate for privacy
+                    "created_at": s.created_at.isoformat(),
+                    "last_active": s.last_active.isoformat(),
+                    "dataframe_count": len(s.state.list_dataframes()),
+                    "model_count": len(s.state._models),
+                }
+                for s in self._sessions.values()
             ]
         }
-    
-    def __len__(self) -> int:
-        """Return number of active sessions."""
-        return len(self._sessions)
-    
-    def __contains__(self, session_id: str) -> bool:
-        """Check if session exists."""
-        return session_id in self._sessions
 
 
 def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
     """
-    Get or create a session from the FastMCP context.
+    Get or create session from FastMCP context.
     
-    This uses FastMCP's MCP session ID (from Streamable HTTP transport)
-    to automatically associate each client with their isolated session.
+    Uses the MCP session ID from the context.
     
     Args:
-        ctx: FastMCP Context (injected into tool functions)
-        session_manager: The SessionManager instance
+        ctx: FastMCP Context object
+        session_manager: SessionManager instance
     
     Returns:
-        Session for this client
-    
-    Raises:
-        ValueError: If no session ID available in context
+        Session instance
     """
-    session_id = ctx.session_id
+    # FastMCP provides session_id in context
+    session_id = getattr(ctx, "session_id", None) or getattr(ctx, "_session_id", None)
     
     if not session_id:
-        raise ValueError(
-            "No MCP session ID available. This server requires "
-            "Streamable HTTP transport with session management."
-        )
+        # Try to get from request ID as fallback
+        request_id = getattr(ctx, "request_id", None)
+        if request_id:
+            session_id = f"session-{request_id}"
+        else:
+            # Default session for local/stdio
+            session_id = "default"
     
     return session_manager.get_or_create(session_id)

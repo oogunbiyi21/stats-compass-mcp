@@ -1,5 +1,5 @@
 """
-Parent FastMCP tools for remote Stats Compass server.
+Parent tools for Stats Compass MCP server.
 
 These wrap the describe_* and execute_* pattern from stats-compass-core.
 """
@@ -17,8 +17,9 @@ from stats_compass_core.parent.tools import (
     DescribeCategoryInput,
 )
 from stats_compass_core.parent.schemas import ExecuteCategoryInput
-from stats_compass_mcp.remote.session import SessionManager, get_session
-from stats_compass_mcp.remote.image_utils import with_images
+
+from stats_compass_mcp.session import SessionManager, get_session
+from stats_compass_mcp.image_utils import with_images
 
 
 def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):

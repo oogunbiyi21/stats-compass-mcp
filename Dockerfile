@@ -40,5 +40,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -s --max-time 5 http://localhost:8000/mcp > /dev/null && exit 0 || exit 1
 
-# Run server
-CMD ["python", "-m", "stats_compass_mcp.remote"]
+# Run server using new unified CLI
+CMD ["stats-compass-mcp", "serve"]

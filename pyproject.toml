@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "stats-compass-mcp"
-version = "0.1.13"
+version = "0.2.0"
 description = "MCP server exposing stats-compass-core tools to LLMs like ChatGPT, Claude, and Gemini"
 authors = ["Olatunji Ogunbiyi <oogunbiyi21@users.noreply.github.com>"]
 license = "MIT"
@@ -36,8 +36,6 @@ mypy = "^1.0.0"
 
 [tool.poetry.scripts]
 stats-compass-mcp = "stats_compass_mcp.cli:main"
-stats-compass-remote = "stats_compass_mcp.remote:main"
-stats-compass-bridge = "stats_compass_mcp.remote.bridge:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
