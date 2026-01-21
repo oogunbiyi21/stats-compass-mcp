@@ -120,14 +120,34 @@ def run_stdio() -> None:
 def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:
     """Run server with HTTP transport (for remote deployments)."""
     import uvicorn
+    from starlette.applications import Starlette
+    from starlette.routing import Mount
+    
+    from stats_compass_mcp.upload import create_upload_routes
     
     logger.info(f"Starting Stats Compass MCP (HTTP transport) at {host}:{port}")
     logger.info(f"Config: memory_limit={MEMORY_LIMIT_MB}MB, max_sessions={MAX_SESSIONS}")
     
     mcp = create_mcp_server(with_storage=True)
     
+    # Create combined app with MCP + upload routes
+    mcp_app = mcp.http_app()
+    upload_routes = create_upload_routes()
+    
+    # Combine routes: upload routes first, then mount MCP app
+    # IMPORTANT: Pass mcp_app.lifespan to initialize the task group
+    app = Starlette(
+        routes=[
+            *upload_routes,
+            Mount("/", mcp_app),  # MCP handles /mcp and /sse
+        ],
+        lifespan=mcp_app.lifespan,  # Required for FastMCP's async task group
+    )
+    
+    logger.info("Upload endpoints: GET /upload, POST /api/upload")
+    
     uvicorn.run(
-        mcp.http_app(),
+        app,
         host=host,
         port=port,
     )

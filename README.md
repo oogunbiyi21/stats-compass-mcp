@@ -43,10 +43,12 @@ pip install stats-compass-mcp
 > **Prerequisite:** The MCP configurations below use `uvx`, which requires [uv](https://docs.astral.sh/uv/getting-started/installation/) to be installed.
 
 ### ⚠️ Important Note on Data Loading
-**Drag-and-drop file uploads are NOT supported.** 
-To load data, you must provide the **absolute file path** to the file on your local machine.
+
+**Local Mode:** You must provide the **absolute file path** to files on your local machine.
 - ✅ "Load the file at `/Users/me/data.csv`"
-- ❌ Dragging `data.csv` into the chat window
+- ❌ Dragging files into the chat window (not supported)
+
+**Remote/HTTP Mode:** Use the built-in file upload feature (see [File Uploads](#file-uploads-remote-mode)).
 
 ## Quick Start
 
@@ -179,6 +181,48 @@ Claude Desktop only supports stdio. Use [mcp-proxy](https://github.com/sparfenyu
 - **Session isolation**: Each client gets its own isolated session
 - **Multi-client support**: Multiple clients can connect simultaneously
 - **Deployment flexibility**: Run on a remote machine or container
+- **File uploads**: Browser-based file upload for remote users
+
+## File Uploads (Remote Mode)
+
+When running in HTTP mode, users can upload files via a web interface:
+
+### How It Works
+
+1. **Request an upload URL** - Tell the AI you want to upload a file
+2. **Open the URL in your browser** - A simple upload page appears
+3. **Select and upload your file** - Supports CSV and Excel files (max 50MB)
+4. **Tell the AI to load it** - The AI calls `register_uploaded_file()` to load your data
+
+### Example Conversation
+
+```
+You: I want to upload a CSV file
+AI: Open this link to upload: http://localhost:8000/upload?session_id=abc123
+
+[You upload the file in your browser]
+
+You: I uploaded titanic.csv
+AI: [Loads the file] ✅ Loaded titanic.csv with 891 rows and 12 columns
+```
+
+### Configuration
+
+Set the server URL for the upload page (required for non-localhost deployments):
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `STATS_COMPASS_SERVER_URL` | `http://localhost:8000` | Base URL shown in upload links |
+| `STATS_COMPASS_MAX_UPLOAD_MB` | `50` | Maximum upload file size in MB |
+
+Example for cloud deployment:
+
+```bash
+# Render, Railway, etc.
+docker run -p 8000:8000 \
+  -e STATS_COMPASS_SERVER_URL=https://your-app.onrender.com \
+  stats-compass-mcp
+```
 
 ### Environment Variables
 
@@ -188,6 +232,8 @@ Claude Desktop only supports stdio. Use [mcp-proxy](https://github.com/sparfenyu
 | `STATS_COMPASS_HOST` | `0.0.0.0` | Server host |
 | `STATS_COMPASS_MAX_SESSIONS` | `100` | Maximum concurrent sessions |
 | `STATS_COMPASS_MEMORY_LIMIT_MB` | `500` | Memory limit per session (MB) |
+| `STATS_COMPASS_SERVER_URL` | `http://localhost:8000` | Base URL for upload links |
+| `STATS_COMPASS_MAX_UPLOAD_MB` | `50` | Maximum upload file size (MB) |
 
 ## Available Tools
 
@@ -196,9 +242,11 @@ Claude Desktop only supports stdio. Use [mcp-proxy](https://github.com/sparfenyu
 Once connected, 30+ tools are available:
 
 ### Data Loading & Management
-- `load_csv` - Load CSV files
-- `load_excel` - Load Excel files
-- `load_dataset` - Load built-in sample datasets
+- `load_csv` - Load CSV files (local mode)
+- `load_excel` - Load Excel files (local mode)
+- `load_dataset` - Load built-in sample datasets (Housing, TATASTEEL, etc.)
+- `get_upload_url` - Get a URL to upload files (remote mode)
+- `register_uploaded_file` - Load an uploaded file (remote mode)
 - `list_dataframes` - List all DataFrames in session
 - `get_schema` - Get column types and info
 - `get_sample` - Preview rows from a DataFrame

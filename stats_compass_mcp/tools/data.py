@@ -376,7 +376,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
                 return {"error": f"Failed to load file: {str(e)}"}
             
             # Register in session
-            session.state.register(df, name=dataframe_name, set_active=True)
+            session.state.set_dataframe(df, name=dataframe_name, operation="upload")
             
             return {
                 "success": True,

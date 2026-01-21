@@ -110,14 +110,19 @@ class LocalStorageBackend(StorageBackend):
     
     Files stored in: {base_path}/{session_id}/{filename}
     
-    NOTE: get_upload_url returns a local file path that the
-    server must handle - not a true presigned URL.
-    For local dev, use register_file tool to copy/move files.
+    For HTTP deployments, get_upload_url returns a browser-accessible
+    URL to the upload page where users can upload files.
     """
     
-    def __init__(self, base_path: str = "/tmp/stats-compass-uploads"):
+    def __init__(
+        self, 
+        base_path: str = "/tmp/stats-compass-uploads",
+        server_url: str = None
+    ):
         self.base_path = Path(base_path)
         self.base_path.mkdir(parents=True, exist_ok=True)
+        # Server URL for upload page (e.g., "http://localhost:8000")
+        self.server_url = server_url or os.getenv("STATS_COMPASS_SERVER_URL", "http://localhost:8000")
         logger.info(f"LocalStorageBackend initialized: {self.base_path}")
     
     def _session_path(self, session_id: str) -> Path:
@@ -132,24 +137,27 @@ class LocalStorageBackend(StorageBackend):
         expires_in: int = 3600
     ) -> dict:
         """
-        For local storage, return file path as 'url'.
+        Return upload page URL for browser-based file upload.
         
-        Client should use register_file tool to register
-        existing local files instead of uploading.
+        Users visit this URL in their browser, select a file,
+        and the file is uploaded to the server.
         """
         session_path = self._session_path(session_id)
         session_path.mkdir(parents=True, exist_ok=True)
         
-        file_path = session_path / filename
-        file_key = filename
+        # Build browser-accessible upload URL
+        upload_url = f"{self.server_url}/upload?session_id={session_id}"
         
         return {
-            "url": str(file_path),
-            "method": "LOCAL",  # Indicates local storage
-            "headers": {},
-            "file_key": file_key,
+            "upload_url": upload_url,
+            "file_key": filename,  # Suggested filename, actual may differ
+            "session_id": session_id,
             "storage_type": "local",
-            "note": "Use register_file tool to register local files"
+            "instructions": (
+                f"1. Open {upload_url} in your browser\n"
+                "2. Select and upload your file\n"
+                "3. Tell me once uploaded, and I'll load it with register_uploaded_file()"
+            )
         }
     
     def get_file_path(self, session_id: str, file_key: str) -> str:
