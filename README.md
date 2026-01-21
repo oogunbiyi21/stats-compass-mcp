@@ -187,6 +187,8 @@ Claude Desktop only supports stdio. Use [mcp-proxy](https://github.com/sparfenyu
 
 When running in HTTP mode, users can upload files via a web interface:
 
+<img src="./assets/demos/upload_screenshot.png" alt="File Upload Interface" width="500"/>
+
 ### How It Works
 
 1. **Request an upload URL** - Tell the AI you want to upload a file

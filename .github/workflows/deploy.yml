@@ -1,0 +1,30 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Droplet
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DROPLET_IP }}
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/stats-compass-mcp
+            git pull origin main
+            docker build -t stats-compass-mcp .
+            docker stop stats-compass || true
+            docker rm stats-compass || true
+            docker run -d \
+              --name stats-compass \
+              --restart unless-stopped \
+              -p 80:8000 \
+              -e STATS_COMPASS_SERVER_URL=http://${{ secrets.DROPLET_IP }} \
+              stats-compass-mcp
+            docker image prune -f
