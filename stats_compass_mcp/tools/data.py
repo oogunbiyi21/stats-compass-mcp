@@ -237,18 +237,34 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         
         Args:
             dataframe_name: Name of the DataFrame to save
-            filepath: Path where the CSV file will be saved
+            filepath: Path where the CSV file will be saved (filename only for remote mode)
             index: Whether to write row index (default: False)
         
         Returns:
-            Save result with filepath.
+            Save result with filepath and download_url (if remote).
         """
         session = get_session(ctx, session_manager)
         
+        # Extract just the filename for export path
+        from pathlib import Path as PathLib
+        filename = PathLib(filepath).name
+        if not filename.endswith('.csv'):
+            filename = f"{filename}.csv"
+        
+        # Use session exports directory
+        export_path = session.export_path("data", filename)
+        
         from stats_compass_core.data.save_csv import save_csv as core_save_csv, SaveCSVInput
-        params = SaveCSVInput(dataframe_name=dataframe_name, filepath=filepath, index=index)
-        result = core_save_csv(state=session.state, params=params)
-        return result.model_dump()
+        input_data = SaveCSVInput(dataframe_name=dataframe_name, filepath=str(export_path), index=index)
+        result = core_save_csv(state=session.state, input_data=input_data)
+        
+        # Add download URL if available
+        result_dict = result if isinstance(result, dict) else result.model_dump()
+        download_url = session.download_url("data", filename)
+        if download_url:
+            result_dict["download_url"] = download_url
+        
+        return result_dict
     
     @mcp.tool()
     def save_model(
@@ -261,17 +277,33 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         
         Args:
             model_id: ID of the model to save
-            filepath: Path where the model will be saved (e.g., model.joblib)
+            filepath: Path where the model will be saved (filename only for remote mode)
         
         Returns:
-            Save result with filepath.
+            Save result with filepath and download_url (if remote).
         """
         session = get_session(ctx, session_manager)
         
+        # Extract just the filename for export path
+        from pathlib import Path as PathLib
+        filename = PathLib(filepath).name
+        if not filename.endswith('.joblib'):
+            filename = f"{filename}.joblib"
+        
+        # Use session exports directory
+        export_path = session.export_path("models", filename)
+        
         from stats_compass_core.ml.save_model import save_model as core_save_model, SaveModelInput
-        params = SaveModelInput(model_id=model_id, filepath=filepath)
-        result = core_save_model(state=session.state, params=params)
-        return result.model_dump()
+        input_data = SaveModelInput(model_id=model_id, filepath=str(export_path))
+        result = core_save_model(state=session.state, input_data=input_data)
+        
+        # Add download URL if available
+        result_dict = result if isinstance(result, dict) else result
+        download_url = session.download_url("models", filename)
+        if download_url:
+            result_dict["download_url"] = download_url
+        
+        return result_dict
     
     @mcp.tool()
     def delete_session(ctx: Context) -> dict:

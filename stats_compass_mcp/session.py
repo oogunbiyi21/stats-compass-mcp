@@ -18,6 +18,16 @@ import logging
 
 from stats_compass_core import DataFrameState
 
+from stats_compass_mcp.exports import (
+    get_exports_dir,
+    ensure_exports_dir,
+    get_export_path,
+    get_download_url,
+    cleanup_session_exports,
+    list_session_exports,
+    ExportCategory,
+)
+
 if TYPE_CHECKING:
     from fastmcp import Context
 
@@ -74,7 +84,38 @@ class Session:
             "dataframe_count": len(dataframes),
             "model_count": len(self.state._models),
             "models": list(self.state._models.keys()),
+            "exports": list_session_exports(self.session_id),
         }
+    
+    def export_path(self, category: ExportCategory, filename: str) -> str:
+        """
+        Get the full path for an export file.
+        
+        Args:
+            category: Category (models, data, plots, timeseries)
+            filename: The filename
+        
+        Returns:
+            Full path as string
+        """
+        return str(get_export_path(self.session_id, category, filename))
+    
+    def download_url(self, category: ExportCategory, filename: str) -> str:
+        """
+        Get download URL for an exported file.
+        
+        Args:
+            category: Category (models, data, plots, timeseries)
+            filename: The filename
+        
+        Returns:
+            Download URL, or empty string if not in remote mode
+        """
+        return get_download_url(self.session_id, category, filename)
+    
+    def cleanup_exports(self) -> None:
+        """Clean up all exported files for this session."""
+        cleanup_session_exports(self.session_id)
 
 
 class SessionManager:
@@ -146,8 +187,10 @@ class SessionManager:
         return session
     
     def delete(self, session_id: str) -> bool:
-        """Delete a session. Returns True if deleted."""
+        """Delete a session and cleanup its exports. Returns True if deleted."""
         if session_id in self._sessions:
+            # Cleanup exports first
+            self._sessions[session_id].cleanup_exports()
             del self._sessions[session_id]
             logger.info(f"Deleted session: {session_id}")
             return True
@@ -162,6 +205,8 @@ class SessionManager:
             self._sessions.keys(),
             key=lambda k: self._sessions[k].last_active
         )
+        # Cleanup exports before evicting
+        self._sessions[oldest_id].cleanup_exports()
         del self._sessions[oldest_id]
         logger.info(f"Evicted oldest session: {oldest_id}")
     

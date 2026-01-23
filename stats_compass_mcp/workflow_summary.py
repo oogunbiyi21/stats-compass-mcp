@@ -34,11 +34,16 @@ def summarize_workflow_result(result_data: dict) -> dict:
                 summary["r2"] = result["r2"]
             if "is_stationary" in result:
                 summary["is_stationary"] = result["is_stationary"]
+        # Include download URL if present (added by save_workflow_exports)
+        if step.get("download_url"):
+            summary["download_url"] = step["download_url"]
+        if step.get("filename"):
+            summary["filename"] = step["filename"]
         step_summaries.append(summary)
     
     # Build compact summary
     artifacts = result_data.get("artifacts", {})
-    return {
+    summary = {
         "workflow": result_data.get("workflow_name"),
         "status": result_data.get("status"),
         "duration_ms": result_data.get("total_duration_ms"),
@@ -53,3 +58,9 @@ def summarize_workflow_result(result_data: dict) -> dict:
         "error_summary": result_data.get("error_summary"),
         "suggestion": result_data.get("suggestion"),
     }
+    
+    # Preserve downloads array (added by save_workflow_exports)
+    if result_data.get("downloads"):
+        summary["downloads"] = result_data["downloads"]
+    
+    return summary

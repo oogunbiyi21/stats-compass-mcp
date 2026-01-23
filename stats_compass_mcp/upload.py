@@ -1,21 +1,25 @@
 """
-File upload handling for Stats Compass MCP server.
+File upload and download handling for Stats Compass MCP server.
 
 Provides:
 - HTML upload page
 - File upload endpoint
 - Session-isolated file storage
+- File download endpoint for exports
 """
 
 import os
 import logging
+import mimetypes
 from pathlib import Path
 from typing import Optional
 
 from starlette.applications import Starlette
-from starlette.responses import HTMLResponse, JSONResponse
+from starlette.responses import HTMLResponse, JSONResponse, FileResponse
 from starlette.routing import Route
 from starlette.requests import Request
+
+from stats_compass_mcp.exports import get_exports_dir, ExportCategory
 
 logger = logging.getLogger(__name__)
 
@@ -350,9 +354,71 @@ async def upload_file(request: Request) -> JSONResponse:
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+async def download_file(request: Request) -> FileResponse | JSONResponse:
+    """
+    Handle file download.
+    
+    URL: /download/{session_id}/{category}/{filename}
+    Categories: models, data, plots, timeseries
+    """
+    session_id = request.path_params.get("session_id")
+    category = request.path_params.get("category")
+    filename = request.path_params.get("filename")
+    
+    # Validate category
+    valid_categories = ["models", "data", "plots", "timeseries"]
+    if category not in valid_categories:
+        return JSONResponse(
+            {"error": f"Invalid category. Must be one of: {', '.join(valid_categories)}"},
+            status_code=400
+        )
+    
+    # Build file path
+    exports_dir = get_exports_dir(session_id, category)  # type: ignore
+    file_path = exports_dir / filename
+    
+    # Security: Ensure we're not escaping the exports directory
+    try:
+        file_path = file_path.resolve()
+        exports_base = get_exports_dir(session_id).resolve()
+        if not str(file_path).startswith(str(exports_base)):
+            return JSONResponse({"error": "Invalid path"}, status_code=400)
+    except Exception:
+        return JSONResponse({"error": "Invalid path"}, status_code=400)
+    
+    # Check if file exists
+    if not file_path.exists() or not file_path.is_file():
+        return JSONResponse(
+            {"error": f"File not found: {filename}"},
+            status_code=404
+        )
+    
+    # Determine content type
+    content_type, _ = mimetypes.guess_type(str(file_path))
+    if content_type is None:
+        # Default content types by category
+        if category == "models":
+            content_type = "application/octet-stream"
+        elif category == "data":
+            content_type = "text/csv"
+        elif category == "plots":
+            content_type = "image/png"
+        else:
+            content_type = "application/octet-stream"
+    
+    logger.info(f"Download: {session_id}/{category}/{filename}")
+    
+    return FileResponse(
+        path=str(file_path),
+        filename=filename,
+        media_type=content_type,
+    )
+
+
 def create_upload_routes() -> list[Route]:
-    """Create routes for file upload functionality."""
+    """Create routes for file upload and download functionality."""
     return [
         Route("/upload", upload_page, methods=["GET"]),
         Route("/api/upload", upload_file, methods=["POST"]),
+        Route("/download/{session_id}/{category}/{filename:path}", download_file, methods=["GET"]),
     ]
