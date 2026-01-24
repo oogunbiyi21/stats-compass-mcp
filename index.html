@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stats Compass MCP - Data Analysis Tools for AI Agents</title>
+    <meta name="description"
+        content="Connect your AI assistant to 50+ data analysis tools via Model Context Protocol. Load, transform, visualize, and export data through Claude, ChatGPT, and VS Code." />
+    <link rel="shortcut icon" href="./assets/logo/logo1.png" type="image/x-icon" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="Stats Compass MCP - Data Analysis Tools for AI Agents" />
+    <meta property="og:description"
+        content="Connect your AI assistant to 50+ data analysis tools via Model Context Protocol. Works with Claude, ChatGPT, and VS Code." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://statscompass.io" />
+    <meta property="og:image" content="./assets/demos/upload_screenshot.png" />
+
+    <link rel="stylesheet" href="./css/tailwind-build.css" />
+    <link rel="stylesheet" href="./css/index.css" />
+
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
+        integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body class="tw-flex tw-min-h-[100vh] tw-flex-col tw-bg-[#ffffff]">
+    <header
+        class="tw-absolute tw-top-0 tw-z-20 tw-flex tw-h-[60px] tw-w-full tw-bg-white tw-px-[10%] tw-text-black max-lg:tw-mr-auto max-lg:tw-px-4 lg:tw-justify-around">
+        <a class="tw-h-[50px] tw-w-[50px] tw-p-[4px]" href="">
+            <img src="./assets/logo/logo1.png" alt="Stats Compass logo" class="tw-object tw-h-full tw-w-full" />
+        </a>
+        <div class="collapsible-header animated-collapse max-lg:tw-shadow-md" id="collapsed-header-items">
+            <div
+                class="tw-flex tw-h-full tw-w-max tw-gap-5 tw-text-base tw-text-black max-lg:tw-mt-[30px] max-lg:tw-flex-col max-lg:tw-place-items-end max-lg:tw-gap-5 lg:tw-mx-auto lg:tw-place-items-center">
+                <a class="header-links" href="#about"> About </a>
+                <a class="header-links" href="#features"> Features </a>
+                <a class="header-links" href="#installation"> Install </a>
+                <a class="header-links" href="https://github.com/oogunbiyi21/stats-compass-mcp" rel="noreferrer"
+                    target="_blank">
+                    GitHub
+                </a>
+            </div>
+            <div
+                class="tw-flex tw-place-items-center tw-gap-[20px] tw-text-lg max-md:tw-w-full max-md:tw-flex-col max-md:tw-place-content-center">
+                <a href="#installation" aria-label="Get Started"
+                    class="tw-rounded-sm tw-border-2 tw-border-[#1c1c1c] tw-p-1 tw-px-2 tw-transition-colors tw-duration-[0.3s] hover:tw-bg-black hover:tw-text-white">
+                    Get Started
+                </a>
+            </div>
+        </div>
+        <button class="bi bi-list tw-absolute tw-right-3 tw-top-3 tw-z-50 tw-text-3xl tw-text-black lg:tw-hidden"
+            onclick="toggleHeader()" aria-label="menu" id="collapse-btn"></button>
+    </header>
+
+    <section
+        class="tw-relative tw-flex tw-min-h-[100vh] tw-w-full tw-max-w-[100vw] tw-flex-col tw-overflow-hidden max-lg:tw-p-4 max-md:tw-mt-[50px]">
+        <div
+            class="tw-flex tw-h-full tw-min-h-[100vh] tw-w-full tw-place-content-center tw-gap-6 tw-p-[5%] max-xl:tw-flex-col max-xl:tw-place-items-center">
+            <div
+                class="tw-flex tw-min-w-[450px] tw-max-w-[800px] tw-flex-col tw-place-content-center max-xl:tw-min-w-[250px]">
+                <div
+                    class="tw-flex tw-flex-wrap tw-text-6xl tw-font-semibold tw-uppercase tw-leading-[80px] max-lg:tw-text-4xl max-md:tw-leading-snug">
+                    50+ Data Tools
+                    <br />
+                    For Your
+                    <br />
+                    AI Assistant.
+                </div>
+                <div class="reveal tw-mt-10 tw-p-2 tw-text-justify max-lg:tw-max-w-full">
+                    Stats Compass MCP connects Claude, ChatGPT, and VS Code to powerful data analysis tools
+                    via the Model Context Protocol. Load CSVs, create visualizations, transform data,
+                    and export results - all through natural conversation.
+                </div>
+
+                <h2 class="reveal tw-mt-6 tw-text-lg">Works with</h2>
+                <div class="reveal tw-mt-2 tw-flex tw-gap-4 tw-text-gray-600">
+                    <span class="tw-flex tw-items-center tw-gap-1">
+                        <i class="bi bi-check-circle-fill tw-text-green-600"></i> Claude Desktop
+                    </span>
+                    <span class="tw-flex tw-items-center tw-gap-1">
+                        <i class="bi bi-check-circle-fill tw-text-green-600"></i> VS Code
+                    </span>
+                    <span class="tw-flex tw-items-center tw-gap-1">
+                        <i class="bi bi-check-circle-fill tw-text-green-600"></i> ChatGPT
+                    </span>
+                </div>
+
+                <div class="reveal tw-mt-6 tw-flex tw-w-full tw-max-w-[350px]">
+                    <a class="btn tw-h-[50px] tw-w-full tw-transition-colors tw-duration-[0.3s] tw-justify-center"
+                        href="#installation">
+                        Get Started
+                    </a>
+                </div>
+
+                <div class="reveal tw-mt-6 tw-flex tw-gap-4 tw-text-2xl">
+                    <a href="https://github.com/oogunbiyi21/stats-compass-mcp" aria-label="GitHub" target="_blank">
+                        <i class="bi bi-github"></i>
+                    </a>
+                    <a href="https://pypi.org/project/stats-compass-mcp/" aria-label="PyPI" target="_blank">
+                        <i class="bi bi-box-seam"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div
+                class="tw-flex tw-w-full tw-max-w-[900px] tw-place-content-center tw-place-items-center max-md:tw-max-w-full">
+                <div class="tw-relative tw-flex tw-w-full tw-place-content-center tw-place-items-center">
+                    <div
+                        class="tw-flex tw-w-full tw-aspect-[16/10] tw-overflow-hidden tw-rounded-2xl tw-shadow-2xl tw-border tw-border-gray-200">
+                        <img src="./assets/demos/stats_compass_mcp_1.gif" alt="Stats Compass MCP demo with Claude"
+                            class="tw-h-full tw-w-full tw-object-contain tw-bg-white" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section
+        class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6">
+        <h2 class="tw-text-3xl tw-text-[#5d5d5d] max-lg:tw-text-2xl">
+            Data analysis through natural conversation
+        </h2>
+
+        <div
+            class="tw-mt-8 tw-flex tw-w-full tw-place-content-center tw-gap-10 max-md:tw-flex-col max-md:tw-place-items-center">
+            <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-2">
+                <i class="bi bi-upload tw-text-4xl tw-text-blue-600"></i>
+                <h3 class="tw-text-lg tw-font-semibold">Load Data</h3>
+                <p class="tw-text-center tw-text-sm tw-text-gray-600">CSV, Excel, JSON, Parquet</p>
+            </div>
+            <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-2">
+                <i class="bi bi-bar-chart tw-text-4xl tw-text-green-600"></i>
+                <h3 class="tw-text-lg tw-font-semibold">Visualize</h3>
+                <p class="tw-text-center tw-text-sm tw-text-gray-600">Charts, histograms, heatmaps</p>
+            </div>
+            <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-2">
+                <i class="bi bi-arrows-angle-expand tw-text-4xl tw-text-purple-600"></i>
+                <h3 class="tw-text-lg tw-font-semibold">Transform</h3>
+                <p class="tw-text-center tw-text-sm tw-text-gray-600">Filter, merge, pivot, aggregate</p>
+            </div>
+            <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-2">
+                <i class="bi bi-download tw-text-4xl tw-text-orange-600"></i>
+                <h3 class="tw-text-lg tw-font-semibold">Export</h3>
+                <p class="tw-text-center tw-text-sm tw-text-gray-600">CSV, Excel, charts as images</p>
+            </div>
+        </div>
+    </section>
+
+    <section
+        class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6"
+        id="about">
+        <div class="tw-flex tw-max-w-[750px] tw-flex-col tw-gap-5 tw-text-center">
+            <h2 class="tw-mt-5 tw-text-4xl tw-font-semibold max-lg:tw-text-3xl">
+                What is MCP?
+            </h2>
+
+            <div class="tw-text-gray-700">
+                The Model Context Protocol (MCP) is an open standard that lets AI assistants
+                connect to external tools and data sources. Stats Compass MCP exposes 50+ data
+                analysis tools that Claude, ChatGPT, and other AI assistants can use directly -
+                no coding required from you.
+            </div>
+        </div>
+    </section>
+
+    <section
+        class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6"
+        id="features">
+        <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-5">
+            <h2 class="tw-mt-5 tw-text-4xl tw-font-semibold">
+                50+ Tools at Your AI's Fingertips
+            </h2>
+
+            <div class="tw-flex tw-gap-6 max-lg:tw-flex-col">
+                <div class="tw-flex tw-h-[400px] tw-w-[350px] tw-flex-col tw-gap-2 tw-rounded-xl tw-p-4 tw-shadow-xl">
+                    <div
+                        class="tw-h-[200px] tw-w-full tw-overflow-clip tw-rounded-xl tw-bg-blue-100 tw-flex tw-place-items-center tw-place-content-center">
+                        <i class="bi bi-table tw-text-6xl tw-text-blue-600"></i>
+                    </div>
+                    <h3 class="tw-text-2xl">Data Loading</h3>
+                    <div>
+                        Load CSV, Excel, JSON, and Parquet files. Get instant summaries,
+                        column info, and data type detection. Works with local files or URLs.
+                    </div>
+                </div>
+                <div class="tw-flex tw-h-[400px] tw-w-[350px] tw-flex-col tw-gap-2 tw-rounded-xl tw-p-4 tw-shadow-xl">
+                    <div
+                        class="tw-h-[200px] tw-w-full tw-overflow-clip tw-rounded-xl tw-bg-green-100 tw-flex tw-place-items-center tw-place-content-center">
+                        <i class="bi bi-graph-up tw-text-6xl tw-text-green-600"></i>
+                    </div>
+                    <h3 class="tw-text-2xl">Visualization</h3>
+                    <div>
+                        Create line charts, bar charts, scatter plots, histograms, box plots,
+                        heatmaps, and more. Export as PNG or SVG.
+                    </div>
+                </div>
+                <div class="tw-flex tw-h-[400px] tw-w-[350px] tw-flex-col tw-gap-2 tw-rounded-xl tw-p-4 tw-shadow-xl">
+                    <div
+                        class="tw-h-[200px] tw-w-full tw-overflow-clip tw-rounded-xl tw-bg-purple-100 tw-flex tw-place-items-center tw-place-content-center">
+                        <i class="bi bi-funnel tw-text-6xl tw-text-purple-600"></i>
+                    </div>
+                    <h3 class="tw-text-2xl">Data Transformation</h3>
+                    <div>
+                        Filter rows, select columns, merge datasets, pivot tables, group and
+                        aggregate, handle missing values, and more.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section
+        class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6 tw-bg-gray-50"
+        id="demos">
+        <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-5 tw-max-w-[1200px]">
+            <h2 class="tw-mt-5 tw-text-4xl tw-font-semibold">
+                See It In Action
+            </h2>
+
+            <div class="tw-flex tw-gap-6 tw-mt-6 max-lg:tw-flex-col">
+                <div class="tw-flex tw-flex-col tw-gap-3 tw-place-items-center">
+                    <div class="tw-rounded-xl tw-overflow-hidden tw-shadow-xl tw-border tw-border-gray-200">
+                        <img src="./assets/demos/stats_compass_mcp_2.gif" alt="Data visualization demo"
+                            class="tw-max-w-[500px] max-md:tw-max-w-full" />
+                    </div>
+                    <p class="tw-text-gray-600">Creating visualizations with Claude</p>
+                </div>
+                <div class="tw-flex tw-flex-col tw-gap-3 tw-place-items-center">
+                    <div class="tw-rounded-xl tw-overflow-hidden tw-shadow-xl tw-border tw-border-gray-200">
+                        <img src="./assets/demos/stats_compass_mcp_3.gif" alt="VS Code integration demo"
+                            class="tw-max-w-[500px] max-md:tw-max-w-full" />
+                    </div>
+                    <p class="tw-text-gray-600">Data analysis in VS Code</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section
+        class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6"
+        id="installation">
+        <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-5 tw-max-w-[800px]">
+            <h2 class="tw-mt-5 tw-text-4xl tw-font-semibold">
+                Get Started in 2 Minutes
+            </h2>
+
+            <div class="tw-w-full tw-mt-4">
+                <h3 class="tw-text-2xl tw-mb-3">Option 1: Claude Desktop</h3>
+                <p class="tw-text-gray-600 tw-mb-3">Add to your <code
+                        class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">claude_desktop_config.json</code>:</p>
+                <pre class="tw-bg-gray-900 tw-text-gray-100 tw-p-4 tw-rounded-xl tw-overflow-x-auto tw-text-sm"><code>{
+  "mcpServers": {
+    "stats-compass": {
+      "command": "uvx",
+      "args": ["stats-compass-mcp"]
+    }
+  }
+}</code></pre>
+            </div>
+
+            <div class="tw-w-full tw-mt-6">
+                <h3 class="tw-text-2xl tw-mb-3">Option 2: VS Code</h3>
+                <p class="tw-text-gray-600 tw-mb-3">Add to your VS Code <code
+                        class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">settings.json</code>:</p>
+                <pre class="tw-bg-gray-900 tw-text-gray-100 tw-p-4 tw-rounded-xl tw-overflow-x-auto tw-text-sm"><code>{
+  "mcp": {
+    "servers": {
+      "stats-compass": {
+        "command": "uvx",
+        "args": ["stats-compass-mcp"]
+      }
+    }
+  }
+}</code></pre>
+            </div>
+
+            <div class="tw-w-full tw-mt-6">
+                <h3 class="tw-text-2xl tw-mb-3">Option 3: Remote Server (ChatGPT, etc.)</h3>
+                <p class="tw-text-gray-600 tw-mb-3">Connect to our hosted server:</p>
+                <pre
+                    class="tw-bg-gray-900 tw-text-gray-100 tw-p-4 tw-rounded-xl tw-overflow-x-auto tw-text-sm"><code>https://mcp.statscompass.io/mcp</code></pre>
+            </div>
+
+            <a href="https://github.com/oogunbiyi21/stats-compass-mcp#readme"
+                class="btn tw-mt-6 tw-duration-[0.3s] hover:tw-scale-105" target="_blank">
+                Full Documentation →
+            </a>
+        </div>
+    </section>
+
+    <footer
+        class="tw-mt-auto tw-flex tw-w-full tw-place-content-around tw-gap-3 tw-p-[5%] tw-px-[10%] tw-text-black max-md:tw-flex-col">
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-6 max-md:tw-w-full">
+            <img src="./assets/logo/logo1.png" alt="Stats Compass logo" class="tw-max-w-[120px]" />
+            <div>
+                Stats Compass MCP
+                <br />
+                Open Source Data Analysis
+                <br />
+                For AI Assistants
+            </div>
+            <div class="tw-flex tw-gap-4 tw-text-2xl tw-mt-3">
+                <a href="https://github.com/oogunbiyi21/stats-compass-mcp" aria-label="GitHub" target="_blank">
+                    <i class="bi bi-github"></i>
+                </a>
+                <a href="https://pypi.org/project/stats-compass-mcp/" aria-label="PyPI" target="_blank">
+                    <i class="bi bi-box-seam"></i>
+                </a>
+            </div>
+        </div>
+
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
+            <h2 class="tw-text-3xl max-md:tw-text-xl">Resources</h2>
+            <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
+                <a href="#about" class="footer-link">About</a>
+                <a href="https://github.com/oogunbiyi21/stats-compass-mcp#readme" class="footer-link"
+                    target="_blank">Documentation</a>
+                <a href="https://github.com/oogunbiyi21/stats-compass-mcp" class="footer-link"
+                    target="_blank">GitHub</a>
+                <a href="https://pypi.org/project/stats-compass-mcp/" class="footer-link" target="_blank">PyPI</a>
+                <a href="https://github.com/oogunbiyi21/stats-compass-mcp/issues" class="footer-link"
+                    target="_blank">Issues</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+<script src="./index.js"></script>
+
+</html>
