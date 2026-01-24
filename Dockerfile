@@ -16,8 +16,12 @@ RUN pip install poetry
 COPY pyproject.toml poetry.lock README.md ./
 COPY stats_compass_mcp/ ./stats_compass_mcp/
 
+# Swap path dependency to PyPI version for production build
+RUN sed -i 's|stats-compass-core = {path.*|stats-compass-core = ">=0.1.22"|' pyproject.toml
+
 # Install dependencies (no dev, no virtualenv in container)
-RUN poetry config virtualenvs.create false \
+RUN poetry lock \
+    && poetry config virtualenvs.create false \
     && poetry install --only=main --no-interaction --no-ansi
 
 # Create non-root user

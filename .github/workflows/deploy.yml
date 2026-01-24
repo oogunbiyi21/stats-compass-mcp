@@ -18,13 +18,5 @@ jobs:
           script: |
             cd /root/stats-compass-mcp
             git pull origin main
-            docker build -t stats-compass-mcp .
-            docker stop stats-compass || true
-            docker rm stats-compass || true
-            docker run -d \
-              --name stats-compass \
-              --restart unless-stopped \
-              -p 80:8000 \
-              -e STATS_COMPASS_SERVER_URL=http://${{ secrets.DROPLET_IP }} \
-              stats-compass-mcp
+            docker compose up -d --build --force-recreate stats-compass
             docker image prune -f
