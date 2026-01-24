@@ -1,0 +1,3 @@
+mcp.statscompass.io {
+    reverse_proxy stats-compass:8000
+}
