@@ -20,8 +20,10 @@ COPY stats_compass_mcp/ ./stats_compass_mcp/
 RUN poetry config virtualenvs.create false \
     && poetry install --only=main --no-interaction --no-ansi
 
-# Create non-root user
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+# Create non-root user and upload directory
+RUN useradd -m -u 1000 appuser \
+    && mkdir -p /tmp/stats-compass-uploads \
+    && chown -R appuser:appuser /app /tmp/stats-compass-uploads
 USER appuser
 
 # Environment variables with defaults
