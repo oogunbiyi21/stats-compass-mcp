@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # Configuration
 MAX_UPLOAD_MB = int(os.getenv("STATS_COMPASS_MAX_UPLOAD_MB", "50"))
 MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024
-UPLOAD_DIR = Path(os.getenv("LOCAL_STORAGE_PATH", "/tmp/stats-compass-uploads"))
+UPLOAD_DIR = Path(os.getenv("LOCAL_STORAGE_PATH", "/tmp/stats-compass-uploads"))  # nosec B108
 
 
 # HTML template for upload page

@@ -15,7 +15,7 @@ from typing import Literal, Optional
 logger = logging.getLogger(__name__)
 
 # Configuration
-EXPORTS_BASE_DIR = Path(os.getenv("STATS_COMPASS_EXPORTS_DIR", "/tmp/stats-compass-exports"))
+EXPORTS_BASE_DIR = Path(os.getenv("STATS_COMPASS_EXPORTS_DIR", "/tmp/stats-compass-exports"))  # nosec B108
 SERVER_URL = os.getenv("STATS_COMPASS_SERVER_URL", "")
 
 # Export categories

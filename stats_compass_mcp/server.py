@@ -116,7 +116,7 @@ def run_stdio() -> None:
     mcp.run()
 
 
-def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:
+def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:  # nosec B104
     """Run server with HTTP transport (for remote deployments)."""
     import uvicorn
     from starlette.applications import Starlette

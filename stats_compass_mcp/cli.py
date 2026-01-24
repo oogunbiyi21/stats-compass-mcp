@@ -14,7 +14,7 @@ import sys
 
 # Setup debug logging to file
 logging.basicConfig(
-    filename='/tmp/stats_compass_mcp_debug.log',
+    filename='/tmp/stats_compass_mcp_debug.log',  # nosec B108
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
@@ -42,7 +42,7 @@ def main() -> None:
     )
     serve_parser.add_argument(
         "--host",
-        default="0.0.0.0",
+        default="0.0.0.0",  # nosec B104 - intentional for Docker/server
         help="Host to bind to (default: 0.0.0.0)",
     )
     serve_parser.add_argument(

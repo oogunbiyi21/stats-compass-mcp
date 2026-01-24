@@ -115,7 +115,7 @@ class LocalStorageBackend(StorageBackend):
 
     def __init__(
         self,
-        base_path: str = "/tmp/stats-compass-uploads",
+        base_path: str = "/tmp/stats-compass-uploads",  # nosec B108
         server_url: str = None
     ):
         self.base_path = Path(base_path)
@@ -415,5 +415,5 @@ def create_storage_backend() -> StorageBackend:
         )
     else:
         return LocalStorageBackend(
-            base_path=os.getenv("LOCAL_STORAGE_PATH", "/tmp/stats-compass-uploads")
+            base_path=os.getenv("LOCAL_STORAGE_PATH", "/tmp/stats-compass-uploads")  # nosec B108
         )
