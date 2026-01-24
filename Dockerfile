@@ -16,13 +16,9 @@ RUN pip install poetry
 COPY pyproject.toml poetry.lock README.md ./
 COPY stats_compass_mcp/ ./stats_compass_mcp/
 
-# Swap path dependency to PyPI version for production build
-RUN sed -i 's|stats-compass-core = {path.*|stats-compass-core = ">=0.1.22"|' pyproject.toml
-
-# Install dependencies and package
-RUN poetry lock \
-    && poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi
+# Install dependencies (no dev, no virtualenv in container)
+RUN poetry config virtualenvs.create false \
+    && poetry install --only=main --no-interaction --no-ansi
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
@@ -44,5 +40,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -s --max-time 5 http://localhost:8000/mcp > /dev/null && exit 0 || exit 1
 
-# Run server using module directly
-CMD ["python", "-m", "stats_compass_mcp.cli", "serve"]
+# Run server using new unified CLI
+CMD ["stats-compass-mcp", "serve"]
