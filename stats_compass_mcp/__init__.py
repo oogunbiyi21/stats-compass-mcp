@@ -14,7 +14,7 @@ Usage:
 
 __version__ = "0.2.0"
 
-from stats_compass_mcp.server import create_mcp_server, run_stdio, run_http
+from stats_compass_mcp.server import create_mcp_server, run_http, run_stdio
 from stats_compass_mcp.session import Session, SessionManager, get_session
 
 __all__ = [

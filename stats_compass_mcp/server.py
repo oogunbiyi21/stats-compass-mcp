@@ -20,7 +20,6 @@ from fastmcp import FastMCP
 from stats_compass_mcp.session import SessionManager
 from stats_compass_mcp.tools import register_all_tools
 
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -65,13 +64,13 @@ def create_mcp_server(
             "Do not rely on code generation for analysis - use the provided stats compass tools."
         )
     )
-    
+
     # Create session manager (single instance)
     session_manager = SessionManager(
         memory_limit_mb=MEMORY_LIMIT_MB,
         max_sessions=MAX_SESSIONS
     )
-    
+
     # Optional storage backend for remote deployments
     storage = None
     if with_storage:
@@ -81,12 +80,12 @@ def create_mcp_server(
             logger.info("Storage backend enabled for file uploads")
         except ImportError:
             logger.warning("Storage backend not available - file uploads disabled")
-    
+
     # Register all tools (single source of truth)
     register_all_tools(mcp, session_manager, storage=storage)
-    
+
     logger.info(f"Server '{name}' configured with {MAX_SESSIONS} max sessions")
-    
+
     return mcp
 
 
@@ -122,18 +121,18 @@ def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:
     import uvicorn
     from starlette.applications import Starlette
     from starlette.routing import Mount
-    
+
     from stats_compass_mcp.upload import create_upload_routes
-    
+
     logger.info(f"Starting Stats Compass MCP (HTTP transport) at {host}:{port}")
     logger.info(f"Config: memory_limit={MEMORY_LIMIT_MB}MB, max_sessions={MAX_SESSIONS}")
-    
+
     mcp = create_mcp_server(with_storage=True)
-    
+
     # Create combined app with MCP + upload routes
     mcp_app = mcp.http_app()
     upload_routes = create_upload_routes()
-    
+
     # Combine routes: upload routes first, then mount MCP app
     # IMPORTANT: Pass mcp_app.lifespan to initialize the task group
     app = Starlette(
@@ -143,9 +142,9 @@ def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:
         ],
         lifespan=mcp_app.lifespan,  # Required for FastMCP's async task group
     )
-    
+
     logger.info("Upload endpoints: GET /upload, POST /api/upload")
-    
+
     uvicorn.run(
         app,
         host=host,

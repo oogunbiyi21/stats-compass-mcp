@@ -7,8 +7,8 @@ Provides:
 - File path management for models, data, and plots
 """
 
-import os
 import logging
+import os
 from pathlib import Path
 from typing import Literal, Optional
 
@@ -86,7 +86,7 @@ def get_download_url(session_id: str, category: ExportCategory, filename: str) -
     if not SERVER_URL:
         # Local mode - no download URL available
         return ""
-    
+
     # Build URL: {SERVER_URL}/download/{session_id}/{category}/{filename}
     return f"{SERVER_URL}/download/{session_id}/{category}/{filename}"
 
@@ -101,7 +101,7 @@ def cleanup_session_exports(session_id: str) -> None:
         session_id: The session ID
     """
     import shutil
-    
+
     exports_dir = get_exports_dir(session_id)
     if exports_dir.exists():
         try:
@@ -119,18 +119,18 @@ def list_session_exports(session_id: str) -> dict[str, list[str]]:
         Dictionary mapping category to list of filenames
     """
     result: dict[str, list[str]] = {}
-    
+
     base_dir = get_exports_dir(session_id)
     if not base_dir.exists():
         return result
-    
+
     for category in ["models", "data", "plots", "timeseries"]:
         category_dir = base_dir / category
         if category_dir.exists():
             files = [f.name for f in category_dir.iterdir() if f.is_file()]
             if files:
                 result[category] = files
-    
+
     return result
 
 
@@ -152,21 +152,21 @@ def save_plot_export(
     """
     import base64
     from datetime import datetime
-    
+
     # Generate unique filename
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"{name_prefix}_{timestamp}.png"
-    
+
     # Get export path and save
     export_path = get_export_path(session_id, "plots", filename)
-    
+
     try:
         image_data = base64.b64decode(image_base64)
         with open(export_path, "wb") as f:
             f.write(image_data)
-        
+
         download_url = get_download_url(session_id, "plots", filename)
-        
+
         return {
             "filename": filename,
             "filepath": str(export_path),

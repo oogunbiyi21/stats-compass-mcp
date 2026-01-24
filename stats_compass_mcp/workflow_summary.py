@@ -40,7 +40,7 @@ def summarize_workflow_result(result_data: dict) -> dict:
         if step.get("filename"):
             summary["filename"] = step["filename"]
         step_summaries.append(summary)
-    
+
     # Build compact summary
     artifacts = result_data.get("artifacts", {})
     summary = {
@@ -58,9 +58,9 @@ def summarize_workflow_result(result_data: dict) -> dict:
         "error_summary": result_data.get("error_summary"),
         "suggestion": result_data.get("suggestion"),
     }
-    
+
     # Preserve downloads array (added by save_workflow_exports)
     if result_data.get("downloads"):
         summary["downloads"] = result_data["downloads"]
-    
+
     return summary

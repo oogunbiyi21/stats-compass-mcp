@@ -12,20 +12,18 @@ For production with multiple workers/containers, sessions would
 need Redis or external storage for session metadata + state pointers.
 """
 
+import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Dict
-import logging
 
 from stats_compass_core import DataFrameState
 
 from stats_compass_mcp.exports import (
-    get_exports_dir,
-    ensure_exports_dir,
-    get_export_path,
-    get_download_url,
-    cleanup_session_exports,
-    list_session_exports,
     ExportCategory,
+    cleanup_session_exports,
+    get_download_url,
+    get_export_path,
+    list_session_exports,
 )
 
 if TYPE_CHECKING:
@@ -44,7 +42,7 @@ class Session:
     - Timestamps for expiry management
     - Optional metadata
     """
-    
+
     def __init__(self, session_id: str, memory_limit_mb: float = 500.0):
         """
         Initialize a session.
@@ -60,15 +58,15 @@ class Session:
         self.created_at = datetime.now()
         self.last_active = datetime.now()
         self.metadata: dict = {}
-    
+
     def touch(self) -> None:
         """Update last active timestamp."""
         self.last_active = datetime.now()
-    
+
     def get_info(self) -> dict:
         """Get session info for API responses."""
         dataframes = self.state.list_dataframes()
-        
+
         return {
             "session_id": self.session_id,
             "created_at": self.created_at.isoformat(),
@@ -86,7 +84,7 @@ class Session:
             "models": list(self.state._models.keys()),
             "exports": list_session_exports(self.session_id),
         }
-    
+
     def export_path(self, category: ExportCategory, filename: str) -> str:
         """
         Get the full path for an export file.
@@ -99,7 +97,7 @@ class Session:
             Full path as string
         """
         return str(get_export_path(self.session_id, category, filename))
-    
+
     def download_url(self, category: ExportCategory, filename: str) -> str:
         """
         Get download URL for an exported file.
@@ -112,7 +110,7 @@ class Session:
             Download URL, or empty string if not in remote mode
         """
         return get_download_url(self.session_id, category, filename)
-    
+
     def cleanup_exports(self) -> None:
         """Clean up all exported files for this session."""
         cleanup_session_exports(self.session_id)
@@ -133,21 +131,21 @@ class SessionManager:
     There is no TTL-based expiry - for that, add a background scheduler
     or use Redis with built-in TTL.
     """
-    
+
     def __init__(
-        self, 
-        memory_limit_mb: float = 500.0, 
+        self,
+        memory_limit_mb: float = 500.0,
         max_sessions: int = 100
     ):
         self._sessions: Dict[str, Session] = {}
         self.memory_limit_mb = memory_limit_mb
         self.max_sessions = max_sessions
-        
+
         logger.info(
             f"SessionManager initialized: memory_limit={memory_limit_mb}MB, "
             f"max_sessions={max_sessions}"
         )
-    
+
     def get_or_create(self, session_id: str) -> Session:
         """
         Get existing session or create new one.
@@ -163,29 +161,29 @@ class SessionManager:
         """
         if not session_id:
             raise ValueError("session_id is required")
-        
+
         if session_id in self._sessions:
             session = self._sessions[session_id]
             session.touch()
             return session
-        
+
         # Check capacity and evict if needed
         if len(self._sessions) >= self.max_sessions:
             self._evict_oldest()
-        
+
         # Create new session
         session = Session(session_id, self.memory_limit_mb)
         self._sessions[session_id] = session
         logger.info(f"Created new session: {session_id}")
         return session
-    
+
     def get(self, session_id: str) -> Session | None:
         """Get session by ID (returns None if not found)."""
         session = self._sessions.get(session_id)
         if session:
             session.touch()
         return session
-    
+
     def delete(self, session_id: str) -> bool:
         """Delete a session and cleanup its exports. Returns True if deleted."""
         if session_id in self._sessions:
@@ -195,12 +193,12 @@ class SessionManager:
             logger.info(f"Deleted session: {session_id}")
             return True
         return False
-    
+
     def _evict_oldest(self) -> None:
         """Evict the oldest session by last_active timestamp."""
         if not self._sessions:
             return
-        
+
         oldest_id = min(
             self._sessions.keys(),
             key=lambda k: self._sessions[k].last_active
@@ -209,7 +207,7 @@ class SessionManager:
         self._sessions[oldest_id].cleanup_exports()
         del self._sessions[oldest_id]
         logger.info(f"Evicted oldest session: {oldest_id}")
-    
+
     def get_stats(self) -> dict:
         """Get statistics for monitoring."""
         return {
@@ -244,7 +242,7 @@ def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
     """
     # FastMCP provides session_id in context
     session_id = getattr(ctx, "session_id", None) or getattr(ctx, "_session_id", None)
-    
+
     if not session_id:
         # Try to get from request ID as fallback
         request_id = getattr(ctx, "request_id", None)
@@ -253,5 +251,5 @@ def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
         else:
             # Default session for local/stdio
             session_id = "default"
-    
+
     return session_manager.get_or_create(session_id)

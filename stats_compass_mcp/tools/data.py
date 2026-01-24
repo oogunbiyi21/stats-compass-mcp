@@ -7,8 +7,7 @@ Handles data loading, listing, and management.
 from typing import Optional
 
 import pandas as pd
-from fastmcp import FastMCP, Context
-
+from fastmcp import Context, FastMCP
 from stats_compass_core import data as core_data
 from stats_compass_core.data.load_dataset import LoadDatasetInput
 
@@ -17,7 +16,7 @@ from stats_compass_mcp.session import SessionManager, get_session
 
 def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=None):
     """Register all data management tools with the FastMCP server."""
-    
+
     @mcp.tool()
     def ping() -> dict:
         """Health check - verify server is running."""
@@ -26,7 +25,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             "server": "stats-compass",
             "message": "Server is running. Sessions are created automatically."
         }
-    
+
     @mcp.tool()
     def session_info(ctx: Context) -> dict:
         """
@@ -37,7 +36,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         """
         session = get_session(ctx, session_manager)
         return session.get_info()
-    
+
     @mcp.tool()
     def list_dataframes(ctx: Context) -> dict:
         """
@@ -47,11 +46,11 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             List of DataFrames with name, shape, columns, and active status.
         """
         session = get_session(ctx, session_manager)
-        
+
         dataframes = session.state.list_dataframes()
         active = session.state.get_active()
         active_name = active.name if active is not None else None
-        
+
         return {
             "dataframes": [
                 {
@@ -65,7 +64,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             "active_dataframe": active_name,
             "count": len(dataframes)
         }
-    
+
     @mcp.tool()
     def load_dataset(
         ctx: Context,
@@ -85,11 +84,11 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             DataFrame info with name, shape, columns.
         """
         session = get_session(ctx, session_manager)
-        
+
         params = LoadDatasetInput(name=name, set_active=set_active)
         result = core_data.load_dataset(state=session.state, params=params)
         return result.model_dump()
-    
+
     @mcp.tool()
     def load_csv(
         ctx: Context,
@@ -113,8 +112,9 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             DataFrame info with name, shape, columns, dtypes.
         """
         session = get_session(ctx, session_manager)
-        
-        from stats_compass_core.data.load_csv import load_csv as core_load_csv, LoadCSVInput
+
+        from stats_compass_core.data.load_csv import LoadCSVInput
+        from stats_compass_core.data.load_csv import load_csv as core_load_csv
         params = LoadCSVInput(
             path=path,
             name=name,
@@ -124,7 +124,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         )
         result = core_load_csv(state=session.state, params=params)
         return result.model_dump()
-    
+
     @mcp.tool()
     def load_excel(
         ctx: Context,
@@ -146,8 +146,9 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             DataFrame info with name, shape, columns, dtypes.
         """
         session = get_session(ctx, session_manager)
-        
-        from stats_compass_core.data.load_excel import load_excel as core_load_excel, LoadExcelInput
+
+        from stats_compass_core.data.load_excel import LoadExcelInput
+        from stats_compass_core.data.load_excel import load_excel as core_load_excel
         params = LoadExcelInput(
             path=path,
             name=name,
@@ -156,7 +157,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         )
         result = core_load_excel(state=session.state, params=params)
         return result.model_dump()
-    
+
     @mcp.tool()
     def list_files(
         ctx: Context,
@@ -172,11 +173,12 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             List of files in the directory.
         """
         session = get_session(ctx, session_manager)
-        from stats_compass_core.data.list_files import list_files as core_list_files, ListFilesInput
+        from stats_compass_core.data.list_files import ListFilesInput
+        from stats_compass_core.data.list_files import list_files as core_list_files
         params = ListFilesInput(directory=directory)
         result = core_list_files(state=session.state, params=params)
         return result.model_dump()
-    
+
     @mcp.tool()
     def get_sample(
         ctx: Context,
@@ -196,12 +198,13 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             Sample rows as records.
         """
         session = get_session(ctx, session_manager)
-        
-        from stats_compass_core.data.get_sample import get_sample as core_get_sample, GetSampleInput
+
+        from stats_compass_core.data.get_sample import GetSampleInput
+        from stats_compass_core.data.get_sample import get_sample as core_get_sample
         params = GetSampleInput(dataframe_name=dataframe_name, n=n, method=method)
         result = core_get_sample(state=session.state, params=params)
         return result.model_dump()
-    
+
     @mcp.tool()
     def get_schema(
         ctx: Context,
@@ -219,12 +222,13 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             Schema with columns, dtypes, nulls, and sample values.
         """
         session = get_session(ctx, session_manager)
-        
-        from stats_compass_core.data.get_schema import get_schema as core_get_schema, GetSchemaInput
+
+        from stats_compass_core.data.get_schema import GetSchemaInput
+        from stats_compass_core.data.get_schema import get_schema as core_get_schema
         params = GetSchemaInput(dataframe_name=dataframe_name, sample_values=sample_values)
         result = core_get_schema(state=session.state, params=params)
         return result.model_dump()
-    
+
     @mcp.tool()
     def save_csv(
         ctx: Context,
@@ -244,28 +248,29 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             Save result with filepath and download_url (if remote).
         """
         session = get_session(ctx, session_manager)
-        
+
         # Extract just the filename for export path
         from pathlib import Path as PathLib
         filename = PathLib(filepath).name
         if not filename.endswith('.csv'):
             filename = f"{filename}.csv"
-        
+
         # Use session exports directory
         export_path = session.export_path("data", filename)
-        
-        from stats_compass_core.data.save_csv import save_csv as core_save_csv, SaveCSVInput
+
+        from stats_compass_core.data.save_csv import SaveCSVInput
+        from stats_compass_core.data.save_csv import save_csv as core_save_csv
         input_data = SaveCSVInput(dataframe_name=dataframe_name, filepath=str(export_path), index=index)
         result = core_save_csv(state=session.state, input_data=input_data)
-        
+
         # Add download URL if available
         result_dict = result if isinstance(result, dict) else result.model_dump()
         download_url = session.download_url("data", filename)
         if download_url:
             result_dict["download_url"] = download_url
-        
+
         return result_dict
-    
+
     @mcp.tool()
     def save_model(
         ctx: Context,
@@ -283,28 +288,29 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             Save result with filepath and download_url (if remote).
         """
         session = get_session(ctx, session_manager)
-        
+
         # Extract just the filename for export path
         from pathlib import Path as PathLib
         filename = PathLib(filepath).name
         if not filename.endswith('.joblib'):
             filename = f"{filename}.joblib"
-        
+
         # Use session exports directory
         export_path = session.export_path("models", filename)
-        
-        from stats_compass_core.ml.save_model import save_model as core_save_model, SaveModelInput
+
+        from stats_compass_core.ml.save_model import SaveModelInput
+        from stats_compass_core.ml.save_model import save_model as core_save_model
         input_data = SaveModelInput(model_id=model_id, filepath=str(export_path))
         result = core_save_model(state=session.state, input_data=input_data)
-        
+
         # Add download URL if available
         result_dict = result if isinstance(result, dict) else result
         download_url = session.download_url("models", filename)
         if download_url:
             result_dict["download_url"] = download_url
-        
+
         return result_dict
-    
+
     @mcp.tool()
     def delete_session(ctx: Context) -> dict:
         """
@@ -315,18 +321,18 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         """
         session = get_session(ctx, session_manager)
         session_id = session.session_id
-        
+
         files_deleted = 0
         if storage:
             files_deleted = storage.delete_session_files(session_id)
         session_deleted = session_manager.delete(session_id)
-        
+
         return {
             "success": session_deleted,
             "files_deleted": files_deleted,
             "message": "Session deleted" if session_deleted else "Session not found"
         }
-    
+
     @mcp.tool()
     def server_stats() -> dict:
         """
@@ -336,7 +342,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             Active sessions count, configuration, and session details.
         """
         return session_manager.get_stats()
-    
+
     # Remote-only tools (only if storage is provided)
     if storage is not None:
         @mcp.tool()
@@ -359,13 +365,13 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
                 Upload info with url, method, headers, file_key.
             """
             session = get_session(ctx, session_manager)
-            
+
             return storage.get_upload_url(
                 session_id=session.session_id,
                 filename=filename,
                 content_type=content_type
             )
-        
+
         @mcp.tool()
         def register_uploaded_file(
             ctx: Context,
@@ -388,16 +394,16 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
                 DataFrame info with name, shape, columns, dtypes.
             """
             session = get_session(ctx, session_manager)
-            
+
             if not storage.file_exists(session.session_id, file_key):
                 return {"error": f"File not found: {file_key}. Did you upload it?"}
-            
+
             file_path = storage.get_file_path(session.session_id, file_key)
-            
+
             # Determine DataFrame name
             if not dataframe_name:
                 dataframe_name = file_key.rsplit(".", 1)[0]
-            
+
             # Load file
             try:
                 if file_type.lower() == "excel":
@@ -406,10 +412,10 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
                     df = pd.read_csv(file_path)
             except Exception as e:
                 return {"error": f"Failed to load file: {str(e)}"}
-            
+
             # Register in session
             session.state.set_dataframe(df, name=dataframe_name, operation="upload")
-            
+
             return {
                 "success": True,
                 "dataframe_name": dataframe_name,

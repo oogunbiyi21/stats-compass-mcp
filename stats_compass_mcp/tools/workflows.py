@@ -5,30 +5,30 @@ These wrap stats-compass-core workflow functions with session isolation.
 """
 
 import logging
-from typing import Optional, List, Any
-from fastmcp import FastMCP, Context
+from typing import Any, List, Optional
 
+from fastmcp import Context, FastMCP
 from stats_compass_core.workflows import (
-    run_eda_report,
-    run_preprocessing,
-    run_classification,
-    run_regression,
-    run_timeseries_forecast,
+    ClassificationConfig,
     EDAConfig,
     PreprocessingConfig,
-    ClassificationConfig,
     RegressionConfig,
     TimeSeriesConfig,
+    run_classification,
+    run_eda_report,
+    run_preprocessing,
+    run_regression,
+    run_timeseries_forecast,
 )
+from stats_compass_core.workflows.classification import RunClassificationInput
 from stats_compass_core.workflows.eda_report import RunEDAReportInput
 from stats_compass_core.workflows.preprocessing import RunPreprocessingInput
-from stats_compass_core.workflows.classification import RunClassificationInput
 from stats_compass_core.workflows.regression import RunRegressionInput
 from stats_compass_core.workflows.timeseries import RunTimeseriesForecastInput
 
-from stats_compass_mcp.session import SessionManager, Session, get_session
-from stats_compass_mcp.image_utils import with_images
 from stats_compass_mcp.exports import save_plot_export
+from stats_compass_mcp.image_utils import with_images
+from stats_compass_mcp.session import Session, SessionManager, get_session
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ def save_workflow_exports(result_dict: dict, session: Session, workflow_name: st
     - Returns modified result with download_urls added
     """
     downloads = []
-    
+
     # Process steps to find and save images
     steps = result_dict.get("steps", [])
     for i, step in enumerate(steps):
@@ -50,13 +50,13 @@ def save_workflow_exports(result_dict: dict, session: Session, workflow_name: st
         if image_b64:
             step_name = step.get("step_name", f"step_{i}")
             name_prefix = f"{workflow_name}_{step_name}"
-            
+
             export_info = save_plot_export(
                 session_id=session.session_id,
                 image_base64=image_b64,
                 name_prefix=name_prefix,
             )
-            
+
             if export_info["download_url"]:
                 # Add download info to the step
                 step["download_url"] = export_info["download_url"]
@@ -67,17 +67,17 @@ def save_workflow_exports(result_dict: dict, session: Session, workflow_name: st
                     "step": step_name,
                     "url": export_info["download_url"],
                 })
-    
+
     # Add downloads summary to result
     if downloads:
         result_dict["downloads"] = downloads
-    
+
     return result_dict
 
 
 def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
     """Register all workflow tools with the FastMCP server."""
-    
+
     @mcp.tool()
     def run_eda_report_workflow(
         ctx: Context,
@@ -101,7 +101,7 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         result = run_eda_report(state=session.state, params=params)
         result_dict = save_workflow_exports(result.model_dump(), session, "eda")
         return with_images(result_dict, summarize=True)
-    
+
     @mcp.tool()
     def run_preprocessing_workflow(
         ctx: Context,
@@ -129,7 +129,7 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         result = run_preprocessing(state=session.state, params=params)
         result_dict = save_workflow_exports(result.model_dump(), session, "preprocessing")
         return with_images(result_dict, summarize=True)
-    
+
     @mcp.tool()
     def run_classification_workflow(
         ctx: Context,
@@ -162,7 +162,7 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         result = run_classification(state=session.state, params=params)
         result_dict = save_workflow_exports(result.model_dump(), session, "classification")
         return with_images(result_dict, summarize=True)
-    
+
     @mcp.tool()
     def run_regression_workflow(
         ctx: Context,
@@ -195,7 +195,7 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         result = run_regression(state=session.state, params=params)
         result_dict = save_workflow_exports(result.model_dump(), session, "regression")
         return with_images(result_dict, summarize=True)
-    
+
     @mcp.tool()
     def run_timeseries_workflow(
         ctx: Context,

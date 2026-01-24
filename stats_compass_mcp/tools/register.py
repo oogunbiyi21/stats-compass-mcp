@@ -13,7 +13,7 @@ from stats_compass_mcp.tools.workflows import register_workflow_tools
 
 
 def register_all_tools(
-    mcp: FastMCP, 
+    mcp: FastMCP,
     session_manager: SessionManager,
     storage=None
 ) -> None:
@@ -30,9 +30,9 @@ def register_all_tools(
     """
     # Data management tools (includes remote-only upload tools if storage provided)
     register_data_tools(mcp, session_manager, storage=storage)
-    
+
     # Parent describe/execute tools
     register_parent_tools(mcp, session_manager)
-    
+
     # Workflow tools
     register_workflow_tools(mcp, session_manager)

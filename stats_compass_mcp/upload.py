@@ -8,18 +8,16 @@ Provides:
 - File download endpoint for exports
 """
 
-import os
 import logging
 import mimetypes
+import os
 from pathlib import Path
-from typing import Optional
 
-from starlette.applications import Starlette
-from starlette.responses import HTMLResponse, JSONResponse, FileResponse
-from starlette.routing import Route
 from starlette.requests import Request
+from starlette.responses import FileResponse, HTMLResponse, JSONResponse
+from starlette.routing import Route
 
-from stats_compass_mcp.exports import get_exports_dir, ExportCategory
+from stats_compass_mcp.exports import get_exports_dir
 
 logger = logging.getLogger(__name__)
 
@@ -305,15 +303,15 @@ async def upload_file(request: Request) -> JSONResponse:
     """Handle file upload."""
     try:
         form = await request.form()
-        
+
         # Get session ID
         session_id = form.get("session_id", "default")
-        
+
         # Get uploaded file
         uploaded_file = form.get("file")
         if not uploaded_file:
             return JSONResponse({"error": "No file provided"}, status_code=400)
-        
+
         # Check file size
         contents = await uploaded_file.read()
         if len(contents) > MAX_UPLOAD_BYTES:
@@ -321,7 +319,7 @@ async def upload_file(request: Request) -> JSONResponse:
                 {"error": f"File too large. Maximum size is {MAX_UPLOAD_MB}MB"},
                 status_code=413
             )
-        
+
         # Validate file extension
         filename = uploaded_file.filename
         ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
@@ -330,17 +328,17 @@ async def upload_file(request: Request) -> JSONResponse:
                 {"error": "Invalid file type. Supported: CSV, Excel (.xlsx, .xls)"},
                 status_code=400
             )
-        
+
         # Create session directory
         session_path = UPLOAD_DIR / session_id
         session_path.mkdir(parents=True, exist_ok=True)
-        
+
         # Save file
         file_path = session_path / filename
         file_path.write_bytes(contents)
-        
+
         logger.info(f"Uploaded {filename} ({len(contents)} bytes) for session {session_id}")
-        
+
         return JSONResponse({
             "success": True,
             "file_key": filename,
@@ -348,7 +346,7 @@ async def upload_file(request: Request) -> JSONResponse:
             "size_bytes": len(contents),
             "message": f"File uploaded successfully. Use register_uploaded_file(file_key=\"{filename}\") to load it."
         })
-        
+
     except Exception as e:
         logger.exception("Upload failed")
         return JSONResponse({"error": str(e)}, status_code=500)
@@ -364,7 +362,7 @@ async def download_file(request: Request) -> FileResponse | JSONResponse:
     session_id = request.path_params.get("session_id")
     category = request.path_params.get("category")
     filename = request.path_params.get("filename")
-    
+
     # Validate category
     valid_categories = ["models", "data", "plots", "timeseries"]
     if category not in valid_categories:
@@ -372,11 +370,11 @@ async def download_file(request: Request) -> FileResponse | JSONResponse:
             {"error": f"Invalid category. Must be one of: {', '.join(valid_categories)}"},
             status_code=400
         )
-    
+
     # Build file path
     exports_dir = get_exports_dir(session_id, category)  # type: ignore
     file_path = exports_dir / filename
-    
+
     # Security: Ensure we're not escaping the exports directory
     try:
         file_path = file_path.resolve()
@@ -385,14 +383,14 @@ async def download_file(request: Request) -> FileResponse | JSONResponse:
             return JSONResponse({"error": "Invalid path"}, status_code=400)
     except Exception:
         return JSONResponse({"error": "Invalid path"}, status_code=400)
-    
+
     # Check if file exists
     if not file_path.exists() or not file_path.is_file():
         return JSONResponse(
             {"error": f"File not found: {filename}"},
             status_code=404
         )
-    
+
     # Determine content type
     content_type, _ = mimetypes.guess_type(str(file_path))
     if content_type is None:
@@ -405,9 +403,9 @@ async def download_file(request: Request) -> FileResponse | JSONResponse:
             content_type = "image/png"
         else:
             content_type = "application/octet-stream"
-    
+
     logger.info(f"Download: {session_id}/{category}/{filename}")
-    
+
     return FileResponse(
         path=str(file_path),
         filename=filename,

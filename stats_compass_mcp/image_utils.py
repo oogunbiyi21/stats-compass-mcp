@@ -24,7 +24,7 @@ def process_images(obj: Any, images: list[Image] | None = None) -> tuple[Any, li
     """
     if images is None:
         images = []
-    
+
     if isinstance(obj, dict):
         out = {}
         for k, v in obj.items():
@@ -38,10 +38,10 @@ def process_images(obj: Any, images: list[Image] | None = None) -> tuple[Any, li
             else:
                 out[k], _ = process_images(v, images)
         return out, images
-    
+
     if isinstance(obj, list):
         return [process_images(item, images)[0] for item in obj], images
-    
+
     return obj, images
 
 
@@ -56,9 +56,9 @@ def with_images(result: dict, summarize: bool = False) -> Any:
     Returns [result, Image, ...] if images found, else just result.
     """
     processed, images = process_images(result)
-    
+
     # Summarize workflow results if requested
     if summarize and "steps" in processed and "artifacts" in processed:
         processed = summarize_workflow_result(processed)
-    
+
     return [processed, *images] if images else processed
