@@ -23,6 +23,7 @@ services:
       - STATS_COMPASS_MEMORY_LIMIT_MB=500
       - STATS_COMPASS_SESSION_TTL_HOURS=24
       - STATS_COMPASS_MAX_SESSIONS=100
+      - STATS_COMPASS_SERVER_URL=https://mcp.statscompass.io
 
       # Storage config (local for dev, S3 for prod)
       - STORAGE_BACKEND=local
