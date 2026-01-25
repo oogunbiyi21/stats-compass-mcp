@@ -38,8 +38,9 @@ services:
       # - AWS_SECRET_ACCESS_KEY=your-secret-key
 
     volumes:
-      # Persist uploads between restarts (local dev only)
+      # Persist uploads and exports between restarts
       - uploads:/tmp/stats-compass-uploads
+      - exports:/tmp/stats-compass-exports
 
     healthcheck:
       test: [ "CMD", "curl", "-s", "--max-time", "5", "http://localhost:8000/mcp" ]
@@ -52,5 +53,6 @@ services:
 
 volumes:
   uploads:
+  exports:
   caddy_data:
   caddy_config:
