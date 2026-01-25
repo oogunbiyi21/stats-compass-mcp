@@ -48,8 +48,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         session = get_session(ctx, session_manager)
 
         dataframes = session.state.list_dataframes()
-        active = session.state.get_active()
-        active_name = active.name if active is not None else None
+        active_name = session.state.get_active_dataframe_name()
 
         return {
             "dataframes": [
