@@ -1,0 +1,15 @@
+modality,dataset,prompt,expected_outcome
+local,TATASTEEL,Load the TATASTEEL dataset and show me the first few rows,Dataset loaded with columns like Date and Close price
+local,TATASTEEL,Run an EDA report on TATASTEEL,EDA stats returned with descriptive statistics
+local,TATASTEEL,Fit an ARIMA model and forecast the next 30 days,Model fitted and forecast saved as TATASTEEL_forecast
+local,Housing,Load the Housing dataset and list all dataframes,Housing loaded and appears in dataframes list
+local,Housing,Run a regression workflow on Housing predicting median_house_value,Regression model trained with metrics like R² and RMSE
+self-hosted,TATASTEEL,Load the TATASTEEL dataset,Dataset loaded successfully
+self-hosted,TATASTEEL,Generate a line plot of the Close price over time,Plot generated with download URL returned
+self-hosted,Housing,Run a preprocessing workflow on Housing,Preprocessing completed with dataframes created
+self-hosted,Bukayo_Saka_7322,Load the Bukayo_Saka_7322 dataset and describe it,Dataset loaded with player statistics
+cloud,TATASTEEL,Load the TATASTEEL dataset and give me a summary,Dataset loaded with shape and columns
+cloud,TATASTEEL,Run the timeseries forecast workflow on Close column,Workflow completes with forecast_df created and chart generated
+cloud,Housing,Load Housing and save it as a CSV,CSV saved with download URL that works
+cloud,upload,Give me an upload URL for a CSV file,Returns URL with mcp.statscompass.io domain (not localhost)
+cloud,upload,Upload titanic.csv and run classification on Survived,File uploads and classification workflow runs with accuracy metrics
