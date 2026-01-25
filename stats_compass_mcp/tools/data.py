@@ -241,7 +241,9 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         
         Args:
             dataframe_name: Name of the DataFrame to save
-            filepath: Path where the CSV file will be saved (filename only for remote mode)
+            filepath: Path where the CSV file will be saved. 
+                      For local mode: can be absolute path (e.g., ~/Downloads/data.csv)
+                      For remote mode: filename only, saved to session exports
             index: Whether to write row index (default: False)
         
         Returns:
@@ -249,25 +251,38 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         """
         session = get_session(ctx, session_manager)
 
-        # Extract just the filename for export path
         from pathlib import Path as PathLib
-        filename = PathLib(filepath).name
-        if not filename.endswith('.csv'):
-            filename = f"{filename}.csv"
-
-        # Use session exports directory
-        export_path = session.export_path("data", filename)
+        
+        # Check if running in remote mode (SERVER_URL is set)
+        import os
+        is_remote = bool(os.getenv("STATS_COMPASS_SERVER_URL", ""))
+        
+        # For local mode with absolute/home paths, use the path directly
+        # For remote mode, always use the exports directory
+        if not is_remote and (filepath.startswith("/") or filepath.startswith("~")):
+            # Expand ~ and use the path as-is
+            export_path = PathLib(filepath).expanduser()
+            # Ensure parent directory exists
+            export_path.parent.mkdir(parents=True, exist_ok=True)
+            filename = export_path.name
+        else:
+            # Remote mode or relative path - use exports directory
+            filename = PathLib(filepath).name
+            if not filename.endswith('.csv'):
+                filename = f"{filename}.csv"
+            export_path = session.export_path("data", filename)
 
         from stats_compass_core.data.save_csv import SaveCSVInput
         from stats_compass_core.data.save_csv import save_csv as core_save_csv
         input_data = SaveCSVInput(dataframe_name=dataframe_name, filepath=str(export_path), index=index)
         result = core_save_csv(state=session.state, input_data=input_data)
 
-        # Add download URL if available
+        # Add download URL if available (remote mode only)
         result_dict = result if isinstance(result, dict) else result.model_dump()
-        download_url = session.download_url("data", filename)
-        if download_url:
-            result_dict["download_url"] = download_url
+        if is_remote:
+            download_url = session.download_url("data", filename)
+            if download_url:
+                result_dict["download_url"] = download_url
 
         return result_dict
 
@@ -282,32 +297,41 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         
         Args:
             model_id: ID of the model to save
-            filepath: Path where the model will be saved (filename only for remote mode)
+            filepath: Path where the model will be saved.
+                      For local mode: can be absolute path (e.g., ~/Downloads/model.joblib)
+                      For remote mode: filename only, saved to session exports
         
         Returns:
             Save result with filepath and download_url (if remote).
         """
         session = get_session(ctx, session_manager)
 
-        # Extract just the filename for export path
         from pathlib import Path as PathLib
-        filename = PathLib(filepath).name
-        if not filename.endswith('.joblib'):
-            filename = f"{filename}.joblib"
-
-        # Use session exports directory
-        export_path = session.export_path("models", filename)
+        import os
+        is_remote = bool(os.getenv("STATS_COMPASS_SERVER_URL", ""))
+        
+        # For local mode with absolute/home paths, use the path directly
+        if not is_remote and (filepath.startswith("/") or filepath.startswith("~")):
+            export_path = PathLib(filepath).expanduser()
+            export_path.parent.mkdir(parents=True, exist_ok=True)
+            filename = export_path.name
+        else:
+            filename = PathLib(filepath).name
+            if not filename.endswith('.joblib'):
+                filename = f"{filename}.joblib"
+            export_path = session.export_path("models", filename)
 
         from stats_compass_core.ml.save_model import SaveModelInput
         from stats_compass_core.ml.save_model import save_model as core_save_model
         input_data = SaveModelInput(model_id=model_id, filepath=str(export_path))
         result = core_save_model(state=session.state, input_data=input_data)
 
-        # Add download URL if available
+        # Add download URL if available (remote mode only)
         result_dict = result if isinstance(result, dict) else result
-        download_url = session.download_url("models", filename)
-        if download_url:
-            result_dict["download_url"] = download_url
+        if is_remote:
+            download_url = session.download_url("models", filename)
+            if download_url:
+                result_dict["download_url"] = download_url
 
         return result_dict
 
