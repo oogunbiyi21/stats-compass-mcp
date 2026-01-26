@@ -1,3 +1,18 @@
 mcp.statscompass.io {
+    # CORS headers - critical for browser-based MCP clients (like Claude.ai)
+    # Must expose Mcp-Session-Id so clients can read and send it back
+    header {
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Methods "GET, POST, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Accept, Mcp-Session-Id, Mcp-Protocol-Version, Authorization"
+        Access-Control-Expose-Headers "Mcp-Session-Id"
+    }
+
+    # Handle preflight OPTIONS requests
+    @options method OPTIONS
+    handle @options {
+        respond 204
+    }
+
     reverse_proxy stats-compass:8000
 }
