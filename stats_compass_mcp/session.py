@@ -240,16 +240,23 @@ def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
     Returns:
         Session instance
     """
-    # FastMCP provides session_id in context
-    session_id = getattr(ctx, "session_id", None) or getattr(ctx, "_session_id", None)
+    # FastMCP provides session_id as a property that reads from mcp-session-id header
+    try:
+        session_id = ctx.session_id
+        logger.info(f"Got session_id from ctx.session_id: {session_id}")
+    except Exception as e:
+        logger.warning(f"Failed to get ctx.session_id: {e}")
+        session_id = None
 
     if not session_id:
-        # Try to get from request ID as fallback
-        request_id = getattr(ctx, "request_id", None)
-        if request_id:
+        # Fallback: try request_id 
+        try:
+            request_id = ctx.request_id
             session_id = f"session-{request_id}"
-        else:
+            logger.info(f"Fallback to request_id: {session_id}")
+        except Exception:
             # Default session for local/stdio
             session_id = "default"
+            logger.info("Using default session")
 
     return session_manager.get_or_create(session_id)
