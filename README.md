@@ -147,6 +147,10 @@ docker run -p 8000:8000 -e STATS_COMPASS_SERVER_URL=https://your-domain.com stat
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup.
 
+## 🙏 Credits
+
+Landing page template by **ArtleSa** (u/ArtleSa)
+
 ## License
 
 MIT
