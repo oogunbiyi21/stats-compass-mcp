@@ -240,6 +240,14 @@ def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
     Returns:
         Session instance
     """
+    # Debug: Log request info if available
+    try:
+        if hasattr(ctx, '_request_context') and ctx._request_context:
+            req = ctx._request_context.request
+            logger.info(f"Request headers: {dict(req.headers)}")
+    except Exception as e:
+        logger.debug(f"Could not log request headers: {e}")
+    
     # FastMCP provides session_id as a property that reads from mcp-session-id header
     try:
         session_id = ctx.session_id
