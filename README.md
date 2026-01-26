@@ -3,7 +3,7 @@
   
   # stats-compass-mcp
   
-  **Turn your LLM into a data analyst.** 30+ pandas tools via MCP.
+  **Turn your LLM into a data analyst.** 50+ pandas tools via MCP.
 
   [![PyPI version](https://badge.fury.io/py/stats-compass-mcp.svg)](https://badge.fury.io/py/stats-compass-mcp)
   [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
