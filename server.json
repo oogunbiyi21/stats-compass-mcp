@@ -1,0 +1,27 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.oogunbiyi21/stats-compass",
+  "title": "Stats Compass",
+  "description": "50+ pandas-powered tools for data loading, cleaning, visualization, and ML workflows",
+  "version": "0.2.6",
+  "repository": {
+    "url": "https://github.com/oogunbiyi21/stats-compass-mcp",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "stats-compass-mcp",
+      "version": "0.2.6",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ],
+  "remotes": [
+    {
+      "type": "sse",
+      "url": "https://mcp.statscompass.io/sse"
+    }
+  ]
+}

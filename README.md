@@ -1,3 +1,5 @@
+<!-- mcp-name: io.github.oogunbiyi21/stats-compass -->
+
 <div align="center">
   <img src="./assets/logo/logo1.png" alt="Stats Compass Logo" width="200"/>
   
