@@ -8,24 +8,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to Droplet
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.DROPLET_IP }}
-          username: root
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /root/stats-compass-mcp
-            git pull origin main
-            docker compose up -d --build --force-recreate stats-compass
-            docker image prune -f
+  # Deploy job commented out - droplet shut down until auth is added
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Deploy to Droplet
+  #       uses: appleboy/ssh-action@v1.0.3
+  #       with:
+  #         host: ${{ secrets.DROPLET_IP }}
+  #         username: root
+  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
+  #         script: |
+  #           cd /root/stats-compass-mcp
+  #           git pull origin main
+  #           docker compose up -d --build --force-recreate stats-compass
+  #           docker image prune -f
 
   publish:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: deploy
     runs-on: ubuntu-latest
     permissions:
       id-token: write  # Required for OIDC authentication
