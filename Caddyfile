@@ -1,11 +1,12 @@
 mcp.statscompass.io {
     # CORS headers - critical for browser-based MCP clients (like Claude.ai)
-    # Must expose Mcp-Session-Id so clients can read and send it back
+    # Must expose mcp-session-id so clients can read and send it back
+    # Note: Use lowercase to match what mcp-python-sdk actually sends
     header {
         Access-Control-Allow-Origin "*"
         Access-Control-Allow-Methods "GET, POST, DELETE, OPTIONS"
-        Access-Control-Allow-Headers "Content-Type, Accept, Mcp-Session-Id, Mcp-Protocol-Version, Authorization"
-        Access-Control-Expose-Headers "Mcp-Session-Id"
+        Access-Control-Allow-Headers "Content-Type, Accept, mcp-session-id, mcp-protocol-version, Authorization"
+        Access-Control-Expose-Headers "mcp-session-id"
     }
 
     # Handle preflight OPTIONS requests
