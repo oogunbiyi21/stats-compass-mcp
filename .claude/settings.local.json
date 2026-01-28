@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__stats-compass__list_files",
+      "mcp__stats-compass__load_csv",
+      "mcp__stats-compass__execute_eda_tool",
+      "mcp__stats-compass__execute_plot_tool"
+    ]
+  }
+}
