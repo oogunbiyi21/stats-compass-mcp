@@ -1,0 +1,47 @@
+{
+    "manifest_version": "0.4",
+    "name": "stats-compass",
+    "display_name": "Stats Compass",
+    "version": "0.2.9",
+    "description": "Multiple data science tools for data loading, cleaning, visualization, and ML workflows",
+    "author": {
+        "name": "Inference Labs",
+        "url": "https://www.inferencelabs.co.uk/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/oogunbiyi21/stats-compass-mcp.git"
+    },
+    "license": "MIT",
+    "server": {
+        "type": "uv",
+        "entry_point": "stats_compass_mcp/server.py",
+        "mcp_config": {
+            "command": "uvx",
+            "args": [
+                "stats-compass-mcp",
+                "run"
+            ]
+        }
+    },
+    "tools_generated": true,
+    "keywords": [
+        "data science",
+        "pandas",
+        "csv",
+        "excel",
+        "visualization",
+        "machine learning",
+        "statistics"
+    ],
+    "compatibility": {
+        "platforms": [
+            "darwin",
+            "win32",
+            "linux"
+        ],
+        "runtimes": {
+            "python": ">=3.11"
+        }
+    }
+}
