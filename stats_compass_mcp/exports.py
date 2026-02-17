@@ -21,6 +21,21 @@ SERVER_URL = os.getenv("STATS_COMPASS_SERVER_URL", "")
 # Export categories
 ExportCategory = Literal["models", "data", "plots", "timeseries"]
 
+# Optional override for download URL generation (e.g. signed tokens in hosted mode)
+_download_url_builder = None
+
+
+def set_download_url_builder(fn) -> None:
+    """
+    Set a custom download URL builder.
+
+    The function receives (session_id, category, filename) and returns a URL string.
+    Used by hosted deployments to generate short-lived, scoped download tokens
+    instead of exposing session IDs in URLs.
+    """
+    global _download_url_builder
+    _download_url_builder = fn
+
 
 def get_exports_dir(session_id: str, category: Optional[ExportCategory] = None) -> Path:
     """
@@ -74,15 +89,21 @@ def get_export_path(session_id: str, category: ExportCategory, filename: str) ->
 def get_download_url(session_id: str, category: ExportCategory, filename: str) -> str:
     """
     Build a download URL for an exported file.
-    
+
+    If a custom download URL builder has been set via set_download_url_builder(),
+    it is used instead of the default URL format.
+
     Args:
         session_id: The session ID
         category: Category (models, data, plots, timeseries)
         filename: The filename
-    
+
     Returns:
         Full download URL, or empty string if SERVER_URL not configured
     """
+    if _download_url_builder:
+        return _download_url_builder(session_id, category, filename)
+
     if not SERVER_URL:
         # Local mode - no download URL available
         return ""

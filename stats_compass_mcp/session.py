@@ -119,14 +119,15 @@ class Session:
 class SessionManager:
     """
     Manages multiple isolated sessions.
-    
+
     This is in-memory, single-instance only.
-    
+
     Features:
     - Create/retrieve sessions by ID
     - Capacity management (evict oldest when full)
     - Statistics for monitoring
-    
+    - Optional session_id_resolver for custom session identity (e.g. JWT sub claim)
+
     Note: Sessions are evicted when capacity is reached (oldest first).
     There is no TTL-based expiry - for that, add a background scheduler
     or use Redis with built-in TTL.
@@ -135,11 +136,13 @@ class SessionManager:
     def __init__(
         self,
         memory_limit_mb: float = 500.0,
-        max_sessions: int = 100
+        max_sessions: int = 100,
+        session_id_resolver=None
     ):
         self._sessions: Dict[str, Session] = {}
         self.memory_limit_mb = memory_limit_mb
         self.max_sessions = max_sessions
+        self._session_id_resolver = session_id_resolver
 
         logger.info(
             f"SessionManager initialized: memory_limit={memory_limit_mb}MB, "
@@ -230,16 +233,24 @@ class SessionManager:
 def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
     """
     Get or create session from FastMCP context.
-    
-    Uses the MCP session ID from the context.
-    
+
+    If the SessionManager has a session_id_resolver, it is called with the
+    context to determine the session ID. Otherwise, the MCP session ID from
+    the context is used.
+
     Args:
         ctx: FastMCP Context object
         session_manager: SessionManager instance
-    
+
     Returns:
         Session instance
     """
+    # Use custom resolver if provided (e.g. JWT sub claim in hosted mode)
+    if session_manager._session_id_resolver:
+        session_id = session_manager._session_id_resolver(ctx)
+        logger.info(f"Got session_id from custom resolver: {session_id}")
+        return session_manager.get_or_create(session_id)
+
     # Debug: Log request info if available
     try:
         if hasattr(ctx, '_request_context') and ctx._request_context:
@@ -247,7 +258,7 @@ def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
             logger.info(f"Request headers: {dict(req.headers)}")
     except Exception as e:
         logger.debug(f"Could not log request headers: {e}")
-    
+
     # FastMCP provides session_id as a property that reads from mcp-session-id header
     try:
         session_id = ctx.session_id
@@ -257,7 +268,7 @@ def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
         session_id = None
 
     if not session_id:
-        # Fallback: try request_id 
+        # Fallback: try request_id
         try:
             request_id = ctx.request_id
             session_id = f"session-{request_id}"
