@@ -2,8 +2,10 @@
     "manifest_version": "0.4",
     "name": "stats-compass",
     "display_name": "Stats Compass",
-    "version": "0.2.9",
+    "version": "0.3.0",
     "description": "Multiple data science tools for data loading, cleaning, visualization, and ML workflows",
+    "icon": "icon.png",
+    "privacy_policies": ["https://statscompass.io/privacy.html"],
     "author": {
         "name": "Inference Labs",
         "url": "https://www.inferencelabs.co.uk/"

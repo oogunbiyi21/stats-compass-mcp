@@ -1,0 +1,41 @@
+# Python environment and caches
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Build artifacts
+dist/
+
+# Tests (not needed at runtime)
+tests/
+test_server.py
+
+# Development tooling
+.claude/
+.github/
+
+# Deployment configs (not needed for uvx runtime)
+Dockerfile
+.dockerignore
+docker-compose.yml
+Caddyfile
+
+# GitHub Pages website assets
+index.html
+index.js
+css/
+privacy.html
+CNAME
+assets/demos/
+assets/logo/
+
+# Lock file redundancy (uv.lock is used)
+poetry.lock
+
+# Docs
+CONTRIBUTING.md
+TESTING.md

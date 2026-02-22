@@ -17,7 +17,7 @@ from stats_compass_mcp.session import SessionManager, get_session
 def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=None):
     """Register all data management tools with the FastMCP server."""
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def ping() -> dict:
         """Health check - verify server is running."""
         return {
@@ -26,7 +26,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             "message": "Server is running. Sessions are created automatically."
         }
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def session_info(ctx: Context) -> dict:
         """
         Get information about your current session.
@@ -37,7 +37,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         session = get_session(ctx, session_manager)
         return session.get_info()
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def list_dataframes(ctx: Context) -> dict:
         """
         List all DataFrames in your session.
@@ -157,7 +157,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         result = core_load_excel(state=session.state, params=params)
         return result.model_dump()
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def list_files(
         ctx: Context,
         directory: str = "."
@@ -178,7 +178,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         result = core_list_files(state=session.state, params=params)
         return result.model_dump()
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def get_sample(
         ctx: Context,
         dataframe_name: Optional[str] = None,
@@ -204,7 +204,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         result = core_get_sample(state=session.state, params=params)
         return result.model_dump()
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def get_schema(
         ctx: Context,
         dataframe_name: Optional[str] = None,
@@ -334,7 +334,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
 
         return result_dict
 
-    @mcp.tool()
+    @mcp.tool(annotations={"destructiveHint": True})
     def delete_session(ctx: Context) -> dict:
         """
         Delete your current session and all its data.
@@ -356,7 +356,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             "message": "Session deleted" if session_deleted else "Session not found"
         }
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def server_stats() -> dict:
         """
         Get server statistics (admin tool).
@@ -368,7 +368,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
 
     # Remote-only tools (only if storage is provided)
     if storage is not None:
-        @mcp.tool()
+        @mcp.tool(annotations={"readOnlyHint": True})
         def get_upload_url(
             ctx: Context,
             filename: str,

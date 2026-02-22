@@ -35,7 +35,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # EDA Tools
     # ========================================================================
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def describe_eda_tools(ctx: Context) -> dict:
         """
         Get schemas for all EDA sub-tools.
@@ -76,7 +76,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # Cleaning Tools
     # ========================================================================
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def describe_cleaning_tools(ctx: Context) -> dict:
         """
         Get schemas for all cleaning sub-tools.
@@ -116,7 +116,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # Transform Tools
     # ========================================================================
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def describe_transform_tools(ctx: Context) -> dict:
         """
         Get schemas for all transform sub-tools.
@@ -156,7 +156,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # Data Tools
     # ========================================================================
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def describe_data_tools(ctx: Context) -> dict:
         """
         Get schemas for all data manipulation sub-tools.
@@ -197,7 +197,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # ML Tools
     # ========================================================================
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def describe_ml_tools(ctx: Context) -> dict:
         """
         Get schemas for all ML sub-tools.
@@ -238,7 +238,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # Plot Tools
     # ========================================================================
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     def describe_plot_tools(ctx: Context) -> dict:
         """
         Get schemas for all visualization sub-tools.
