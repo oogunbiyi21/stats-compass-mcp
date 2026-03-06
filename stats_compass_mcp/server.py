@@ -14,11 +14,14 @@ Usage:
 
 import logging
 import os
+from pathlib import Path
 
 from fastmcp import FastMCP
 
 from stats_compass_mcp.session import SessionManager
 from stats_compass_mcp.tools import register_all_tools
+
+_RESOURCES_DIR = Path(__file__).parent / "resources"
 
 # Configure logging
 logging.basicConfig(
@@ -60,8 +63,24 @@ def create_mcp_server(
             "Stats Compass is a data analysis toolkit. "
             "Sessions are created automatically - no need to call create_session. "
             "Your data is isolated to your session. "
-            "Use load_dataset() for sample data, or load_csv()/load_excel() for local files."
-            "Do not rely on code generation for analysis - use the provided stats compass tools."
+            "Use load_dataset() for sample data, or load_csv()/load_excel() for local files. "
+            "Do not rely on code generation for analysis - use the provided stats compass tools. "
+            "\n\nWORKFLOW RULES:\n"
+            "1. ALWAYS call describe_*_tools (e.g. describe_eda_tools) before using a tool category "
+            "for the first time. Do not guess parameter names. One describe call is cheaper than a failed tool call. "
+            "2. HYPOTHESIS TESTS: t_test and z_test require two separate columns (column_a, column_b). "
+            "They do not accept a group_column parameter. "
+            "First use split_column_by_group to reshape grouped data into wide format, then run the test. "
+            "3. inspect_data is for scalar expressions only. Do not use it for value_counts(), groupby(), "
+            "or any expression that returns a Series or DataFrame — these will fail. "
+            "Use bar_chart or describe(include='all') for distributions, groupby_aggregate for aggregations. "
+            "4. If a CSV fails to load with a codec error, retry with encoding='latin-1'. "
+            "5. After run_preprocessing_workflow, use the new DataFrame name returned in the result, not the original. "
+            "6. FINDING FILES: NEVER use bash, shell commands, or code execution to find files — "
+            "these run in a cloud sandbox with no access to the user's machine. "
+            "Always call the list_files MCP tool directly (e.g. list_files(directory='~/Downloads')). "
+            "list_files is a top-level tool — do NOT route it through execute_data_tool. "
+            "If you are unsure of a workflow or receive a validation error, call get_usage_guide first."
         )
     )
 
@@ -83,6 +102,23 @@ def create_mcp_server(
 
     # Register all tools (single source of truth)
     register_all_tools(mcp, session_manager, storage=storage)
+
+    # Register resources
+    @mcp.resource("stats-compass://skills")
+    def skills_guide() -> str:
+        """Agent skills guide: correct workflows and tool usage patterns."""
+        return (_RESOURCES_DIR / "skills.md").read_text()
+
+    @mcp.tool(annotations={"readOnlyHint": True})
+    def get_usage_guide() -> str:
+        """
+        Return the Stats Compass usage guide covering correct tool workflows,
+        hypothesis test patterns, and common pitfalls.
+
+        Call this if you are unsure how to structure a statistical test,
+        which tool to use for a task, or have received a validation error.
+        """
+        return (_RESOURCES_DIR / "skills.md").read_text()
 
     logger.info(f"Server '{name}' configured with {MAX_SESSIONS} max sessions")
 

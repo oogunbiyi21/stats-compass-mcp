@@ -37,6 +37,7 @@
                 class="tw-flex tw-h-full tw-w-max tw-gap-5 tw-text-base tw-text-black max-lg:tw-mt-[30px] max-lg:tw-flex-col max-lg:tw-place-items-end max-lg:tw-gap-5 lg:tw-mx-auto lg:tw-place-items-center">
                 <a class="header-links" href="#about"> About </a>
                 <a class="header-links" href="#features"> Features </a>
+                <a class="header-links" href="#prompts"> How to Use </a>
                 <a class="header-links" href="#installation"> Install </a>
                 <a class="header-links" href="https://github.com/oogunbiyi21/stats-compass-mcp" rel="noreferrer"
                     target="_blank">
@@ -236,6 +237,40 @@
                     <p class="tw-text-gray-600">Data analysis in VS Code</p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section
+        class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6 tw-bg-white"
+        id="prompts">
+        <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-5 tw-max-w-[800px] tw-w-full">
+            <h2 class="tw-mt-5 tw-text-4xl tw-font-semibold tw-text-center">
+                How to Use
+            </h2>
+            <p class="tw-text-gray-600 tw-text-center">
+                Start your message with <strong>"Use stats compass to..."</strong> — this tells the AI to use Stats
+                Compass tools instead of writing code or using shell commands.
+            </p>
+            <div class="tw-w-full tw-mt-2 tw-flex tw-flex-col tw-gap-3">
+                <div
+                    class="tw-bg-gray-900 tw-text-gray-100 tw-p-4 tw-rounded-xl tw-text-sm tw-font-mono tw-flex tw-flex-col tw-gap-2">
+                    <span class="tw-text-green-400"># Load data</span>
+                    <span>Use stats compass to load ~/Downloads/sales.csv and show me a summary</span>
+                    <span>Use stats compass to find my CSV files in the Downloads folder</span>
+                    <span class="tw-mt-2 tw-text-green-400"># Explore and clean</span>
+                    <span>Use stats compass to run EDA on the dataset</span>
+                    <span>Use stats compass to clean the data and handle missing values</span>
+                    <span class="tw-mt-2 tw-text-green-400"># Analyse</span>
+                    <span>Use stats compass to test if scores differ significantly between group A and B</span>
+                    <span>Use stats compass to create a histogram of the price column</span>
+                    <span class="tw-mt-2 tw-text-green-400"># Machine learning</span>
+                    <span>Use stats compass to train a classification model to predict churn</span>
+                </div>
+            </div>
+            <p class="tw-text-sm tw-text-gray-500 tw-text-center tw-mt-2">
+                Without this prefix, some AI clients may write Python code or use shell commands instead of the Stats
+                Compass tools — especially for tasks like finding files on your machine.
+            </p>
         </div>
     </section>
 

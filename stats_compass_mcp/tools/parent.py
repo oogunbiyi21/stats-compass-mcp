@@ -57,11 +57,17 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     ) -> dict:
         """
         Execute an EDA sub-tool.
-        
+
         Args:
             tool_name: Name of sub-tool (e.g., "describe", "correlations")
             params: Parameters for the sub-tool
             dataframe_name: Override active DataFrame
+
+        WARNING — t_test and z_test:
+            These require samples in separate columns (column_a, column_b).
+            They do NOT accept group_column. If your data is grouped (one value
+            column + one group column), first call execute_transform_tool with
+            tool_name="split_column_by_group" to reshape it, then run the test.
         """
         session = get_session(ctx, session_manager)
         input_params = ExecuteCategoryInput(
@@ -160,9 +166,14 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     def describe_data_tools(ctx: Context) -> dict:
         """
         Get schemas for all data manipulation sub-tools.
-        
-        Returns available tools: get_sample, get_schema, add_column,
+
+        Returns available tools: list_files, get_sample, get_schema, add_column,
         drop_columns, rename_columns, merge, concat, etc.
+
+        NOTE — local file discovery:
+            Use the list_files top-level tool to browse the user's local filesystem.
+            Call it directly — NOT via execute_data_tool.
+            Example: list_files(directory="~/Downloads")
         """
         session = get_session(ctx, session_manager)
         params = DescribeCategoryInput()
@@ -178,11 +189,18 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     ) -> dict:
         """
         Execute a data manipulation sub-tool.
-        
+
         Args:
             tool_name: Name of sub-tool (e.g., "get_sample", "add_column")
             params: Parameters for the sub-tool
             dataframe_name: Override active DataFrame
+
+        WARNING — inspect_data:
+            Accepts scalar expressions only. Expressions that return a Series or
+            DataFrame (e.g. value_counts(), groupby(), df["col"]) will fail.
+            Quote characters inside expressions also cause parse errors.
+            Use bar_chart or describe(include="all") for distributions,
+            groupby_aggregate for aggregations, filter_dataframe for filtering.
         """
         session = get_session(ctx, session_manager)
         input_params = ExecuteCategoryInput(

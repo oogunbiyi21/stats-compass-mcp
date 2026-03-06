@@ -99,14 +99,18 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
     ) -> dict:
         """
         Load a CSV file from a local path.
-        
+
+        If you do not know the exact path, call list_files first
+        (e.g. list_files(directory="~/Downloads")) to find the file.
+        Do NOT use bash or shell commands — they cannot access the user's machine.
+
         Args:
             path: Absolute path to the CSV file. Supports ~ expansion.
             name: Name for the DataFrame (default: filename without extension)
             delimiter: Field delimiter (default: comma)
-            encoding: File encoding (default: utf-8)
+            encoding: File encoding (default: utf-8, retry with latin-1 on errors)
             set_active: Whether to set as active DataFrame (default: True)
-        
+
         Returns:
             DataFrame info with name, shape, columns, dtypes.
         """
@@ -134,13 +138,17 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
     ) -> dict:
         """
         Load an Excel file from a local path.
-        
+
+        If you do not know the exact path, call list_files first
+        (e.g. list_files(directory="~/Downloads")) to find the file.
+        Do NOT use bash or shell commands — they cannot access the user's machine.
+
         Args:
             path: Absolute path to the Excel file. Supports ~ expansion.
             name: Name for the DataFrame (default: filename without extension)
             sheet_name: Sheet to load (default: first sheet)
             set_active: Whether to set as active DataFrame (default: True)
-        
+
         Returns:
             DataFrame info with name, shape, columns, dtypes.
         """

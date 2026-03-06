@@ -55,12 +55,28 @@ Restart your client and start asking questions about your data.
 
 Run `stats-compass-mcp list-tools` to see all available tools.
 
-## Loading Files
+## How to Prompt
 
-**Local mode:** Provide the absolute file path.
+Start your message with **"Use stats compass to..."** — this tells the AI to use the Stats Compass tools instead of trying to write code or use other methods.
 
 ```
-You: Load the CSV at /Users/me/Downloads/sales.csv
+Use stats compass to load ~/Downloads/sales.csv and run EDA on it
+Use stats compass to find my CSV files in Downloads
+Use stats compass to clean the dataset and handle missing values
+Use stats compass to create a histogram of the price column
+Use stats compass to test if there's a significant difference in scores between group A and B
+Use stats compass to train a classification model to predict churn
+```
+
+> **Tip:** Without this prefix, some AI clients may try to write Python code or use shell commands instead of the Stats Compass tools — especially for tasks like finding files on your machine.
+
+## Loading Files
+
+**Local mode:** Start with "Use stats compass to load..." and provide the file path or folder.
+
+```
+Use stats compass to load the CSV at ~/Downloads/sales.csv
+Use stats compass to find my data files in ~/Documents
 ```
 
 **Remote/HTTP mode:** Use the upload feature (see below).
