@@ -150,7 +150,7 @@ docker run -p 8000:8000 -e STATS_COMPASS_SERVER_URL=https://your-domain.com stat
 | Claude Desktop | ✅ Recommended |
 | VS Code Copilot | ✅ Supported |
 | Claude Code CLI | ✅ Supported |
-| Cursor | ⚠️ Experimental |
+| Cursor | ✅ Supported |
 | GPT / Gemini | ⚠️ Partial |
 
 ## Configuration
