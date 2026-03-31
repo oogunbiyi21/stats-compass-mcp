@@ -82,6 +82,10 @@ class StorageBackend(ABC):
         """Check if file exists in storage."""
         pass
 
+    def list_uploads(self, session_id: str) -> list[str]:
+        """Return uploaded filenames for a session, most recently modified first."""
+        return []
+
     @abstractmethod
     def save_image(
         self,
@@ -155,7 +159,7 @@ class LocalStorageBackend(StorageBackend):
             "instructions": (
                 f"1. Open {upload_url} in your browser\n"
                 "2. Select and upload your file\n"
-                "3. Tell me once uploaded, and I'll load it with register_uploaded_file()"
+                "3. Tell me when done — I'll load it automatically"
             )
         }
 
@@ -183,6 +187,15 @@ class LocalStorageBackend(StorageBackend):
     def file_exists(self, session_id: str, file_key: str) -> bool:
         """Check if file exists locally."""
         return (self._session_path(session_id) / file_key).exists()
+
+    def list_uploads(self, session_id: str) -> list[str]:
+        """Return uploaded filenames sorted by most recently modified."""
+        session_path = self._session_path(session_id)
+        if not session_path.exists():
+            return []
+        files = [f for f in session_path.iterdir() if f.is_file()]
+        files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+        return [f.name for f in files]
 
     def save_image(
         self,

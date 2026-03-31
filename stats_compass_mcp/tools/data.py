@@ -406,25 +406,31 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         @mcp.tool()
         def register_uploaded_file(
             ctx: Context,
-            file_key: str,
+            file_key: Optional[str] = None,
             dataframe_name: Optional[str] = None,
             file_type: str = "csv"
         ) -> dict:
             """
-            Register an uploaded file and load it as a DataFrame.
-            
-            After uploading to the URL from get_upload_url(), call this
-            to load the file into your session.
-            
+            Load an uploaded file as a DataFrame.
+
+            Call this after the user confirms they have uploaded their file.
+            If file_key is omitted, automatically loads the most recently uploaded file.
+
             Args:
-                file_key: The file_key returned from get_upload_url()
+                file_key: Filename to load (optional — omit to auto-load the latest upload)
                 dataframe_name: Name for the DataFrame (default: filename without extension)
                 file_type: File type - "csv" or "excel"
-            
+
             Returns:
                 DataFrame info with name, shape, columns, dtypes.
             """
             session = get_session(ctx, session_manager)
+
+            if not file_key:
+                uploads = storage.list_uploads(session.session_id)
+                if not uploads:
+                    return {"error": "No uploaded files found. Please upload a file first."}
+                file_key = uploads[0]
 
             if not storage.file_exists(session.session_id, file_key):
                 return {"error": f"File not found: {file_key}. Did you upload it?"}

@@ -274,12 +274,16 @@ UPLOAD_PAGE_HTML = """
         });
         
         function showSuccess(data) {
+            const cmd = `register_uploaded_file(file_key="${data.file_key}")`;
             result.className = 'result success';
             document.getElementById('resultTitle').textContent = '✅ Upload successful!';
-            document.getElementById('resultMessage').textContent = 
-                'Now tell your AI assistant to load the file as below:';
-            document.getElementById('resultCode').textContent = 
-                `register_uploaded_file(file_key="${data.file_key}")`;
+            document.getElementById('resultMessage').textContent =
+                'Paste this into your AI assistant chat to load the file:';
+            document.getElementById('resultCode').textContent = cmd;
+            // Auto-copy to clipboard
+            navigator.clipboard.writeText(cmd).then(() => {
+                document.getElementById('resultTitle').textContent = '✅ Uploaded & copied to clipboard!';
+            }).catch(() => {});
         }
         
         function showError(title, message) {
