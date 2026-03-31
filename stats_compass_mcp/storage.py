@@ -153,13 +153,9 @@ class LocalStorageBackend(StorageBackend):
 
         return {
             "upload_url": upload_url,
-            "file_key": filename,  # Suggested filename, actual may differ
-            "session_id": session_id,
-            "storage_type": "local",
             "instructions": (
-                f"1. Open {upload_url} in your browser\n"
-                "2. Select and upload your file\n"
-                "3. Tell me when done — I'll load it automatically"
+                f"Share this link with the user: {upload_url}\n"
+                "Once they confirm the upload is done, call register_uploaded_file() with no arguments."
             )
         }
 

@@ -379,27 +379,27 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
         @mcp.tool(annotations={"readOnlyHint": True})
         def get_upload_url(
             ctx: Context,
-            filename: str,
+            filename: Optional[str] = None,
             content_type: str = "text/csv"
         ) -> dict:
             """
-            Get a presigned URL for uploading a file.
-            
-            For S3 storage: Returns a presigned PUT URL.
-            For local storage: Returns a file path.
-            
+            Get a URL for the user to upload a CSV or Excel file in their browser.
+
+            Share the returned upload_url with the user. Once they confirm the upload
+            is done, call register_uploaded_file() with no arguments to load the file.
+
             Args:
-                filename: Desired filename (e.g., "my_data.csv")
+                filename: Optional suggested filename — leave blank, the user picks the file
                 content_type: MIME type (default: text/csv)
-            
+
             Returns:
-                Upload info with url, method, headers, file_key.
+                Upload info with upload_url and instructions.
             """
             session = get_session(ctx, session_manager)
 
             return storage.get_upload_url(
                 session_id=session.session_id,
-                filename=filename,
+                filename=filename or "",
                 content_type=content_type
             )
 
