@@ -274,16 +274,11 @@ UPLOAD_PAGE_HTML = """
         });
         
         function showSuccess(data) {
-            const cmd = `register_uploaded_file(file_key="${data.file_key}")`;
             result.className = 'result success';
             document.getElementById('resultTitle').textContent = '✅ Upload successful!';
             document.getElementById('resultMessage').textContent =
-                'Paste this into your AI assistant chat to load the file:';
-            document.getElementById('resultCode').textContent = cmd;
-            // Auto-copy to clipboard
-            navigator.clipboard.writeText(cmd).then(() => {
-                document.getElementById('resultTitle').textContent = '✅ Uploaded & copied to clipboard!';
-            }).catch(() => {});
+                'Return to your AI assistant and let it know you\'re done — it will load the file automatically.';
+            document.getElementById('resultCode').textContent = '';
         }
         
         function showError(title, message) {
@@ -348,7 +343,7 @@ async def upload_file(request: Request) -> JSONResponse:
             "file_key": filename,
             "session_id": session_id,
             "size_bytes": len(contents),
-            "message": f"File uploaded successfully. Use register_uploaded_file(file_key=\"{filename}\") to load it."
+            "message": f"File '{filename}' uploaded successfully."
         })
 
     except Exception as e:

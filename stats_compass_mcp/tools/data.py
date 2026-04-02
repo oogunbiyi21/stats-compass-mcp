@@ -408,18 +408,19 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             ctx: Context,
             file_key: Optional[str] = None,
             dataframe_name: Optional[str] = None,
-            file_type: str = "csv"
+            file_type: Optional[str] = None
         ) -> dict:
             """
             Load an uploaded file as a DataFrame.
 
             Call this after the user confirms they have uploaded their file.
             If file_key is omitted, automatically loads the most recently uploaded file.
+            File type is auto-detected from the file extension (csv, xlsx, xls).
 
             Args:
                 file_key: Filename to load (optional — omit to auto-load the latest upload)
                 dataframe_name: Name for the DataFrame (default: filename without extension)
-                file_type: File type - "csv" or "excel"
+                file_type: File type override - "csv" or "excel" (auto-detected from extension if omitted)
 
             Returns:
                 DataFrame info with name, shape, columns, dtypes.
@@ -440,6 +441,11 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             # Determine DataFrame name
             if not dataframe_name:
                 dataframe_name = file_key.rsplit(".", 1)[0]
+
+            # Auto-detect file type from extension if not specified
+            if not file_type:
+                ext = file_key.rsplit(".", 1)[-1].lower() if "." in file_key else ""
+                file_type = "excel" if ext in ("xlsx", "xls") else "csv"
 
             # Load file
             try:
