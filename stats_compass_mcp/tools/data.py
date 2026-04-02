@@ -385,8 +385,10 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             """
             Get a URL for the user to upload a CSV or Excel file in their browser.
 
-            Share the returned upload_url with the user. Once they confirm the upload
-            is done, call register_uploaded_file() with no arguments to load the file.
+            When sharing the upload_url with the user, always include the raw URL as
+            plain text (not as a markdown hyperlink) so the user can see and copy it
+            directly. You may add brief instructions around it. After they confirm
+            the upload is done, call register_uploaded_file() with no arguments.
 
             Args:
                 filename: Optional suggested filename — leave blank, the user picks the file

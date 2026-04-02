@@ -154,8 +154,8 @@ class LocalStorageBackend(StorageBackend):
         return {
             "upload_url": upload_url,
             "instructions": (
-                f"Share this link with the user: {upload_url}\n"
-                "Once they confirm the upload is done, call register_uploaded_file() with no arguments."
+                f"Share this URL with the user as plain text (not a markdown link): {upload_url}\n"
+                "Once the user confirms they are done, call register_uploaded_file() with no arguments."
             )
         }
 
