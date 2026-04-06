@@ -254,4 +254,7 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
             return with_images(result_dict, summarize=True)
         finally:
             if temp_name:
-                session.state.remove_dataframe(temp_name)
+                try:
+                    session.state.remove_dataframe(temp_name)
+                except Exception:
+                    pass
