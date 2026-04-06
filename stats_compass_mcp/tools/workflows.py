@@ -207,15 +207,31 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         """
         Run time series forecasting: check stationarity, fit ARIMA model,
         generate forecasts and visualization.
-        
+
         Args:
             target_column: Column with values to forecast
             dataframe_name: Name of DataFrame (default: active)
             date_column: Column with dates (default: uses index)
             config: Optional time series configuration dict
-        
+
         Returns:
             Workflow result with forecasts and forecast chart.
+
+        PERFORMANCE — use fast defaults to avoid timeouts:
+
+        1. Pre-filter to the most recent ~500 rows BEFORE calling this tool.
+           Use filter_dataframe or tail to slice the DataFrame first.
+           Large datasets (>500 rows) make ARIMA grid search very slow.
+
+        2. Always pass config with fast settings:
+           {
+             "auto_find_params": false,
+             "arima_order": [1, 1, 1],
+             "check_stationarity": false
+           }
+
+        Only enable auto_find_params or check_stationarity if the user
+        explicitly asks for optimised parameters or stationarity diagnostics.
         """
         session = get_session(ctx, session_manager)
         ts_config = TimeSeriesConfig(**config) if config else None

@@ -105,3 +105,41 @@ Supports `~` expansion. Once you have the filename, pass the full path to `load_
   outlier handling, deduplication) in a single call.
 - The cleaned DataFrame is saved under a new name returned in the result.
   Use that name for subsequent analysis, not the original.
+
+---
+
+## Time Series Forecasting
+
+**Always use fast defaults** to avoid timeouts. ARIMA grid search (`auto_find_params: true`) and stationarity tests add 20–60 seconds on large datasets.
+
+### Step 1 — Pre-filter to the most recent ~500 rows
+
+```json
+{
+  "tool_name": "filter_dataframe",
+  "params": {
+    "tail": 500,
+    "save_as": "ts_recent"
+  }
+}
+```
+
+Or use `tail_dataframe` / slice with `filter_dataframe` as appropriate for the dataset.
+
+### Step 2 — Run the forecast with fast config
+
+```json
+{
+  "dataframe_name": "ts_recent",
+  "target_column": "Close",
+  "date_column": "Date",
+  "config": {
+    "auto_find_params": false,
+    "arima_order": [1, 1, 1],
+    "check_stationarity": false,
+    "forecast_periods": 30
+  }
+}
+```
+
+Only enable `auto_find_params: true` or `check_stationarity: true` if the user explicitly requests optimised parameters or stationarity diagnostics.

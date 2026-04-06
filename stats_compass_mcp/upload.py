@@ -166,19 +166,22 @@ UPLOAD_PAGE_HTML = """
         <div class="upload-area" id="uploadArea">
             <div class="icon">📁</div>
             <p>Drop a CSV or Excel file here, or click to browse</p>
-            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
         </div>
-        
+        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none">
+
         <div class="file-info" id="fileInfo">
             <strong>Selected:</strong> <span id="fileName"></span> (<span id="fileSize"></span>)
         </div>
-        
+
         <button id="uploadBtn" disabled>Upload</button>
-        
-        <div class="result" id="result">
-            <h3 id="resultTitle"></h3>
-            <p id="resultMessage"></p>
-            <code id="resultCode"></code>
+
+        <div id="successBox" style="display:none" class="result success">
+            <h3>✅ Upload successful!</h3>
+            <p>Tell your AI assistant you're done — it will load the file automatically.</p>
+        </div>
+        <div id="errorBox" style="display:none" class="result error">
+            <h3 id="errorTitle"></h3>
+            <p id="errorMsg"></p>
         </div>
         
         <p class="limits">
@@ -190,102 +193,87 @@ UPLOAD_PAGE_HTML = """
         const sessionId = new URLSearchParams(window.location.search).get('session_id') || 'default';
         document.getElementById('sessionId').textContent = sessionId;
         
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const fileInfo = document.getElementById('fileInfo');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const result = document.getElementById('result');
-        
-        let selectedFile = null;
-        
-        // Drag and drop
-        uploadArea.addEventListener('click', () => fileInput.click());
-        uploadArea.addEventListener('dragover', (e) => {
+        var uploadArea = document.getElementById('uploadArea');
+        var fileInput = document.getElementById('fileInput');
+        var fileInfo = document.getElementById('fileInfo');
+        var uploadBtn = document.getElementById('uploadBtn');
+        var successBox = document.getElementById('successBox');
+        var errorBox = document.getElementById('errorBox');
+
+        var selectedFile = null;
+
+        uploadArea.addEventListener('click', function() { fileInput.click(); });
+        uploadArea.addEventListener('dragover', function(e) {
             e.preventDefault();
             uploadArea.classList.add('dragover');
         });
-        uploadArea.addEventListener('dragleave', () => {
+        uploadArea.addEventListener('dragleave', function() {
             uploadArea.classList.remove('dragover');
         });
-        uploadArea.addEventListener('drop', (e) => {
+        uploadArea.addEventListener('drop', function(e) {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
-            if (e.dataTransfer.files.length) {
-                handleFile(e.dataTransfer.files[0]);
-            }
+            if (e.dataTransfer.files.length) { handleFile(e.dataTransfer.files[0]); }
         });
-        
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length) {
-                handleFile(e.target.files[0]);
-            }
+
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length) { handleFile(e.target.files[0]); }
         });
-        
+
         function handleFile(file) {
-            const maxBytes = {max_upload_bytes};
+            var maxBytes = {max_upload_bytes};
             if (file.size > maxBytes) {
-                showError('File too large', `Maximum size is {max_upload_mb}MB`);
+                showError('File too large', 'Maximum size is {max_upload_mb}MB');
                 return;
             }
-            
             selectedFile = file;
             document.getElementById('fileName').textContent = file.name;
             document.getElementById('fileSize').textContent = formatBytes(file.size);
             fileInfo.classList.add('show');
             uploadBtn.disabled = false;
-            result.className = 'result';
         }
-        
+
         function formatBytes(bytes) {
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
-        
-        uploadBtn.addEventListener('click', async () => {
+
+        uploadBtn.addEventListener('click', function() {
             if (!selectedFile) return;
-            
             uploadBtn.disabled = true;
             uploadBtn.textContent = 'Uploading...';
-            
-            const formData = new FormData();
+            var formData = new FormData();
             formData.append('file', selectedFile);
             formData.append('session_id', sessionId);
-            
-            try {
-                const response = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData
+            fetch('/api/upload', { method: 'POST', body: formData })
+                .then(function(response) {
+                    return response.json().then(function(data) {
+                        return { ok: response.ok, data: data };
+                    });
+                })
+                .then(function(result) {
+                    uploadBtn.disabled = false;
+                    uploadBtn.textContent = 'Upload';
+                    if (result.ok) {
+                        successBox.style.display = 'block';
+                        errorBox.style.display = 'none';
+                    } else {
+                        showError('Upload failed', result.data.error || 'Unknown error');
+                    }
+                })
+                .catch(function(err) {
+                    uploadBtn.disabled = false;
+                    uploadBtn.textContent = 'Upload';
+                    showError('Upload failed', err.message);
                 });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    showSuccess(data);
-                } else {
-                    showError('Upload failed', data.error || 'Unknown error');
-                }
-            } catch (err) {
-                showError('Upload failed', err.message);
-            } finally {
-                uploadBtn.disabled = false;
-                uploadBtn.textContent = 'Upload';
-            }
         });
-        
-        function showSuccess(data) {
-            result.className = 'result success';
-            document.getElementById('resultTitle').textContent = '✅ Upload successful!';
-            document.getElementById('resultMessage').textContent =
-                'Return to your AI assistant and let it know you\'re done — it will load the file automatically.';
-            document.getElementById('resultCode').textContent = '';
-        }
-        
+
         function showError(title, message) {
-            result.className = 'result error';
-            document.getElementById('resultTitle').textContent = '❌ ' + title;
-            document.getElementById('resultMessage').textContent = message;
-            document.getElementById('resultCode').textContent = '';
+            document.getElementById('errorTitle').textContent = '❌ ' + title;
+            document.getElementById('errorMsg').textContent = message;
+            errorBox.style.display = 'block';
+            successBox.style.display = 'none';
         }
     </script>
 </body>
