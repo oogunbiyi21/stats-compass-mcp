@@ -217,30 +217,41 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         Returns:
             Workflow result with forecasts and forecast chart.
 
-        PERFORMANCE — use fast defaults to avoid timeouts:
-
-        1. Pre-filter to the most recent ~500 rows BEFORE calling this tool.
-           Use filter_dataframe or tail to slice the DataFrame first.
-           Large datasets (>500 rows) make ARIMA grid search very slow.
-
-        2. Always pass config with fast settings:
-           {
-             "auto_find_params": false,
-             "arima_order": [1, 1, 1],
-             "check_stationarity": false
-           }
-
-        Only enable auto_find_params or check_stationarity if the user
-        explicitly asks for optimised parameters or stationarity diagnostics.
+        Large datasets are automatically sliced to the most recent 500 rows
+        before fitting to keep ARIMA fast. Pass config to override defaults,
+        e.g. auto_find_params=True for grid search or check_stationarity=True
+        for ADF diagnostics.
         """
+        MAX_ROWS = 500
         session = get_session(ctx, session_manager)
-        ts_config = TimeSeriesConfig(**config) if config else None
-        params = RunTimeseriesForecastInput(
-            dataframe_name=dataframe_name,
-            target_column=target_column,
-            date_column=date_column,
-            config=ts_config
-        )
-        result = run_timeseries_forecast(state=session.state, params=params)
-        result_dict = save_workflow_exports(result.model_dump(), session, "timeseries")
-        return with_images(result_dict, summarize=True)
+
+        # Auto-slice to last MAX_ROWS rows to keep ARIMA fitting fast
+        temp_name = None
+        try:
+            df = session.state.get_dataframe(dataframe_name)
+            if len(df) > MAX_ROWS:
+                sliced = df.tail(MAX_ROWS).reset_index(drop=False)
+                temp_name = f"__ts_slice_{session.session_id[:8]}"
+                session.state.set_dataframe(temp_name, sliced)
+                logger.info(
+                    f"Timeseries: sliced {dataframe_name or 'active'} "
+                    f"from {len(df)} to {MAX_ROWS} rows"
+                )
+                dataframe_name = temp_name
+        except Exception:
+            pass  # If slicing fails, let the workflow handle it normally
+
+        try:
+            ts_config = TimeSeriesConfig(**config) if config else None
+            params = RunTimeseriesForecastInput(
+                dataframe_name=dataframe_name,
+                target_column=target_column,
+                date_column=date_column,
+                config=ts_config
+            )
+            result = run_timeseries_forecast(state=session.state, params=params)
+            result_dict = save_workflow_exports(result.model_dump(), session, "timeseries")
+            return with_images(result_dict, summarize=True)
+        finally:
+            if temp_name:
+                session.state.remove_dataframe(temp_name)
