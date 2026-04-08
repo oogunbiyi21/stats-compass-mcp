@@ -80,7 +80,8 @@ def create_mcp_server(
             "these run in a cloud sandbox with no access to the user's machine. "
             "Always call the list_files MCP tool directly (e.g. list_files(directory='~/Downloads')). "
             "list_files is a top-level tool — do NOT route it through execute_data_tool. "
-            "If you are unsure of a workflow or receive a validation error, call get_usage_guide first."
+            "If you are unsure of a workflow or receive a validation error, call get_usage_guide first. "
+            "7. DOWNLOAD LINKS: When any tool result contains a download_url field, always present it to the user as a clickable link."
         )
     )
 
@@ -154,6 +155,9 @@ def run_stdio() -> None:
 
 def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:  # nosec B104
     """Run server with HTTP transport (for remote deployments)."""
+    from stats_compass_mcp.image_utils import set_inline_images
+    set_inline_images(False)
+
     import uvicorn
     from starlette.applications import Starlette
     from starlette.routing import Mount
