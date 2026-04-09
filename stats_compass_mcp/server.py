@@ -155,9 +155,6 @@ def run_stdio() -> None:
 
 def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:  # nosec B104
     """Run server with HTTP transport (for remote deployments)."""
-    from stats_compass_mcp.image_utils import set_inline_images
-    set_inline_images(False)
-
     import uvicorn
     from starlette.applications import Starlette
     from starlette.routing import Mount
