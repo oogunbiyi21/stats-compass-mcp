@@ -202,25 +202,27 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         target_column: str,
         dataframe_name: Optional[str] = None,
         date_column: Optional[str] = None,
-        config: Optional[dict] = None
+        forecast_periods: int = 30,
+        check_stationarity: bool = False,
+        auto_find_params: bool = False,
     ) -> Any:
         """
-        Run time series forecasting: check stationarity, fit ARIMA model,
-        generate forecasts and visualization.
+        Run time series forecasting: fit ARIMA model, generate forecasts and
+        visualization. Datasets larger than 500 rows are auto-sliced to the
+        most recent 500 rows before fitting.
 
         Args:
             target_column: Column with values to forecast
             dataframe_name: Name of DataFrame (default: active)
-            date_column: Column with dates (default: uses index)
-            config: Optional time series configuration dict
+            date_column: Column containing dates (default: uses row index)
+            forecast_periods: Number of future periods to forecast (default: 30)
+            check_stationarity: Run ADF stationarity test before fitting (default: False)
+            auto_find_params: Grid-search for best ARIMA(p,d,q) order (default: False).
+                Slower but may improve accuracy. Uses stationarity result to fix d,
+                then searches p and q over 0-3.
 
         Returns:
-            Workflow result with forecasts and forecast chart.
-
-        Large datasets are automatically sliced to the most recent 500 rows
-        before fitting to keep ARIMA fast. Pass config to override defaults,
-        e.g. auto_find_params=True for grid search or check_stationarity=True
-        for ADF diagnostics.
+            Workflow result with model info, forecast values, and chart download URL.
         """
         MAX_ROWS = 500
         session = get_session(ctx, session_manager)
@@ -242,7 +244,11 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
             pass  # If slicing fails, let the workflow handle it normally
 
         try:
-            ts_config = TimeSeriesConfig(**config) if config else None
+            ts_config = TimeSeriesConfig(
+                forecast_periods=forecast_periods,
+                check_stationarity=check_stationarity,
+                auto_find_params=auto_find_params,
+            )
             params = RunTimeseriesForecastInput(
                 dataframe_name=dataframe_name,
                 target_column=target_column,
