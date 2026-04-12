@@ -1,0 +1,12 @@
+{
+  "name": "stats-compass-mcp",
+  "description": "Data analysis toolkit for AI agents. 50+ tools for loading data, EDA, cleaning, regression, classification, ARIMA time series forecasting, and visualization.",
+  "repository": "https://github.com/oogunbiyi21/stats-compass-mcp",
+  "transport": ["stdio"],
+  "commands": {
+    "stdio": {
+      "command": "stats-compass-mcp",
+      "args": ["run"]
+    }
+  }
+}
