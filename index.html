@@ -332,10 +332,10 @@
         <h2 class="tw-text-4xl tw-font-bold tw-text-center">Pricing</h2>
         <p class="tw-text-gray-500 tw-text-lg tw-text-center tw-max-w-xl">Start for free — locally or in the cloud. Upgrade when you need more.</p>
 
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-6 tw-w-full tw-max-w-5xl">
+        <div class="tw-flex tw-gap-6 max-lg:tw-flex-col tw-w-full tw-max-w-5xl">
 
             <!-- Local -->
-            <div class="tw-border tw-border-gray-200 tw-rounded-2xl tw-p-8 tw-flex tw-flex-col">
+            <div class="tw-border tw-border-gray-200 tw-rounded-2xl tw-p-8 tw-flex tw-flex-col tw-flex-1">
                 <div class="tw-mb-4">
                     <h3 class="tw-text-xl tw-font-semibold tw-mb-1">Local</h3>
                     <p class="tw-text-gray-500 tw-text-sm">Self-hosted on your machine</p>
@@ -359,7 +359,7 @@
                     </li>
                     <li class="tw-flex tw-items-start tw-gap-2">
                         <i class="bi bi-check-circle-fill tw-text-green-500 tw-mt-0.5"></i>
-                        All analysis tools
+                        All 50+ analysis tools
                     </li>
                     <li class="tw-flex tw-items-start tw-gap-2">
                         <i class="bi bi-check-circle-fill tw-text-green-500 tw-mt-0.5"></i>
@@ -373,7 +373,7 @@
             </div>
 
             <!-- Hosted Free -->
-            <div class="tw-border tw-border-gray-200 tw-rounded-2xl tw-p-8 tw-flex tw-flex-col">
+            <div class="tw-border tw-border-gray-200 tw-rounded-2xl tw-p-8 tw-flex tw-flex-col tw-flex-1">
                 <div class="tw-mb-4">
                     <h3 class="tw-text-xl tw-font-semibold tw-mb-1">Hosted Free</h3>
                     <p class="tw-text-gray-500 tw-text-sm">Cloud-hosted, no setup needed</p>
@@ -393,21 +393,21 @@
                     </li>
                     <li class="tw-flex tw-items-start tw-gap-2">
                         <i class="bi bi-check-circle-fill tw-text-green-500 tw-mt-0.5"></i>
-                        All analysis tools
+                        All 50+ analysis tools
                     </li>
                     <li class="tw-flex tw-items-start tw-gap-2">
                         <i class="bi bi-check-circle-fill tw-text-green-500 tw-mt-0.5"></i>
                         No installation required
                     </li>
                 </ul>
-                <a href="https://mcp.statscompass.io/mcp"
+                <a href="#chatgpt"
                     class="tw-block tw-text-center tw-border tw-border-gray-300 tw-rounded-lg tw-px-6 tw-py-3 tw-font-medium tw-text-gray-700 hover:tw-bg-gray-50 tw-transition-colors tw-text-sm">
-                    Get started free
+                    See setup instructions ↓
                 </a>
             </div>
 
             <!-- Pro -->
-            <div class="tw-border-2 tw-border-black tw-rounded-2xl tw-p-8 tw-flex tw-flex-col tw-relative">
+            <div class="tw-border-2 tw-border-black tw-rounded-2xl tw-p-8 tw-flex tw-flex-col tw-flex-1 tw-relative">
                 <div class="tw-absolute tw-top-0 tw-left-1/2 tw-transform tw--translate-x-1/2 tw--translate-y-1/2">
                     <span class="tw-bg-black tw-text-white tw-text-xs tw-font-semibold tw-px-3 tw-py-1 tw-rounded-full">
                         MOST POPULAR
@@ -446,6 +446,53 @@
             </div>
 
         </div>
+    </section>
+
+    <section
+        class="tw-flex tw-w-full tw-flex-col tw-place-items-center tw-gap-8 tw-px-[10%] tw-py-20 tw-bg-gray-50 max-lg:tw-px-4"
+        id="chatgpt">
+        <h2 class="tw-text-4xl tw-font-bold tw-text-center">Use Stats Compass in ChatGPT</h2>
+        <p class="tw-text-gray-500 tw-text-lg tw-text-center tw-max-w-xl">No installation needed. Connect the hosted server directly from ChatGPT settings.</p>
+
+        <div class="tw-flex tw-flex-col tw-gap-4 tw-w-full tw-max-w-2xl">
+            <div class="tw-flex tw-items-start tw-gap-4 tw-bg-white tw-rounded-xl tw-p-5 tw-shadow-sm">
+                <span class="tw-flex-shrink-0 tw-w-8 tw-h-8 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-sm">1</span>
+                <div>
+                    <p class="tw-font-medium tw-mb-1">Enable developer mode</p>
+                    <p class="tw-text-gray-600 tw-text-sm">In ChatGPT, go to <strong>Settings → Apps → Advanced settings</strong> and enable developer mode.</p>
+                </div>
+            </div>
+            <div class="tw-flex tw-items-start tw-gap-4 tw-bg-white tw-rounded-xl tw-p-5 tw-shadow-sm">
+                <span class="tw-flex-shrink-0 tw-w-8 tw-h-8 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-sm">2</span>
+                <div>
+                    <p class="tw-font-medium tw-mb-1">Create a new app</p>
+                    <p class="tw-text-gray-600 tw-text-sm">Go back to <strong>Apps</strong> and select <strong>Create app</strong>. Fill in the form:</p>
+                    <ul class="tw-mt-2 tw-text-sm tw-text-gray-600 tw-space-y-1">
+                        <li><strong>Name:</strong> Stats Compass</li>
+                        <li><strong>MCP Server URL:</strong> <code class="tw-bg-gray-100 tw-px-1 tw-rounded">https://mcp.statscompass.io/mcp</code></li>
+                        <li><strong>Authentication:</strong> OAuth</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="tw-flex tw-items-start tw-gap-4 tw-bg-white tw-rounded-xl tw-p-5 tw-shadow-sm">
+                <span class="tw-flex-shrink-0 tw-w-8 tw-h-8 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-sm">3</span>
+                <div>
+                    <p class="tw-font-medium tw-mb-1">Authorise and log in</p>
+                    <p class="tw-text-gray-600 tw-text-sm">Grant ChatGPT access to Stats Compass, then log in with Google or email. You'll be redirected back to ChatGPT automatically.</p>
+                </div>
+            </div>
+            <div class="tw-flex tw-items-start tw-gap-4 tw-bg-white tw-rounded-xl tw-p-5 tw-shadow-sm">
+                <span class="tw-flex-shrink-0 tw-w-8 tw-h-8 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-sm">4</span>
+                <div>
+                    <p class="tw-font-medium tw-mb-1">Start analysing</p>
+                    <p class="tw-text-gray-600 tw-text-sm">Upload a CSV and ask questions in plain English — "Summarise this dataset", "Run a regression to predict price", "Forecast the next 30 days".</p>
+                </div>
+            </div>
+        </div>
+
+        <p class="tw-text-gray-500 tw-text-sm tw-text-center">
+            Requires a ChatGPT paid account (Plus or above). Free tier includes 100 calls/month. <a href="#pricing" class="tw-text-blue-600 hover:tw-underline">See pricing.</a>
+        </p>
     </section>
 
     <footer
