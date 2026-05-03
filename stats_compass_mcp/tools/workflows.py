@@ -78,7 +78,7 @@ def save_workflow_exports(result_dict: dict, session: Session, workflow_name: st
 def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
     """Register all workflow tools with the FastMCP server."""
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def run_eda_report_workflow(
         ctx: Context,
         dataframe_name: Optional[str] = None,
@@ -102,7 +102,7 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         result_dict = save_workflow_exports(result.model_dump(), session, "eda")
         return with_images(result_dict, summarize=True)
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def run_preprocessing_workflow(
         ctx: Context,
         dataframe_name: Optional[str] = None,
@@ -130,7 +130,7 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         result_dict = save_workflow_exports(result.model_dump(), session, "preprocessing")
         return with_images(result_dict, summarize=True)
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def run_classification_workflow(
         ctx: Context,
         target_column: str,
@@ -163,7 +163,7 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         result_dict = save_workflow_exports(result.model_dump(), session, "classification")
         return with_images(result_dict, summarize=True)
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def run_regression_workflow(
         ctx: Context,
         target_column: str,
@@ -196,7 +196,7 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         result_dict = save_workflow_exports(result.model_dump(), session, "regression")
         return with_images(result_dict, summarize=True)
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def run_timeseries_workflow(
         ctx: Context,
         target_column: str,

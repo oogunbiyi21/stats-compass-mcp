@@ -35,7 +35,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # EDA Tools
     # ========================================================================
 
-    @mcp.tool(annotations={"readOnlyHint": True})
+    @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
     def describe_eda_tools(ctx: Context) -> dict:
         """
         Get schemas for all EDA sub-tools.
@@ -48,7 +48,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
         result = describe_eda(state=session.state, params=params)
         return result.model_dump()
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def execute_eda_tool(
         ctx: Context,
         tool_name: str,
@@ -82,7 +82,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # Cleaning Tools
     # ========================================================================
 
-    @mcp.tool(annotations={"readOnlyHint": True})
+    @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
     def describe_cleaning_tools(ctx: Context) -> dict:
         """
         Get schemas for all cleaning sub-tools.
@@ -94,7 +94,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
         result = describe_cleaning(state=session.state, params=params)
         return result.model_dump()
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def execute_cleaning_tool(
         ctx: Context,
         tool_name: str,
@@ -122,7 +122,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # Transform Tools
     # ========================================================================
 
-    @mcp.tool(annotations={"readOnlyHint": True})
+    @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
     def describe_transform_tools(ctx: Context) -> dict:
         """
         Get schemas for all transform sub-tools.
@@ -134,7 +134,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
         result = describe_transforms(state=session.state, params=params)
         return result.model_dump()
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def execute_transform_tool(
         ctx: Context,
         tool_name: str,
@@ -162,7 +162,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # Data Tools
     # ========================================================================
 
-    @mcp.tool(annotations={"readOnlyHint": True})
+    @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
     def describe_data_tools(ctx: Context) -> dict:
         """
         Get schemas for all data manipulation sub-tools.
@@ -180,7 +180,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
         result = describe_data(state=session.state, params=params)
         return result.model_dump()
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def execute_data_tool(
         ctx: Context,
         tool_name: str,
@@ -215,7 +215,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # ML Tools
     # ========================================================================
 
-    @mcp.tool(annotations={"readOnlyHint": True})
+    @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
     def describe_ml_tools(ctx: Context) -> dict:
         """
         Get schemas for all ML sub-tools.
@@ -228,7 +228,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
         result = describe_ml(state=session.state, params=params)
         return result.model_dump()
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def execute_ml_tool(
         ctx: Context,
         tool_name: str,
@@ -256,7 +256,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
     # Plot Tools
     # ========================================================================
 
-    @mcp.tool(annotations={"readOnlyHint": True})
+    @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
     def describe_plot_tools(ctx: Context) -> dict:
         """
         Get schemas for all visualization sub-tools.
@@ -269,7 +269,7 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
         result = describe_plots(state=session.state, params=params)
         return result.model_dump()
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def execute_plot_tool(
         ctx: Context,
         tool_name: str,
