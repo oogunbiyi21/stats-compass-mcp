@@ -38,6 +38,8 @@ stats-compass-mcp install --client vscode
 claude mcp add stats-compass -- uvx stats-compass-mcp run
 ```
 
+> **Note:** The first connection may fail while `uvx` downloads the package. If this happens, disable and re-enable Stats Compass in your MCP settings — subsequent connections will be instant.
+
 Restart your client and start asking questions about your data.
 
 ## What Can It Do?
