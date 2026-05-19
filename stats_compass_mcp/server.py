@@ -81,7 +81,10 @@ def create_mcp_server(
             "Always call the list_files MCP tool directly (e.g. list_files(directory='~/Downloads')). "
             "list_files is a top-level tool — do NOT route it through execute_data_tool. "
             "If you are unsure of a workflow or receive a validation error, call get_usage_guide first. "
-            "7. DOWNLOAD LINKS: When any tool result contains a download_url field, always present it to the user as a clickable link."
+            "7. DOWNLOAD LINKS: When any tool result contains a download_url field, always present it to the user as a clickable link. "
+            "8. AXIS LABELS: When calling plot tools, always set xlabel and ylabel to descriptive labels. "
+            "If you know the units (e.g. from context or column names like 'price_usd'), include them in the label (e.g. 'Price (USD)'). "
+            "Never leave axis labels as raw column names if a more descriptive label is available."
         )
     )
 
