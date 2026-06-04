@@ -68,7 +68,6 @@ class Session:
         dataframes = self.state.list_dataframes()
 
         return {
-            "session_id": self.session_id,
             "created_at": self.created_at.isoformat(),
             "last_active": self.last_active.isoformat(),
             "dataframes": [
