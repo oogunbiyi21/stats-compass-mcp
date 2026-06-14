@@ -250,7 +250,23 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
             dataframe_name=dataframe_name
         )
         result = execute_ml(state=session.state, params=input_params)
-        return result.model_dump()
+        result_dict = result.model_dump()
+
+        # Save any embedded plot to exports and add download_url
+        if result_dict.get("result") and result_dict["result"].get("image_base64"):
+            from stats_compass_mcp.exports import save_plot_export
+
+            export_info = save_plot_export(
+                session_id=session.session_id,
+                image_base64=result_dict["result"]["image_base64"],
+                name_prefix=tool_name,
+            )
+
+            if export_info["download_url"]:
+                result_dict["result"]["download_url"] = export_info["download_url"]
+                result_dict["result"]["filename"] = export_info["filename"]
+
+        return with_images(result_dict)
 
     # ========================================================================
     # Plot Tools
