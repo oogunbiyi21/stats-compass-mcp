@@ -167,6 +167,9 @@ def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:  # nosec B104
     logger.info(f"Starting Stats Compass MCP (HTTP transport) at {host}:{port}")
     logger.info(f"Config: memory_limit={MEMORY_LIMIT_MB}MB, max_sessions={MAX_SESSIONS}")
 
+    from stats_compass_mcp.image_utils import set_inline_images
+    set_inline_images(False)
+
     mcp = create_mcp_server(with_storage=True)
 
     # Create combined app with MCP + upload routes
