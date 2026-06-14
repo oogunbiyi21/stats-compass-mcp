@@ -167,8 +167,8 @@ def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:  # nosec B104
     logger.info(f"Starting Stats Compass MCP (HTTP transport) at {host}:{port}")
     logger.info(f"Config: memory_limit={MEMORY_LIMIT_MB}MB, max_sessions={MAX_SESSIONS}")
 
-    from stats_compass_mcp.image_utils import set_inline_images
-    set_inline_images(False)
+    from stats_compass_mcp.image_utils import set_inline_images, _inline_images_ctx
+    set_inline_images(False)  # Default: strip images in HTTP mode
 
     mcp = create_mcp_server(with_storage=True)
 
@@ -176,15 +176,32 @@ def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:  # nosec B104
     mcp_app = mcp.http_app()
     upload_routes = create_upload_routes()
 
+    # Middleware: opt individual requests into inline images via X-Inline-Images: 1 header
+    class InlineImagesMiddleware:
+        def __init__(self, app):
+            self.app = app
+
+        async def __call__(self, scope, receive, send):
+            if scope["type"] == "http":
+                headers = dict(scope.get("headers", []))
+                if headers.get(b"x-inline-images") == b"1":
+                    token = _inline_images_ctx.set(True)
+                    try:
+                        await self.app(scope, receive, send)
+                    finally:
+                        _inline_images_ctx.reset(token)
+                    return
+            await self.app(scope, receive, send)
+
     # Combine routes: upload routes first, then mount MCP app
     # IMPORTANT: Pass mcp_app.lifespan to initialize the task group
-    app = Starlette(
+    app = InlineImagesMiddleware(Starlette(
         routes=[
             *upload_routes,
             Mount("/", mcp_app),  # MCP handles /mcp and /sse
         ],
         lifespan=mcp_app.lifespan,  # Required for FastMCP's async task group
-    )
+    ))
 
     logger.info("Upload endpoints: GET /upload, POST /api/upload")
 

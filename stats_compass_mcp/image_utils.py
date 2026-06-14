@@ -6,6 +6,7 @@ Converts base64 images from stats-compass-core results to MCP ImageContent.
 
 import base64
 import logging
+from contextvars import ContextVar
 from typing import Any
 
 from fastmcp.utilities.types import Image
@@ -14,14 +15,23 @@ from stats_compass_mcp.workflow_summary import summarize_workflow_result
 
 logger = logging.getLogger(__name__)
 
-# Set to False for HTTP transport — strips base64 blobs, returns download URLs only.
-_INLINE_IMAGES = True
+# Per-request flag: True = return inline images, False = strip and return download URLs only.
+# Defaults to True (stdio mode). HTTP mode sets False globally via set_inline_images(),
+# but individual requests can opt in via the X-Inline-Images header (ContextVar overrides global).
+_INLINE_IMAGES: bool = True
+_inline_images_ctx: ContextVar[bool | None] = ContextVar("inline_images", default=None)
 
 
 def set_inline_images(enabled: bool) -> None:
-    """Configure whether base64 images are returned inline. Call once at startup."""
+    """Set global default for inline images. Call once at startup for HTTP mode."""
     global _INLINE_IMAGES
     _INLINE_IMAGES = enabled
+
+
+def _inline_images() -> bool:
+    """Return effective inline-images setting: per-request override if set, else global."""
+    ctx = _inline_images_ctx.get()
+    return ctx if ctx is not None else _INLINE_IMAGES
 
 
 def process_images(obj: Any, images: list[Image] | None = None) -> tuple[Any, list[Image]]:
@@ -82,7 +92,7 @@ def with_images(result: dict, summarize: bool = False) -> Any:
 
     Returns [result, Image, ...] if images found (stdio), else just result.
     """
-    if not _INLINE_IMAGES:
+    if not _inline_images():
         processed = strip_base64(result)
         if summarize and "steps" in processed and "artifacts" in processed:
             processed = summarize_workflow_result(processed)
