@@ -79,12 +79,15 @@
                 </div>
 
                 <h2 class="reveal tw-mt-6 tw-text-lg">Works with</h2>
-                <div class="reveal tw-mt-2 tw-flex tw-gap-4 tw-text-gray-600">
+                <div class="reveal tw-mt-2 tw-flex tw-flex-wrap tw-gap-4 tw-text-gray-600">
                     <span class="tw-flex tw-items-center tw-gap-1">
                         <i class="bi bi-check-circle-fill tw-text-green-600"></i> Claude Desktop
                     </span>
                     <span class="tw-flex tw-items-center tw-gap-1">
                         <i class="bi bi-check-circle-fill tw-text-green-600"></i> VS Code
+                    </span>
+                    <span class="tw-flex tw-items-center tw-gap-1">
+                        <i class="bi bi-check-circle-fill tw-text-green-600"></i> Cursor
                     </span>
                     <span class="tw-flex tw-items-center tw-gap-1">
                         <i class="bi bi-check-circle-fill tw-text-green-600"></i> ChatGPT
@@ -299,19 +302,20 @@
             </div>
 
             <div class="tw-w-full tw-mt-6">
-                <h3 class="tw-text-2xl tw-mb-3">Option 2: VS Code</h3>
-                <p class="tw-text-gray-600 tw-mb-3">Add to your VS Code <code
-                        class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">settings.json</code>:</p>
-                <pre class="tw-bg-gray-900 tw-text-gray-100 tw-p-4 tw-rounded-xl tw-overflow-x-auto tw-text-sm"><code>{
-  "mcp": {
-    "servers": {
-      "stats-compass": {
-        "command": "uvx",
-        "args": ["stats-compass-mcp"]
-      }
-    }
-  }
-}</code></pre>
+                <h3 class="tw-text-2xl tw-mb-3">Option 2: VS Code / Cursor</h3>
+                <p class="tw-text-gray-600 tw-mb-3">Install the extension from the Marketplace — no Python or dependencies needed:</p>
+                <div class="tw-flex tw-gap-3 tw-flex-wrap">
+                    <a href="https://marketplace.visualstudio.com/items?itemName=inference-labs.stats-compass-mcp"
+                        target="_blank"
+                        class="tw-inline-flex tw-items-center tw-gap-2 tw-rounded-xl tw-border-2 tw-border-gray-900 tw-px-5 tw-py-3 tw-font-semibold tw-text-gray-900 hover:tw-bg-gray-900 hover:tw-text-white tw-transition-colors tw-duration-200">
+                        <i class="bi bi-box-arrow-up-right"></i> VS Code Marketplace
+                    </a>
+                    <a href="https://marketplace.cursorapi.com/items?itemName=inference-labs.stats-compass-mcp"
+                        target="_blank"
+                        class="tw-inline-flex tw-items-center tw-gap-2 tw-rounded-xl tw-border-2 tw-border-gray-900 tw-px-5 tw-py-3 tw-font-semibold tw-text-gray-900 hover:tw-bg-gray-900 hover:tw-text-white tw-transition-colors tw-duration-200">
+                        <i class="bi bi-box-arrow-up-right"></i> Cursor Marketplace
+                    </a>
+                </div>
             </div>
 
             <div class="tw-w-full tw-mt-6">
@@ -361,7 +365,7 @@
                     </li>
                     <li class="tw-flex tw-items-center tw-gap-2">
                         <i class="bi bi-check-circle-fill tw-text-green-500"></i>
-                        Works with Claude Desktop &amp; VS Code
+                        Works with Claude Desktop, VS Code &amp; Cursor
                     </li>
                     <li class="tw-flex tw-items-center tw-gap-2">
                         <i class="bi bi-check-circle-fill tw-text-green-500"></i>
@@ -398,7 +402,7 @@
                     </li>
                     <li class="tw-flex tw-items-center tw-gap-2">
                         <i class="bi bi-check-circle-fill tw-text-green-500"></i>
-                        Works with ChatGPT
+                        Works with ChatGPT, VS Code &amp; Cursor
                     </li>
                     <li class="tw-flex tw-items-center tw-gap-2">
                         <i class="bi bi-check-circle-fill tw-text-green-500"></i>
