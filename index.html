@@ -288,17 +288,13 @@
             </h2>
 
             <div class="tw-w-full tw-mt-4">
-                <h3 class="tw-text-2xl tw-mb-3">Option 1: Claude Desktop</h3>
-                <p class="tw-text-gray-600 tw-mb-3">Add to your <code
-                        class="tw-bg-gray-100 tw-px-2 tw-py-1 tw-rounded">claude_desktop_config.json</code>:</p>
-                <pre class="tw-bg-gray-900 tw-text-gray-100 tw-p-4 tw-rounded-xl tw-overflow-x-auto tw-text-sm"><code>{
-  "mcpServers": {
-    "stats-compass": {
-      "command": "uvx",
-      "args": ["stats-compass-mcp"]
-    }
-  }
-}</code></pre>
+                <h3 class="tw-text-2xl tw-mb-3">Option 1: Claude</h3>
+                <p class="tw-text-gray-600 tw-mb-3">One click — add Stats Compass directly from the Claude connector store:</p>
+                <a href="https://claude.ai/directory/connectors/ant.dir.gh.oogunbiyi21.stats-compass-mcp"
+                    target="_blank"
+                    class="tw-inline-flex tw-items-center tw-gap-2 tw-rounded-xl tw-border-2 tw-border-gray-900 tw-px-5 tw-py-3 tw-font-semibold tw-text-gray-900 hover:tw-bg-gray-900 hover:tw-text-white tw-transition-colors tw-duration-200">
+                    <i class="bi bi-box-arrow-up-right"></i> Add to Claude
+                </a>
             </div>
 
             <div class="tw-w-full tw-mt-6">
@@ -318,16 +314,72 @@
                 </div>
             </div>
 
-            <div class="tw-w-full tw-mt-6">
-                <h3 class="tw-text-2xl tw-mb-3">Option 3: Claude Code (CLI)</h3>
-                <p class="tw-text-gray-600 tw-mb-3">Run this command in your terminal:</p>
-                <pre class="tw-bg-gray-900 tw-text-gray-100 tw-p-4 tw-rounded-xl tw-overflow-x-auto tw-text-sm"><code>claude mcp add stats-compass -- uvx stats-compass-mcp run</code></pre>
+            <div class="tw-w-full tw-mt-6" id="chatgpt">
+                <h3 class="tw-text-2xl tw-mb-3">Option 3: ChatGPT</h3>
+                <p class="tw-text-gray-600 tw-mb-4">Connect the hosted server directly from ChatGPT settings. Requires a ChatGPT paid account (Plus or above).</p>
+                <div class="tw-flex tw-flex-col tw-gap-3">
+                    <div class="tw-flex tw-items-start tw-gap-3 tw-bg-gray-50 tw-rounded-xl tw-p-4">
+                        <span class="tw-flex-shrink-0 tw-w-7 tw-h-7 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-xs">1</span>
+                        <div>
+                            <p class="tw-font-medium tw-text-sm">Enable developer mode</p>
+                            <p class="tw-text-gray-600 tw-text-sm">Go to <strong>Settings → Apps → Advanced settings</strong> and enable developer mode.</p>
+                        </div>
+                    </div>
+                    <div class="tw-flex tw-items-start tw-gap-3 tw-bg-gray-50 tw-rounded-xl tw-p-4">
+                        <span class="tw-flex-shrink-0 tw-w-7 tw-h-7 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-xs">2</span>
+                        <div>
+                            <p class="tw-font-medium tw-text-sm">Create a new app</p>
+                            <p class="tw-text-gray-600 tw-text-sm">Go to <strong>Apps → Create app</strong>. Set the MCP Server URL to <code class="tw-bg-gray-100 tw-px-1 tw-rounded">https://mcp.statscompass.io/mcp</code> and authentication to <strong>OAuth</strong>.</p>
+                        </div>
+                    </div>
+                    <div class="tw-flex tw-items-start tw-gap-3 tw-bg-gray-50 tw-rounded-xl tw-p-4">
+                        <span class="tw-flex-shrink-0 tw-w-7 tw-h-7 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-xs">3</span>
+                        <div>
+                            <p class="tw-font-medium tw-text-sm">Authorise and log in</p>
+                            <p class="tw-text-gray-600 tw-text-sm">Grant access, log in with Google or email, and you'll be redirected back automatically.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <a href="https://github.com/oogunbiyi21/stats-compass-mcp#readme"
-                class="btn tw-mt-6 tw-duration-[0.3s] hover:tw-scale-105" target="_blank">
-                Full Documentation →
-            </a>
+            <div class="tw-w-full tw-mt-6">
+                <h3 class="tw-text-2xl tw-mb-3">Option 4: Claude Desktop</h3>
+                <p class="tw-text-gray-600 tw-mb-3">Add Stats Compass from the connector store — no local setup required:</p>
+                <a href="https://claude.ai/directory/connectors/ant.dir.gh.oogunbiyi21.stats-compass-mcp"
+                    target="_blank"
+                    class="tw-inline-flex tw-items-center tw-gap-2 tw-rounded-xl tw-border-2 tw-border-gray-900 tw-px-5 tw-py-3 tw-font-semibold tw-text-gray-900 hover:tw-bg-gray-900 hover:tw-text-white tw-transition-colors tw-duration-200">
+                    <i class="bi bi-box-arrow-up-right"></i> Claude Connector Store
+                </a>
+            </div>
+
+            <div class="tw-w-full tw-mt-8 tw-pt-6 tw-border-t tw-border-gray-200">
+                <h3 class="tw-text-2xl tw-mb-2">Open Source / Self-Hosted</h3>
+                <p class="tw-text-gray-600 tw-mb-4">Run Stats Compass locally with unlimited free usage. Requires Python 3.11+ and <a href="https://docs.astral.sh/uv/" target="_blank" class="tw-text-blue-600 hover:tw-underline">UV</a>.</p>
+
+                <div class="tw-space-y-4">
+                    <div>
+                        <p class="tw-text-sm tw-font-medium tw-mb-2">Claude Code (CLI):</p>
+                        <pre class="tw-bg-gray-900 tw-text-gray-100 tw-p-4 tw-rounded-xl tw-overflow-x-auto tw-text-sm"><code>claude mcp add stats-compass -- uvx stats-compass-mcp run</code></pre>
+                    </div>
+                    <div>
+                        <p class="tw-text-sm tw-font-medium tw-mb-2">Claude Desktop (manual config):</p>
+                        <pre class="tw-bg-gray-900 tw-text-gray-100 tw-p-4 tw-rounded-xl tw-overflow-x-auto tw-text-sm"><code>{
+  "mcpServers": {
+    "stats-compass": {
+      "command": "uvx",
+      "args": ["stats-compass-mcp"]
+    }
+  }
+}</code></pre>
+                    </div>
+                </div>
+
+                <a href="https://github.com/oogunbiyi21/stats-compass-mcp#readme"
+                    class="tw-inline-flex tw-items-center tw-gap-2 tw-mt-4 tw-text-blue-600 hover:tw-underline tw-text-sm"
+                    target="_blank">
+                    <i class="bi bi-github"></i> Full documentation on GitHub
+                </a>
+            </div>
         </div>
     </section>
 
@@ -464,62 +516,6 @@
         <p class="tw-text-gray-400 tw-text-sm tw-text-center">Billing handled securely by Stripe. Cancel any time.</p>
     </section>
 
-    <section
-        class="tw-flex tw-w-full tw-flex-col tw-place-items-center tw-gap-8 tw-px-[10%] tw-py-20 tw-bg-gray-50 max-lg:tw-px-4"
-        id="chatgpt">
-        <h2 class="tw-text-4xl tw-font-bold tw-text-center">Use Stats Compass in ChatGPT</h2>
-        <p class="tw-text-gray-500 tw-text-lg tw-text-center tw-max-w-xl">No installation needed. Connect the hosted server directly from ChatGPT settings.</p>
-
-        <div class="tw-flex tw-flex-col tw-gap-4 tw-w-full tw-max-w-2xl">
-            <div class="tw-flex tw-items-start tw-gap-4 tw-bg-white tw-rounded-xl tw-p-5 tw-shadow-sm">
-                <span class="tw-flex-shrink-0 tw-w-8 tw-h-8 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-sm">1</span>
-                <div>
-                    <p class="tw-font-medium tw-mb-1">Enable developer mode</p>
-                    <p class="tw-text-gray-600 tw-text-sm">In ChatGPT, go to <strong>Settings → Apps → Advanced settings</strong> and enable developer mode.</p>
-                </div>
-            </div>
-            <div class="tw-flex tw-items-start tw-gap-4 tw-bg-white tw-rounded-xl tw-p-5 tw-shadow-sm">
-                <span class="tw-flex-shrink-0 tw-w-8 tw-h-8 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-sm">2</span>
-                <div>
-                    <p class="tw-font-medium tw-mb-1">Create a new app</p>
-                    <p class="tw-text-gray-600 tw-text-sm">Go back to <strong>Apps</strong> and select <strong>Create app</strong>. Fill in the form:</p>
-                    <ul class="tw-mt-2 tw-text-sm tw-text-gray-600 tw-space-y-1">
-                        <li><strong>Name:</strong> Stats Compass</li>
-                        <li><strong>MCP Server URL:</strong> <code class="tw-bg-gray-100 tw-px-1 tw-rounded">https://mcp.statscompass.io/mcp</code></li>
-                        <li><strong>Authentication:</strong> OAuth</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="tw-flex tw-items-start tw-gap-4 tw-bg-white tw-rounded-xl tw-p-5 tw-shadow-sm">
-                <span class="tw-flex-shrink-0 tw-w-8 tw-h-8 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-sm">3</span>
-                <div>
-                    <p class="tw-font-medium tw-mb-1">Authorise and log in</p>
-                    <p class="tw-text-gray-600 tw-text-sm">Grant ChatGPT access to Stats Compass, then log in with Google or email. You'll be redirected back to ChatGPT automatically.</p>
-                </div>
-            </div>
-            <div class="tw-flex tw-items-start tw-gap-4 tw-bg-white tw-rounded-xl tw-p-5 tw-shadow-sm">
-                <span class="tw-flex-shrink-0 tw-w-8 tw-h-8 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-sm">4</span>
-                <div class="tw-w-full">
-                    <p class="tw-font-medium tw-mb-1">Upload your data</p>
-                    <p class="tw-text-gray-600 tw-text-sm">ChatGPT can't send files directly to MCP servers. Instead, ask Stats Compass to generate an upload link — then paste your CSV URL or use the link to upload from your machine.</p>
-                    <p class="tw-text-gray-500 tw-text-sm tw-mt-2 tw-italic">Try: "Use stats compass to give me an upload link for my CSV"</p>
-                    <!-- GIF placeholder: replace src when ready -->
-                    <!-- <img src="./assets/demos/chatgpt_upload.gif" alt="Requesting an upload link in ChatGPT" class="tw-mt-4 tw-rounded-xl tw-w-full" /> -->
-                </div>
-            </div>
-            <div class="tw-flex tw-items-start tw-gap-4 tw-bg-white tw-rounded-xl tw-p-5 tw-shadow-sm">
-                <span class="tw-flex-shrink-0 tw-w-8 tw-h-8 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-sm">5</span>
-                <div>
-                    <p class="tw-font-medium tw-mb-1">Start analysing</p>
-                    <p class="tw-text-gray-600 tw-text-sm">Ask questions in plain English — "Summarise this dataset", "Run a regression to predict price", "Forecast the next 30 days".</p>
-                </div>
-            </div>
-        </div>
-
-        <p class="tw-text-gray-500 tw-text-sm tw-text-center">
-            Requires a ChatGPT paid account (Plus or above). Free tier includes 100 calls/month. <a href="#pricing" class="tw-text-blue-600 hover:tw-underline">See pricing.</a>
-        </p>
-    </section>
 
     <footer
         class="tw-mt-auto tw-flex tw-w-full tw-place-content-around tw-gap-3 tw-p-[5%] tw-px-[10%] tw-text-black max-md:tw-flex-col">
