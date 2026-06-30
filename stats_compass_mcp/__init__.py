@@ -12,7 +12,7 @@ Usage:
     stats-compass-mcp serve --port 8000
 """
 
-__version__ = "0.3.13"
+__version__ = "0.3.21"
 
 from stats_compass_mcp.server import create_mcp_server, run_http, run_stdio
 from stats_compass_mcp.session import Session, SessionManager, get_session

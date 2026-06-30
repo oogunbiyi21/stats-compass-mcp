@@ -410,7 +410,8 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             ctx: Context,
             file_key: Optional[str] = None,
             dataframe_name: Optional[str] = None,
-            file_type: Optional[str] = None
+            file_type: Optional[str] = None,
+            encoding: str = "utf-8"
         ) -> dict:
             """
             Load an uploaded file as a DataFrame.
@@ -423,6 +424,7 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
                 file_key: Filename to load (optional — omit to auto-load the latest upload)
                 dataframe_name: Name for the DataFrame (default: filename without extension)
                 file_type: File type override - "csv" or "excel" (auto-detected from extension if omitted)
+                encoding: File encoding (default: utf-8). Try "latin-1" if you get codec errors.
 
             Returns:
                 DataFrame info with name, shape, columns, dtypes.
@@ -449,12 +451,15 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
                 ext = file_key.rsplit(".", 1)[-1].lower() if "." in file_key else ""
                 file_type = "excel" if ext in ("xlsx", "xls") else "csv"
 
-            # Load file
+            # Load file with automatic encoding fallback for CSVs
             try:
                 if file_type.lower() == "excel":
                     df = pd.read_excel(file_path)
                 else:
-                    df = pd.read_csv(file_path)
+                    try:
+                        df = pd.read_csv(file_path, encoding=encoding)
+                    except UnicodeDecodeError:
+                        df = pd.read_csv(file_path, encoding="latin-1")
             except Exception as e:
                 return {"error": f"Failed to load file: {str(e)}"}
 
