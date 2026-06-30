@@ -12,28 +12,24 @@ def summarize_workflow_result(result_data: dict) -> dict:
     Returns a much smaller JSON payload that still captures the key information
     without the verbose step-by-step details.
     """
+    _CHART_STEPS = {"histogram_", "bar_chart_", "scatter_", "line_chart_", "box_plot_"}
+
     # Build step summaries - just name, status, and key metrics
     step_summaries = []
     for step in result_data.get("steps", []):
+        step_name = step.get("step_name", "")
         summary = {
-            "step": step.get("step_name"),
+            "step": step_name,
             "status": step.get("status"),
         }
         # Include error if failed
         if step.get("status") == "failed" and step.get("error"):
             summary["error"] = step["error"]
-        # Include key metrics from result if present
-        if step.get("result") and isinstance(step["result"], dict):
-            # Cherry-pick useful fields
-            result = step["result"]
-            if "accuracy" in result:
-                summary["accuracy"] = result["accuracy"]
-            if "rmse" in result:
-                summary["rmse"] = result["rmse"]
-            if "r2" in result:
-                summary["r2"] = result["r2"]
-            if "is_stationary" in result:
-                summary["is_stationary"] = result["is_stationary"]
+        # Include full result for analysis steps (describe, correlations, etc.)
+        # but not for chart steps which are just images
+        is_chart = any(step_name.startswith(prefix) for prefix in _CHART_STEPS)
+        if step.get("result") and isinstance(step["result"], dict) and not is_chart:
+            summary["result"] = step["result"]
         # Include download URL if present (added by save_workflow_exports)
         if step.get("download_url"):
             summary["download_url"] = step["download_url"]
