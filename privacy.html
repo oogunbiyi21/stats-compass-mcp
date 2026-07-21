@@ -37,7 +37,7 @@
     <main class="tw-mt-[100px] tw-px-[10%] tw-pb-20 max-lg:tw-px-4">
         <div class="tw-max-w-3xl tw-mx-auto">
             <h1 class="tw-text-4xl tw-font-bold tw-mb-2">Privacy Policy</h1>
-            <p class="tw-text-gray-500 tw-mb-8">Last updated: June 16, 2026</p>
+            <p class="tw-text-gray-500 tw-mb-8">Last updated: July 21, 2026</p>
 
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Overview</h2>
@@ -92,6 +92,44 @@
             </section>
 
             <section class="tw-mb-8">
+                <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Google Sheets Integration</h2>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
+                    Stats Compass can connect to your Google Sheets account to load spreadsheet data for analysis and save results back to Google Sheets. This integration is optional and requires your explicit consent via Google's OAuth flow.
+                </p>
+
+                <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data accessed</h3>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
+                    When you connect Google Sheets, Stats Compass requests the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">spreadsheets</code> scope, which allows it to read and write Google Sheets spreadsheets you direct it to. Stats Compass only accesses the specific spreadsheets you choose to load — it does not scan, index, or browse your Google account.
+                </p>
+
+                <h3 class="tw-text-lg tw-font-semibold tw-mb-2">How your data is used</h3>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
+                    Spreadsheet data is loaded into memory for the sole purpose of performing the statistical analysis, visualisation, or transformation you request during your session. Results may be written back to a Google Sheet at your direction. Your Google Sheets data is not used for any other purpose.
+                </p>
+
+                <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data storage and retention</h3>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
+                    Spreadsheet data loaded from Google Sheets is held in memory only for the duration of your session. It is not persisted to disk or backed up. When your session ends or you call <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code>, all in-memory data is discarded. OAuth tokens used to access Google Sheets are stored in our database and can be revoked at any time by disconnecting Google Sheets from your Google Account settings at <a href="https://myaccount.google.com/connections" class="tw-text-blue-600 hover:tw-underline" target="_blank">myaccount.google.com/connections</a>.
+                </p>
+
+                <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data transfer</h3>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
+                    Your Google Sheets data is not sold, shared with, or transferred to any third parties. Analysis results are returned to your AI assistant (e.g. Claude) as part of the normal conversation flow, subject to that platform's own privacy policy. No Google user data is transferred to advertising platforms, data brokers, or any other third parties.
+                </p>
+
+                <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data protection</h3>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
+                    All connections to Google APIs are made over HTTPS. OAuth tokens are stored server-side and are never exposed to the client or the AI assistant. Spreadsheet data is processed in isolated, per-user sessions.
+                </p>
+
+                <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Google API Services Limited Use Disclosure</h3>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
+                    Stats Compass's use and transfer to any other app of information received from Google APIs will adhere to the
+                    <a href="https://developers.google.com/terms/api-services-user-data-policy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Google API Services User Data Policy</a>, including the Limited Use requirements. Google user data is not used to develop, improve, or train generalised AI/ML models.
+                </p>
+            </section>
+
+            <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Third-Party Services</h2>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-3">
                     We use the following third-party services in hosted mode:
@@ -99,6 +137,7 @@
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
                     <li><strong>Auth0</strong> — handles authentication and sign-in. Your email address is shared with Auth0 for this purpose. See <a href="https://auth0.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Auth0's Privacy Policy</a>.</li>
                     <li><strong>Stripe</strong> — handles payment processing for paid subscriptions. Payment information is processed directly by Stripe and is not stored on our servers. See <a href="https://stripe.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Stripe's Privacy Policy</a>.</li>
+                    <li><strong>Google</strong> — if you connect Google Sheets, OAuth tokens and API requests are processed by Google. Only the specific spreadsheets you choose to load are accessed. See <a href="https://policies.google.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Google's Privacy Policy</a>.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
                     When using Stats Compass through ChatGPT or other AI assistants, your analysis results are transmitted to and processed by
