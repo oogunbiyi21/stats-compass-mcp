@@ -37,7 +37,14 @@
     <main class="tw-mt-[100px] tw-px-[10%] tw-pb-20 max-lg:tw-px-4">
         <div class="tw-max-w-3xl tw-mx-auto">
             <h1 class="tw-text-4xl tw-font-bold tw-mb-2">Privacy Policy</h1>
-            <p class="tw-text-gray-500 tw-mb-8">Last updated: July 21, 2026</p>
+            <p class="tw-text-gray-500 tw-mb-8">Last updated: July 30, 2026</p>
+
+            <section class="tw-mb-8">
+                <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Who We Are</h2>
+                <p class="tw-text-gray-700 tw-leading-relaxed">
+                    Stats Compass is operated by Inference Labs, based in the United Kingdom. For the purposes of UK GDPR, Inference Labs is the data controller for personal data processed through the hosted service. You can contact us at <a href="mailto:tunji@statscompass.io" class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a>.
+                </p>
+            </section>
 
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Overview</h2>
@@ -73,8 +80,8 @@
                     When you use our hosted cloud service, we collect and process the following:
                 </p>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
-                    <li><strong>Email address</strong> — collected via OAuth sign-in (Google or email/password). Used to identify your account and communicate with you about your subscription.</li>
-                    <li><strong>Usage counts</strong> — we count the number of tool calls you make per billing period to enforce free tier limits and bill paid subscribers.</li>
+                    <li><strong>Email address</strong> — collected via OAuth sign-in (Google or email/password) and held by our authentication provider, Auth0. We use it to identify your account and to contact you about your subscription or service changes. It is not stored on the Stats Compass server, which identifies accounts by a salted, irreversible hash instead.</li>
+                    <li><strong>Usage counts</strong> — we count the number of tool calls you make per billing period to enforce free tier limits and bill paid subscribers. These are recorded against the hashed identifier, not your email.</li>
                     <li><strong>Uploaded files and analysis results</strong> — files you upload and results generated during your session are stored temporarily on our server for the duration of your session. These are used solely to provide the service.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
@@ -85,10 +92,15 @@
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Data Retention</h2>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
-                    <li><strong>Session data and uploaded files</strong> — deleted when your session ends or when you call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code> tool.</li>
-                    <li><strong>Usage counts</strong> — reset at the start of each billing period.</li>
-                    <li><strong>Account data (email)</strong> — retained for as long as your account is active. You can request deletion at any time by emailing us.</li>
+                    <li><strong>Session data, uploaded files and exports</strong> — deleted when you call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code> tool, and automatically removed after 24 hours of inactivity.</li>
+                    <li><strong>Google Sheets access tokens</strong> — deleted when you disconnect, when you delete your account, or automatically after 90 days without use.</li>
+                    <li><strong>Usage counts</strong> — stored per calendar month against a pseudonymous account identifier, and deleted 35 days after the month ends.</li>
+                    <li><strong>Server logs</strong> — automatically rotated and overwritten, so only recent activity is retained. Logs record request paths and timestamps for security and debugging; they do not contain the contents of your files or spreadsheets.</li>
+                    <li><strong>Account data</strong> — retained for as long as your account is active. You can request deletion at any time by emailing us.</li>
                 </ul>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
+                    Your email address is held by our authentication provider (Auth0) and, if you subscribe, by Stripe. Stats Compass does not store your email address on its own servers — accounts are identified internally by a salted, irreversible hash.
+                </p>
             </section>
 
             <section class="tw-mb-8">
@@ -109,7 +121,13 @@
 
                 <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data storage and retention</h3>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
-                    Spreadsheet data loaded from Google Sheets is held in memory only for the duration of your session. It is not persisted to disk or backed up. When your session ends or you call <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code>, all in-memory data is discarded. OAuth tokens used to access Google Sheets are stored in our database and can be revoked at any time by disconnecting Google Sheets from your Google Account settings at <a href="https://myaccount.google.com/connections" class="tw-text-blue-600 hover:tw-underline" target="_blank">myaccount.google.com/connections</a>.
+                    Spreadsheet data loaded from Google Sheets is held in memory for the duration of your session and is not written to disk, <em>unless you explicitly export it</em> — for example by asking your assistant to save results as a CSV. Exported files are written to our server so you can download them, and are deleted along with the rest of your session data.
+                </p>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
+                    Session data and any exported files are deleted when you call <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code>, and are automatically removed after 24 hours of inactivity.
+                </p>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
+                    OAuth tokens granting access to your Google Sheets are stored in our Redis datastore, hosted on the same server, and are automatically deleted after 90 days without use. You can disconnect at any time in three ways: ask your AI assistant to disconnect Google Sheets, visit <code class="tw-bg-gray-100 tw-px-1 tw-rounded">mcp.statscompass.io/google/disconnect</code>, or revoke access from <a href="https://myaccount.google.com/connections" class="tw-text-blue-600 hover:tw-underline" target="_blank">your Google Account connections</a>. The first two revoke the grant with Google <em>and</em> delete our copy of the tokens. Deleting your Stats Compass account also revokes and deletes them.
                 </p>
 
                 <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data transfer</h3>
@@ -140,9 +158,13 @@
                     <li><strong>Google</strong> — if you connect Google Sheets, OAuth tokens and API requests are processed by Google. Only the specific spreadsheets you choose to load are accessed. See <a href="https://policies.google.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Google's Privacy Policy</a>.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
-                    When using Stats Compass through ChatGPT or other AI assistants, your analysis results are transmitted to and processed by
-                    those platforms in accordance with their own privacy policies, which may include use of content to improve their services.
                     Stats Compass does not sell your data or share it with any third parties beyond those listed above.
+                </p>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
+                    Stats Compass runs inside an AI assistant, so the results you ask for are returned to that assistant and handled under its own privacy policy. Depending on the platform and your settings there, general conversation content may be used by that provider to improve their services.
+                </p>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
+                    <strong>This does not apply to Google Workspace data.</strong> Data retrieved from Google Sheets is used solely to carry out the analysis you request. It is never used to develop, improve, or train any AI or machine-learning model, and is never transferred to any third party for that purpose. We only support connecting Stats Compass to assistant platforms whose terms are consistent with this restriction.
                 </p>
             </section>
 
@@ -150,7 +172,7 @@
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Your Controls</h2>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
                     <li><strong>Delete session data</strong> — call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code> tool at any time to delete your session and all associated uploaded files from our servers.</li>
-                    <li><strong>Delete your account</strong> — email us at <a href="mailto:inferencelabsuk@gmail.com" class="tw-text-blue-600 hover:tw-underline">inferencelabsuk@gmail.com</a> to request full account deletion.</li>
+                    <li><strong>Delete your account</strong> — email us at <a href="mailto:tunji@statscompass.io" class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a> to request full account deletion.</li>
                 </ul>
             </section>
 
@@ -179,7 +201,24 @@
                     <li><strong>Objection</strong> — object to processing based on legitimate interest.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-3">
-                    To exercise any of these rights, contact us at <a href="mailto:inferencelabsuk@gmail.com" class="tw-text-blue-600 hover:tw-underline">inferencelabsuk@gmail.com</a>. We will respond within 30 days.
+                    To exercise any of these rights, contact us at <a href="mailto:tunji@statscompass.io" class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a>. We will respond within 30 days.
+                </p>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-3">
+                    If you are unhappy with how we have handled your personal data, you have the right to lodge a complaint with the UK Information Commissioner's Office at <a href="https://ico.org.uk/make-a-complaint/" class="tw-text-blue-600 hover:tw-underline" target="_blank">ico.org.uk</a>, or with your local supervisory authority if you are in the EEA.
+                </p>
+            </section>
+
+            <section class="tw-mb-8">
+                <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Automated Decision-Making</h2>
+                <p class="tw-text-gray-700 tw-leading-relaxed">
+                    Stats Compass does not carry out any automated decision-making or profiling that produces legal or similarly significant effects. Analysis results are produced only in response to your explicit requests, and are not used to make decisions about you.
+                </p>
+            </section>
+
+            <section class="tw-mb-8">
+                <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Data Breach Notification</h2>
+                <p class="tw-text-gray-700 tw-leading-relaxed">
+                    In the event of a personal data breach likely to result in a risk to your rights and freedoms, we will notify the UK Information Commissioner's Office within 72 hours of becoming aware of it, and will inform affected users without undue delay where the risk is high.
                 </p>
             </section>
 
@@ -207,8 +246,8 @@
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Contact</h2>
                 <p class="tw-text-gray-700 tw-leading-relaxed">
                     For privacy-related questions, data protection requests, or account deletion:<br />
-                    <a href="mailto:inferencelabsuk@gmail.com"
-                        class="tw-text-blue-600 hover:tw-underline">inferencelabsuk@gmail.com</a>
+                    <a href="mailto:tunji@statscompass.io"
+                        class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a>
                 </p>
             </section>
 
