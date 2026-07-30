@@ -30,9 +30,9 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
     def session_info(ctx: Context) -> dict:
         """
         Get information about your current session.
-        
+
         Returns:
-            Session info including session_id, created_at, dataframes, models.
+            Session info including created_at, dataframes, models and exports.
         """
         session = get_session(ctx, session_manager)
         return session.get_info()

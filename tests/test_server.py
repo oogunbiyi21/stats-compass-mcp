@@ -18,9 +18,16 @@ class TestSession:
         """Test session info retrieval."""
         session = Session("test-session-2")
         info = session.get_info()
-        assert "session_id" in info
         assert "dataframes" in info
+        assert "created_at" in info
         assert info["dataframe_count"] == 0
+
+    def test_session_info_omits_session_id(self):
+        """The session id is the hashed user id in hosted mode, so it must not be
+        returned into the assistant's conversation context."""
+        info = Session("test-session-3").get_info()
+        assert "session_id" not in info
+        assert "test-session-3" not in str(info)
 
 
 class TestSessionManager:
