@@ -244,24 +244,17 @@ def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
     Returns:
         Session instance
     """
-    # Use custom resolver if provided (e.g. JWT sub claim in hosted mode)
+    # Use custom resolver if provided (e.g. JWT sub claim in hosted mode).
+    # Session ids identify a user, so they are logged at debug, never info.
     if session_manager._session_id_resolver:
         session_id = session_manager._session_id_resolver(ctx)
-        logger.info(f"Got session_id from custom resolver: {session_id}")
+        logger.debug("Resolved session_id via custom resolver")
         return session_manager.get_or_create(session_id)
-
-    # Debug: Log request info if available
-    try:
-        if hasattr(ctx, '_request_context') and ctx._request_context:
-            req = ctx._request_context.request
-            logger.info(f"Request headers: {dict(req.headers)}")
-    except Exception as e:
-        logger.debug(f"Could not log request headers: {e}")
 
     # FastMCP provides session_id as a property that reads from mcp-session-id header
     try:
         session_id = ctx.session_id
-        logger.info(f"Got session_id from ctx.session_id: {session_id}")
+        logger.debug("Resolved session_id from ctx.session_id")
     except Exception as e:
         logger.warning(f"Failed to get ctx.session_id: {e}")
         session_id = None
@@ -271,10 +264,10 @@ def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
         try:
             request_id = ctx.request_id
             session_id = f"session-{request_id}"
-            logger.info(f"Fallback to request_id: {session_id}")
+            logger.debug("Fell back to request_id for session_id")
         except Exception:
             # Default session for local/stdio
             session_id = "default"
-            logger.info("Using default session")
+            logger.debug("Using default session")
 
     return session_manager.get_or_create(session_id)
