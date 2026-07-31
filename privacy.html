@@ -94,8 +94,8 @@
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
                     <li><strong>Session data, uploaded files and exports</strong> — deleted when you call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code> tool, and automatically removed after 24 hours of inactivity.</li>
                     <li><strong>Google Sheets access tokens</strong> — deleted when you disconnect, when you delete your account, or automatically after 90 days without use.</li>
-                    <li><strong>Usage counts</strong> — stored per calendar month against a pseudonymous account identifier, and deleted 35 days after the month ends.</li>
-                    <li><strong>Server logs</strong> — automatically rotated and overwritten, so only recent activity is retained. Logs record request paths and timestamps for security and debugging; they do not contain the contents of your files or spreadsheets.</li>
+                    <li><strong>Usage counts</strong> — stored per calendar month against a pseudonymous account identifier, and deleted automatically 35 days after your first call in that month.</li>
+                    <li><strong>Server logs</strong> — automatically rotated, with the oldest entries overwritten once a fixed size is reached. Retention therefore varies with traffic. Logs record request paths and timestamps for security and debugging; they do not contain the contents of your files or spreadsheets.</li>
                     <li><strong>Account data</strong> — retained for as long as your account is active. You can request deletion at any time by emailing us.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
@@ -156,15 +156,19 @@
                     <li><strong>Auth0</strong> — handles authentication and sign-in. Your email address is shared with Auth0 for this purpose. See <a href="https://auth0.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Auth0's Privacy Policy</a>.</li>
                     <li><strong>Stripe</strong> — handles payment processing for paid subscriptions. Payment information is processed directly by Stripe and is not stored on our servers. See <a href="https://stripe.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Stripe's Privacy Policy</a>.</li>
                     <li><strong>Google</strong> — if you connect Google Sheets, OAuth tokens and API requests are processed by Google. Only the specific spreadsheets you choose to load are accessed. See <a href="https://policies.google.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Google's Privacy Policy</a>.</li>
+                    <li><strong>Resend</strong> — delivers our account and product emails. Your email address and name are shared with Resend for this purpose. No file contents, spreadsheet data or analysis results are ever sent to Resend. See <a href="https://resend.com/legal/privacy-policy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Resend's Privacy Policy</a>.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
                     Stats Compass does not sell your data or share it with any third parties beyond those listed above.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
-                    Stats Compass runs inside an AI assistant, so the results you ask for are returned to that assistant and handled under its own privacy policy. Depending on the platform and your settings there, general conversation content may be used by that provider to improve their services.
+                    Stats Compass runs inside an AI assistant, so the results you ask for are returned to that assistant and handled under its own privacy policy. Depending on the platform and your settings there, general conversation content — <strong>excluding any content derived from Google Workspace data</strong> — may be used by that provider to improve their services.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
-                    <strong>This does not apply to Google Workspace data.</strong> Data retrieved from Google Sheets is used solely to carry out the analysis you request. It is never used to develop, improve, or train any AI or machine-learning model, and is never transferred to any third party for that purpose. We only support connecting Stats Compass to assistant platforms whose terms are consistent with this restriction.
+                    <strong>Google Workspace data is excluded from all such use.</strong> Data retrieved from Google Sheets, and any results derived from it, is used solely to carry out the analysis you request. It is never used to develop, improve, or train any AI or machine-learning model, and is never transferred to any third party for that purpose.
+                </p>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
+                    The only transfer of Google Workspace data that occurs is returning the analysis you requested to the assistant you connected, so that it can be shown to you. That is the user-facing feature you invoked, and it happens only at your request. If you want to control how your assistant provider handles conversation content more generally, that setting lives with the provider — for example, Anthropic does not train models on business-tier or API traffic, and consumer accounts offer a training opt-out.
                 </p>
             </section>
 
@@ -231,6 +235,7 @@
                     <li><strong>Stats Compass servers</strong> — hosted on DigitalOcean in London, United Kingdom.</li>
                     <li><strong>Auth0 (Okta)</strong> — authentication services based in the United States. Auth0 maintains EU Standard Contractual Clauses for cross-border data transfers. See <a href="https://auth0.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Auth0's Privacy Policy</a>.</li>
                     <li><strong>Stripe</strong> — payment processing based in the United States. Stripe maintains EU Standard Contractual Clauses for cross-border data transfers. See <a href="https://stripe.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Stripe's Privacy Policy</a>.</li>
+                    <li><strong>Resend</strong> — email delivery based in the United States. Resend maintains Standard Contractual Clauses for cross-border data transfers. See <a href="https://resend.com/legal/privacy-policy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Resend's Privacy Policy</a>.</li>
                 </ul>
             </section>
 
