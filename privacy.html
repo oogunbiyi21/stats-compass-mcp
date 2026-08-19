@@ -83,6 +83,7 @@
                     <li><strong>Email address</strong> — collected via OAuth sign-in (Google or email/password) and held by our authentication provider, Auth0. We use it to identify your account and to contact you about your subscription or service changes. It is not stored on the Stats Compass server, which identifies accounts by a salted, irreversible hash instead.</li>
                     <li><strong>Usage counts</strong> — we count the number of tool calls you make per billing period to enforce free tier limits and bill paid subscribers. These are recorded against the hashed identifier, not your email.</li>
                     <li><strong>Uploaded files and analysis results</strong> — files you upload and results generated during your session are stored temporarily on our server for the duration of your session. These are used solely to provide the service.</li>
+                    <li><strong>Account preferences and status</strong> — recorded against your hashed identifier: whether you have opted out of product email, whether a welcome email has been sent, and which AI assistant application you connected from. This last one tells us which clients are in use; it records the application, not your activity. These are retained while your account is active and deleted when you delete it.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
                     We do not collect or store the content of your conversations with your AI assistant, and we do not access your data for any purpose beyond providing the service.
@@ -176,6 +177,8 @@
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Your Controls</h2>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
                     <li><strong>Delete session data</strong> — call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code> tool at any time to delete your session and all associated uploaded files from our servers.</li>
+                    <li><strong>Unsubscribe from product emails</strong> — use the unsubscribe link in the footer of any product email, or email us. You will still receive service messages about your account, billing, security and outages.</li>
+                    <li><strong>Disconnect Google Sheets</strong> — ask your AI assistant to disconnect Google Sheets, or visit <code class="tw-bg-gray-100 tw-px-1 tw-rounded">mcp.statscompass.io/google/disconnect</code>. Both revoke our access with Google and delete the stored tokens.</li>
                     <li><strong>Delete your account</strong> — email us at <a href="mailto:tunji@statscompass.io" class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a> to request full account deletion.</li>
                 </ul>
             </section>
@@ -188,6 +191,7 @@
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
                     <li><strong>Contract performance</strong> — processing your email, usage counts, and uploaded data is necessary to provide the Stats Compass hosted service and manage your subscription.</li>
                     <li><strong>Legitimate interest</strong> — we use aggregated, non-identifying usage data to maintain and improve the service.</li>
+                    <li><strong>Legitimate interest (soft opt-in)</strong> — we send occasional product emails, such as a welcome message and notices of significant new features, to people who have signed up for the service. You can opt out of these at any time using the unsubscribe link in any such email, or by contacting us, and we will stop. Service messages about your account, billing, security or outages are sent on the basis of contract performance and are not affected by that choice.</li>
                 </ul>
             </section>
 
