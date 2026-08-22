@@ -37,7 +37,7 @@
     <main class="tw-mt-[100px] tw-px-[10%] tw-pb-20 max-lg:tw-px-4">
         <div class="tw-max-w-3xl tw-mx-auto">
             <h1 class="tw-text-4xl tw-font-bold tw-mb-2">Privacy Policy</h1>
-            <p class="tw-text-gray-500 tw-mb-8">Last updated: July 30, 2026</p>
+            <p class="tw-text-gray-500 tw-mb-8">Last updated: August 22, 2026</p>
 
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Who We Are</h2>
@@ -107,12 +107,15 @@
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Google Sheets Integration</h2>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
-                    Stats Compass can connect to your Google Sheets account to load spreadsheet data for analysis and save results back to Google Sheets. This integration is optional and requires your explicit consent via Google's OAuth flow.
+                    Stats Compass can load spreadsheet data from Google Sheets for analysis and save results back. This integration is optional, and you choose which individual spreadsheets it can open.
                 </p>
 
                 <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data accessed</h3>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
-                    When you connect Google Sheets, Stats Compass requests the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">spreadsheets</code> scope, which allows it to read and write Google Sheets spreadsheets you direct it to. Stats Compass only accesses the specific spreadsheets you choose to load — it does not scan, index, or browse your Google account.
+                    Stats Compass requests only the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">drive.file</code> permission. Under this permission Google grants access to individual files one at a time, and only when you select them yourself in Google's own file picker. Stats Compass cannot list, search or open anything else in your Google Drive — not other spreadsheets, and not files of any other kind.
+                </p>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
+                    This is enforced by Google rather than promised by us: a request for a spreadsheet you have not picked is refused by Google, not by our code. Files that Stats Compass creates for you, such as a sheet of analysis results, are also covered, since we created them.
                 </p>
 
                 <h3 class="tw-text-lg tw-font-semibold tw-mb-2">How your data is used</h3>
@@ -128,7 +131,10 @@
                     Session data and any exported files are deleted when you call <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code>, and are automatically removed after 24 hours of inactivity.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
-                    OAuth tokens granting access to your Google Sheets are stored in our Redis datastore, hosted on the same server, and are automatically deleted after 90 days without use. You can disconnect at any time in three ways: ask your AI assistant to disconnect Google Sheets, visit <code class="tw-bg-gray-100 tw-px-1 tw-rounded">mcp.statscompass.io/google/disconnect</code>, or revoke access from <a href="https://myaccount.google.com/connections" class="tw-text-blue-600 hover:tw-underline" target="_blank">your Google Account connections</a>. The first two revoke the grant with Google <em>and</em> delete our copy of the tokens. Deleting your Stats Compass account also revokes and deletes them.
+                    OAuth tokens, and a list of which spreadsheets you have selected, are stored in our Redis datastore on the same server and are automatically deleted after 90 days without use. The stored list is only a record of what you chose — it grants nothing on its own, since the access itself is held by Google against your account.
+                </p>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
+                    You can disconnect at any time in three ways: ask your AI assistant to disconnect Google Sheets, visit <code class="tw-bg-gray-100 tw-px-1 tw-rounded">mcp.statscompass.io/google/disconnect</code>, or revoke access from <a href="https://myaccount.google.com/connections" class="tw-text-blue-600 hover:tw-underline" target="_blank">your Google Account connections</a>. The first two revoke the grant with Google <em>and</em> delete our copy of the tokens and your selection list. Deleting your Stats Compass account does the same.
                 </p>
 
                 <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data transfer</h3>
