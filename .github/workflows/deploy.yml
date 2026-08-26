@@ -6,6 +6,13 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      registry_only_version:
+        description: >-
+          Publish an already-released version to the MCP Registry only
+          (e.g. 0.3.28). Skips PyPI. Use to recover when the registry step
+          failed but PyPI succeeded.
+        required: true
 
 jobs:
   # Deploy job commented out - droplet shut down until auth is added
@@ -25,29 +32,69 @@ jobs:
   #           docker image prune -f
 
   publish:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     permissions:
       id-token: write  # Required for OIDC authentication
       contents: read
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      
+
       - name: Install Poetry
         run: pip install poetry
-      
+
+      # server.json carried its own hand-maintained version, in two places, and
+      # drifted: it sat at 0.3.0 while the package reached 0.3.28, so every
+      # tagged release tried to republish 0.3.0 and the registry rejected it as
+      # a duplicate. v0.3.27 and v0.3.28 both failed here while PyPI succeeded,
+      # so the failure was easy to read as "the release broke" rather than
+      # "the listing is frozen". The version is now derived from the tag.
+      - name: Resolve release version
+        id: release
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.registry_only_version }}"
+            echo "Registry-only publish of $VERSION (PyPI will be skipped)"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+            PYPROJECT_VERSION="$(poetry version --short)"
+            if [ "$VERSION" != "$PYPROJECT_VERSION" ]; then
+              echo "::error::Tag ${GITHUB_REF_NAME} implies version ${VERSION}," \
+                   "but pyproject.toml declares ${PYPROJECT_VERSION}. Publishing" \
+                   "would put ${PYPROJECT_VERSION} on PyPI while telling the" \
+                   "registry it was ${VERSION}."
+              exit 1
+            fi
+            echo "Releasing $VERSION"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Sync server.json to the release version
+        run: |
+          set -euo pipefail
+          jq --arg v "${{ steps.release.outputs.version }}" \
+            '.version = $v | .packages |= map(.version = $v)' \
+            server.json > server.json.tmp
+          mv server.json.tmp server.json
+          echo "--- server.json ---"
+          cat server.json
+
       - name: Build and Publish to PyPI
+        if: github.event_name != 'workflow_dispatch'
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
         run: |
           poetry build
-          poetry publish
-      
+          # Idempotent so a failure in a later step can be retried by re-running
+          # the job, rather than needing a throwaway version bump.
+          poetry publish --skip-existing
+
       - name: Install mcp-publisher
         run: |
           curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher

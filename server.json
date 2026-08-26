@@ -3,7 +3,7 @@
     "name": "io.github.oogunbiyi21/stats-compass",
     "title": "Stats Compass",
     "description": "50+ pandas-powered tools for data loading, cleaning, visualization, and ML workflows",
-    "version": "0.3.0",
+    "version": "0.3.28",
     "privacy_policies": ["https://statscompass.io/privacy.html"],
     "repository": {
         "url": "https://github.com/oogunbiyi21/stats-compass-mcp",
@@ -13,10 +13,16 @@
         {
             "registryType": "pypi",
             "identifier": "stats-compass-mcp",
-            "version": "0.3.0",
+            "version": "0.3.28",
             "transport": {
                 "type": "stdio"
             }
+        }
+    ],
+    "remotes": [
+        {
+            "type": "streamable-http",
+            "url": "https://mcp.statscompass.io/mcp"
         }
     ]
 }
