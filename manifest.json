@@ -21,6 +21,8 @@
         "mcp_config": {
             "command": "uvx",
             "args": [
+                "tool",
+                "run",
                 "stats-compass-mcp",
                 "run"
             ]
