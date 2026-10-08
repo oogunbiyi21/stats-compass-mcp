@@ -21,6 +21,7 @@ from stats_compass_mcp.safety import check_session_id
 EXPORTS_BASE_DIR = Path(os.getenv("STATS_COMPASS_EXPORTS_DIR", "/tmp/stats-compass-exports"))  # nosec B108
 UPLOADS_BASE_DIR = Path(os.getenv("LOCAL_STORAGE_PATH", "/tmp/stats-compass-uploads"))  # nosec B108
 SERVER_URL = os.getenv("STATS_COMPASS_SERVER_URL", "")
+DOWNLOAD_TTL_SECONDS = int(os.getenv("STATS_COMPASS_DOWNLOAD_TTL_SECONDS", str(24 * 3600)))
 
 # Export categories
 ExportCategory = Literal["models", "data", "plots", "timeseries"]
@@ -112,8 +113,13 @@ def get_download_url(session_id: str, category: ExportCategory, filename: str) -
         # Local mode - no download URL available
         return ""
 
-    # Build URL: {SERVER_URL}/download/{session_id}/{category}/{filename}
-    return f"{SERVER_URL}/download/{session_id}/{category}/{filename}"
+    # A signed, expiring token naming this one file, never the session id
+    # itself: that is the session's credential, and a link gets shared
+    # (security scan, 8 Oct 2026, F6).
+    from stats_compass_mcp.tokens import make_token
+
+    token = make_token("download", session_id, category, filename, ttl=DOWNLOAD_TTL_SECONDS)
+    return f"{SERVER_URL}/download/{token}"
 
 
 def cleanup_session_exports(session_id: str) -> None:

@@ -164,13 +164,19 @@ class LocalStorageBackend(StorageBackend):
         session_path = self._session_path(session_id)
         session_path.mkdir(parents=True, exist_ok=True)
 
-        # Build browser-accessible upload URL
-        upload_url = f"{self.server_url}/upload?session_id={session_id}"
+        # A signed, expiring token, not the session id: the session id is the
+        # session's credential and this URL is shown to the user (security
+        # scan, 8 Oct 2026, F7).
+        from stats_compass_mcp.tokens import make_token
+
+        token = make_token("upload", session_id, ttl=expires_in)
+        upload_url = f"{self.server_url}/upload?token={token}"
 
         return {
             "upload_url": upload_url,
             "instructions": (
                 f"Share this URL with the user as plain text (not a markdown link): {upload_url}\n"
+                f"The link expires in {max(1, expires_in // 60)} minutes. "
                 "Once the user confirms they are done, call register_uploaded_file() with no arguments."
             )
         }

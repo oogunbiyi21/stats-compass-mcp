@@ -6,6 +6,13 @@ Provides:
 - File upload endpoint
 - Session-isolated file storage
 - File download endpoint for exports
+
+Both endpoints take a signed, expiring token (stats_compass_mcp.tokens) and
+derive every path from fixed folders, never from request data. They used to
+take the session id itself and join caller-supplied names onto it: '..' as a
+session id lifted /download's containment base to /tmp, and /api/upload wrote
+wherever its session_id and file name pointed (security scan, 8 Oct 2026, F2,
+F4).
 """
 
 import logging
@@ -17,14 +24,16 @@ from starlette.requests import Request
 from starlette.responses import FileResponse, HTMLResponse, JSONResponse
 from starlette.routing import Route
 
-from stats_compass_mcp.exports import get_exports_dir
+from stats_compass_mcp import exports
+from stats_compass_mcp.safety import check_file_key, check_session_id, short_id
+from stats_compass_mcp.tokens import read_token
 
 logger = logging.getLogger(__name__)
 
 # Configuration
 MAX_UPLOAD_MB = int(os.getenv("STATS_COMPASS_MAX_UPLOAD_MB", "50"))
 MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024
-UPLOAD_DIR = Path(os.getenv("LOCAL_STORAGE_PATH", "/tmp/stats-compass-uploads"))  # nosec B108
+VALID_CATEGORIES = ("models", "data", "plots", "timeseries")
 
 
 # HTML template for upload page
@@ -159,10 +168,6 @@ UPLOAD_PAGE_HTML = """
     <div class="container">
         <h1>📊 Stats Compass File Upload</h1>
         
-        <div class="session-info">
-            Session ID: <code id="sessionId">-</code>
-        </div>
-        
         <div class="upload-area" id="uploadArea">
             <div class="icon">📁</div>
             <p>Drop a CSV or Excel file here, or click to browse</p>
@@ -190,8 +195,7 @@ UPLOAD_PAGE_HTML = """
     </div>
     
     <script>
-        const sessionId = new URLSearchParams(window.location.search).get('session_id') || 'default';
-        document.getElementById('sessionId').textContent = sessionId;
+        const uploadToken = new URLSearchParams(window.location.search).get('token') || '';
         
         var uploadArea = document.getElementById('uploadArea');
         var fileInput = document.getElementById('fileInput');
@@ -245,7 +249,7 @@ UPLOAD_PAGE_HTML = """
             uploadBtn.textContent = 'Uploading...';
             var formData = new FormData();
             formData.append('file', selectedFile);
-            formData.append('session_id', sessionId);
+            formData.append('token', uploadToken);
             fetch('/api/upload', { method: 'POST', body: formData })
                 .then(function(response) {
                     return response.json().then(function(data) {
@@ -287,16 +291,21 @@ async def upload_page(request: Request) -> HTMLResponse:
 
 
 async def upload_file(request: Request) -> JSONResponse:
-    """Handle file upload."""
+    """Handle file upload. The token decides the session; the name is reduced to a base name."""
     try:
         form = await request.form()
 
-        # Get session ID
-        session_id = form.get("session_id", "default")
+        claims = read_token(str(form.get("token") or ""), "upload")
+        if claims is None:
+            return JSONResponse(
+                {"error": "This upload link is invalid or has expired. Ask for a new one."},
+                status_code=403,
+            )
+        session_id = check_session_id(claims["session_id"])
 
         # Get uploaded file
         uploaded_file = form.get("file")
-        if not uploaded_file:
+        if not uploaded_file or not getattr(uploaded_file, "filename", None):
             return JSONResponse({"error": "No file provided"}, status_code=400)
 
         # Check file size
@@ -307,8 +316,12 @@ async def upload_file(request: Request) -> JSONResponse:
                 status_code=413
             )
 
-        # Validate file extension
-        filename = uploaded_file.filename
+        # A base name only, whatever folders (either kind of slash) it named
+        filename = uploaded_file.filename.replace("\\", "/").rsplit("/", 1)[-1]
+        try:
+            filename = check_file_key(filename)
+        except ValueError:
+            return JSONResponse({"error": "Invalid file name"}, status_code=400)
         ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
         if ext not in ("csv", "xlsx", "xls"):
             return JSONResponse(
@@ -316,67 +329,56 @@ async def upload_file(request: Request) -> JSONResponse:
                 status_code=400
             )
 
-        # Create session directory
-        session_path = UPLOAD_DIR / session_id
+        session_path = (exports.UPLOADS_BASE_DIR / session_id).resolve()
         session_path.mkdir(parents=True, exist_ok=True)
-
-        # Save file
-        file_path = session_path / filename
+        file_path = (session_path / filename).resolve()
+        if not file_path.is_relative_to(session_path) or file_path == session_path:
+            return JSONResponse({"error": "Invalid file name"}, status_code=400)
         file_path.write_bytes(contents)
 
-        logger.info(f"Uploaded {filename} ({len(contents)} bytes) for session {session_id}")
+        logger.info(f"Uploaded {filename} ({len(contents)} bytes) for session {short_id(session_id)}")
 
         return JSONResponse({
             "success": True,
             "file_key": filename,
-            "session_id": session_id,
             "size_bytes": len(contents),
             "message": f"File '{filename}' uploaded successfully."
         })
 
-    except Exception as e:
+    except Exception:
         logger.exception("Upload failed")
-        return JSONResponse({"error": str(e)}, status_code=500)
+        return JSONResponse({"error": "Upload failed"}, status_code=500)
 
 
 async def download_file(request: Request) -> FileResponse | JSONResponse:
     """
     Handle file download.
-    
-    URL: /download/{session_id}/{category}/{filename}
-    Categories: models, data, plots, timeseries
+
+    URL: /download/{token}. The token, signed by this server, names the
+    session, category and file; the path is rebuilt from the fixed exports
+    folder and must stay inside that session's folder.
     """
-    session_id = request.path_params.get("session_id")
-    category = request.path_params.get("category")
-    filename = request.path_params.get("filename")
+    claims = read_token(request.path_params.get("token", ""), "download")
+    if claims is None:
+        return JSONResponse({"error": "This download link is invalid or has expired."}, status_code=403)
 
-    # Validate category
-    valid_categories = ["models", "data", "plots", "timeseries"]
-    if category not in valid_categories:
-        return JSONResponse(
-            {"error": f"Invalid category. Must be one of: {', '.join(valid_categories)}"},
-            status_code=400
-        )
-
-    # Build file path
-    exports_dir = get_exports_dir(session_id, category)  # type: ignore
-    file_path = exports_dir / filename
-
-    # Security: Ensure we're not escaping the exports directory
+    category = claims["category"]
+    if category not in VALID_CATEGORIES:
+        return JSONResponse({"error": "Invalid link"}, status_code=403)
     try:
-        file_path = file_path.resolve()
-        exports_base = get_exports_dir(session_id).resolve()
-        if not str(file_path).startswith(str(exports_base)):
-            return JSONResponse({"error": "Invalid path"}, status_code=400)
-    except Exception:
-        return JSONResponse({"error": "Invalid path"}, status_code=400)
+        session_id = check_session_id(claims["session_id"])
+        filename = check_file_key(claims["filename"])
+    except ValueError:
+        return JSONResponse({"error": "Invalid link"}, status_code=403)
+
+    session_dir = (exports.EXPORTS_BASE_DIR / session_id).resolve()
+    file_path = (session_dir / category / filename).resolve()
+    if not file_path.is_relative_to(session_dir):
+        return JSONResponse({"error": "Invalid link"}, status_code=403)
 
     # Check if file exists
-    if not file_path.exists() or not file_path.is_file():
-        return JSONResponse(
-            {"error": f"File not found: {filename}"},
-            status_code=404
-        )
+    if not file_path.is_file():
+        return JSONResponse({"error": "File not found"}, status_code=404)
 
     # Determine content type
     content_type, _ = mimetypes.guess_type(str(file_path))
@@ -391,7 +393,7 @@ async def download_file(request: Request) -> FileResponse | JSONResponse:
         else:
             content_type = "application/octet-stream"
 
-    logger.info(f"Download: {session_id}/{category}/{filename}")
+    logger.info(f"Download: {short_id(session_id)}/{category}/{filename}")
 
     return FileResponse(
         path=str(file_path),
@@ -405,5 +407,5 @@ def create_upload_routes() -> list[Route]:
     return [
         Route("/upload", upload_page, methods=["GET"]),
         Route("/api/upload", upload_file, methods=["POST"]),
-        Route("/download/{session_id}/{category}/{filename:path}", download_file, methods=["GET"]),
+        Route("/download/{token}", download_file, methods=["GET"]),
     ]
