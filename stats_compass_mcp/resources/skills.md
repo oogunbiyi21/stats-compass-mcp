@@ -15,11 +15,12 @@ Guidance for agents on how to use Stats Compass tools correctly and efficiently.
 - **One failed call = read the error, then fix.** Do not retry variants.
   `ValidationError` messages list exactly which fields are missing or forbidden.
 
-- **`inspect_data` is for scalar expressions only.**
-  It does not support operations that return a Series or DataFrame
-  (e.g. `value_counts()`, `groupby()`, `df[col]`). Quote characters inside
-  expressions also cause parse failures. Use dedicated tools instead:
-  - Value counts / distributions → `bar_chart` or `describe` with `include: "all"`
+- **`inspect_data`, `add_column` and `filter_dataframe` read a small expression language**, not arbitrary pandas code.
+  They accept column names (in backticks if they contain spaces), constants, arithmetic,
+  comparisons, a few functions (`np.log`, `np.where`, `pd.to_numeric(x, errors='coerce')`...)
+  and column summaries such as `price.mean()`, `region.nunique()`, `region.value_counts()`
+  and `len(df[price > 100])`. `groupby`, `apply`, other methods and `@` references are refused.
+  Use dedicated tools instead:
   - Group aggregations → `groupby_aggregate`
   - Filtering → `filter_dataframe`
 

@@ -195,12 +195,14 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
             params: Parameters for the sub-tool
             dataframe_name: Override active DataFrame
 
-        WARNING — inspect_data:
-            Accepts scalar expressions only. Expressions that return a Series or
-            DataFrame (e.g. value_counts(), groupby(), df["col"]) will fail.
-            Quote characters inside expressions also cause parse errors.
-            Use bar_chart or describe(include="all") for distributions,
-            groupby_aggregate for aggregations, filter_dataframe for filtering.
+        NOTE — inspect_data and add_column read a small expression language,
+            not arbitrary pandas code: column names (backticks for spaces),
+            constants, arithmetic, comparisons, a few functions (np.log,
+            np.where, pd.to_numeric...) and column summaries such as
+            price.mean(), region.nunique(), region.value_counts(),
+            len(df[price > 100]). groupby, apply, other methods and '@'
+            references are refused. Use groupby_aggregate for aggregations and
+            filter_dataframe for filtering.
         """
         session = get_session(ctx, session_manager)
         input_params = ExecuteCategoryInput(

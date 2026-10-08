@@ -13,8 +13,7 @@ Use this skill whenever working with Stats Compass MCP tools.
 
 2. **Read errors, don't retry blindly.** `ValidationError` messages list exactly which fields are missing or forbidden. Fix the call based on the error.
 
-3. **`inspect_data` is for scalar expressions only.** It does not support `value_counts()`, `groupby()`, or any expression returning a Series/DataFrame. Use instead:
-   - Value counts / distributions → `bar_chart` or `describe` with `include: "all"`
+3. **`inspect_data`, `add_column` and `filter_dataframe` read a small expression language**, not arbitrary pandas code: column names (backticks for spaces), constants, arithmetic, comparisons, a few functions (`np.log`, `np.where`, `pd.to_numeric`) and column summaries (`price.mean()`, `region.value_counts()`, `len(df[price > 100])`). `groupby`, `apply` and `@` references are refused. Use instead:
    - Group aggregations → `groupby_aggregate`
    - Filtering → `filter_dataframe`
 
