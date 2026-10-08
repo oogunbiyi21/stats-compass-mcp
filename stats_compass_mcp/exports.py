@@ -14,7 +14,7 @@ from typing import Literal, Optional
 
 logger = logging.getLogger(__name__)
 
-from stats_compass_mcp.safety import check_session_id
+from stats_compass_mcp.safety import check_session_id, short_id
 
 # Configuration. Read through the module (exports.EXPORTS_BASE_DIR), not copied,
 # so a session's folders and its file policy always agree.
@@ -137,9 +137,9 @@ def cleanup_session_exports(session_id: str) -> None:
     if exports_dir.exists():
         try:
             shutil.rmtree(exports_dir)
-            logger.info(f"Cleaned up exports for session: {session_id}")
+            logger.info(f"Cleaned up exports for session: {short_id(session_id)}")
         except Exception as e:
-            logger.warning(f"Failed to cleanup exports for {session_id}: {e}")
+            logger.warning(f"Failed to cleanup exports for {short_id(session_id)}: {e}")
 
 
 def list_session_exports(session_id: str) -> dict[str, list[str]]:

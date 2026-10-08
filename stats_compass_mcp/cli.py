@@ -10,14 +10,27 @@ Commands:
 
 import argparse
 import logging
+import os
 import sys
 
-# Setup debug logging to file
-logging.basicConfig(
-    filename='/tmp/stats_compass_mcp_debug.log',  # nosec B108
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+
+def configure_logging() -> None:
+    """Logs to stderr at INFO; the stdio transport owns stdout.
+
+    A file only where STATS_COMPASS_LOG_FILE says, created readable by its
+    owner alone. Every run used to log at DEBUG to a fixed, world-readable
+    file in /tmp that recorded session ids (security scan, 8 Oct 2026, F12).
+    """
+    handlers: list[logging.Handler] = [logging.StreamHandler(sys.stderr)]
+    path = os.getenv("STATS_COMPASS_LOG_FILE")
+    if path:
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+        os.close(fd)
+        os.chmod(path, 0o600)
+        handlers.append(logging.FileHandler(path))
+    logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, handlers=handlers, force=True)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -94,6 +107,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main() -> None:
     """Main CLI entrypoint."""
+    configure_logging()
     parser = build_parser()
     args = parser.parse_args()
 

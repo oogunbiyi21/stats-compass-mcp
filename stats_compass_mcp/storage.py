@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
-from stats_compass_mcp.safety import check_file_key, check_session_id
+from stats_compass_mcp.safety import check_file_key, check_session_id, short_id
 
 logger = logging.getLogger(__name__)
 
@@ -201,7 +201,7 @@ class LocalStorageBackend(StorageBackend):
                 count += 1
 
         session_path.rmdir()
-        logger.info(f"Deleted {count} files for session {session_id}")
+        logger.info(f"Deleted {count} files for session {short_id(session_id)}")
         return count
 
     def file_exists(self, session_id: str, file_key: str) -> bool:
@@ -383,7 +383,7 @@ class S3StorageBackend(StorageBackend):
                 Delete={"Objects": batch}
             )
 
-        logger.info(f"Deleted {len(objects_to_delete)} S3 objects for session {session_id}")
+        logger.info(f"Deleted {len(objects_to_delete)} S3 objects for session {short_id(session_id)}")
         return len(objects_to_delete)
 
     def file_exists(self, session_id: str, file_key: str) -> bool:

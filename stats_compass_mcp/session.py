@@ -27,7 +27,7 @@ from stats_compass_mcp.exports import (
     get_export_path,
     list_session_exports,
 )
-from stats_compass_mcp.safety import check_session_id
+from stats_compass_mcp.safety import check_session_id, short_id
 
 if TYPE_CHECKING:
     from fastmcp import Context
@@ -195,7 +195,7 @@ class SessionManager:
         # Create new session
         session = Session(session_id, self.memory_limit_mb, confine_files=self.confine_files)
         self._sessions[session_id] = session
-        logger.info(f"Created new session: {session_id}")
+        logger.info(f"Created new session: {short_id(session_id)}")
         return session
 
     def get(self, session_id: str) -> Session | None:
@@ -211,7 +211,7 @@ class SessionManager:
             # Cleanup exports first
             self._sessions[session_id].cleanup_exports()
             del self._sessions[session_id]
-            logger.info(f"Deleted session: {session_id}")
+            logger.info(f"Deleted session: {short_id(session_id)}")
             return True
         return False
 
@@ -227,7 +227,7 @@ class SessionManager:
         # Cleanup exports before evicting
         self._sessions[oldest_id].cleanup_exports()
         del self._sessions[oldest_id]
-        logger.info(f"Evicted oldest session: {oldest_id}")
+        logger.info(f"Evicted oldest session: {short_id(oldest_id)}")
 
     def get_stats(self) -> dict:
         """Get statistics for monitoring."""
