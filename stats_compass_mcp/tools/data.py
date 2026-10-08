@@ -11,11 +11,44 @@ from fastmcp import Context, FastMCP
 from stats_compass_core import data as core_data
 from stats_compass_core.data.load_dataset import LoadDatasetInput
 
+from stats_compass_mcp.safety import check_file_key
 from stats_compass_mcp.session import SessionManager, get_session
 
 
-def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=None):
-    """Register all data management tools with the FastMCP server."""
+def _export_target(session, filepath: str, category: str, extension: str):
+    """Where a save tool writes, and the file name to link to.
+
+    A confined (served) session always writes into its own exports folder,
+    whatever path the caller gave: deciding this from STATS_COMPASS_SERVER_URL
+    let a deployment that left it unset write wherever the caller chose
+    (security scan, 8 Oct 2026, F9/F10). A local session may name any path.
+    """
+    from pathlib import Path as PathLib
+
+    if not session.confined and (filepath.startswith("/") or filepath.startswith("~")):
+        export_path = PathLib(filepath).expanduser()
+        export_path.parent.mkdir(parents=True, exist_ok=True)
+        return export_path
+    filename = PathLib(filepath).name
+    if not filename:
+        raise ValueError(f"'{filepath}' does not name a file.")
+    if not filename.endswith(extension):
+        filename = f"{filename}{extension}"
+    return session.export_path(category, filename)
+
+
+def register_data_tools(
+    mcp: FastMCP,
+    session_manager: SessionManager,
+    storage=None,
+    include_admin: bool = False,
+):
+    """Register all data management tools with the FastMCP server.
+
+    ``server_stats`` lists every session, so it is registered only for a
+    local operator (``include_admin``), never on a shared server (security
+    scan, 8 Oct 2026, F11).
+    """
 
     @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
     def ping() -> dict:
@@ -257,37 +290,20 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             Save result with filepath and download_url (if remote).
         """
         session = get_session(ctx, session_manager)
+        export_path = _export_target(session, filepath, "data", ".csv")
 
         from pathlib import Path as PathLib
-        
-        # Check if running in remote mode (SERVER_URL is set)
-        import os
-        is_remote = bool(os.getenv("STATS_COMPASS_SERVER_URL", ""))
-        
-        # For local mode with absolute/home paths, use the path directly
-        # For remote mode, always use the exports directory
-        if not is_remote and (filepath.startswith("/") or filepath.startswith("~")):
-            # Expand ~ and use the path as-is
-            export_path = PathLib(filepath).expanduser()
-            # Ensure parent directory exists
-            export_path.parent.mkdir(parents=True, exist_ok=True)
-            filename = export_path.name
-        else:
-            # Remote mode or relative path - use exports directory
-            filename = PathLib(filepath).name
-            if not filename.endswith('.csv'):
-                filename = f"{filename}.csv"
-            export_path = session.export_path("data", filename)
 
         from stats_compass_core.data.save_csv import SaveCSVInput
         from stats_compass_core.data.save_csv import save_csv as core_save_csv
         input_data = SaveCSVInput(dataframe_name=dataframe_name, filepath=str(export_path), index=index)
         result = core_save_csv(state=session.state, input_data=input_data)
 
-        # Add download URL if available (remote mode only)
+        # Link to the file actually written: core never overwrites, so a second
+        # save of x.csv is x_1.csv.
         result_dict = result if isinstance(result, dict) else result.model_dump()
-        if is_remote:
-            download_url = session.download_url("data", filename)
+        if session.confined:
+            download_url = session.download_url("data", PathLib(result_dict["filepath"]).name)
             if download_url:
                 result_dict["download_url"] = download_url
 
@@ -312,31 +328,19 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             Save result with filepath and download_url (if remote).
         """
         session = get_session(ctx, session_manager)
+        export_path = _export_target(session, filepath, "models", ".joblib")
 
         from pathlib import Path as PathLib
-        import os
-        is_remote = bool(os.getenv("STATS_COMPASS_SERVER_URL", ""))
-        
-        # For local mode with absolute/home paths, use the path directly
-        if not is_remote and (filepath.startswith("/") or filepath.startswith("~")):
-            export_path = PathLib(filepath).expanduser()
-            export_path.parent.mkdir(parents=True, exist_ok=True)
-            filename = export_path.name
-        else:
-            filename = PathLib(filepath).name
-            if not filename.endswith('.joblib'):
-                filename = f"{filename}.joblib"
-            export_path = session.export_path("models", filename)
 
         from stats_compass_core.ml.save_model import SaveModelInput
         from stats_compass_core.ml.save_model import save_model as core_save_model
         input_data = SaveModelInput(model_id=model_id, filepath=str(export_path))
         result = core_save_model(state=session.state, input_data=input_data)
 
-        # Add download URL if available (remote mode only)
+        # Link to the file actually written (core adds _1 rather than overwrite).
         result_dict = result if isinstance(result, dict) else result
-        if is_remote:
-            download_url = session.download_url("models", filename)
+        if session.confined:
+            download_url = session.download_url("models", PathLib(result_dict["filepath"]).name)
             if download_url:
                 result_dict["download_url"] = download_url
 
@@ -364,15 +368,16 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             "message": "Session deleted" if session_deleted else "Session not found"
         }
 
-    @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
-    def server_stats() -> dict:
-        """
-        Get server statistics (admin tool).
-        
-        Returns:
-            Active sessions count, configuration, and session details.
-        """
-        return session_manager.get_stats()
+    if include_admin:
+        @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
+        def server_stats() -> dict:
+            """
+            Get server statistics (admin tool).
+
+            Returns:
+                Active sessions count, configuration, and session details.
+            """
+            return session_manager.get_stats()
 
     # Remote-only tools (only if storage is provided)
     if storage is not None:
@@ -431,7 +436,13 @@ def register_data_tools(mcp: FastMCP, session_manager: SessionManager, storage=N
             """
             session = get_session(ctx, session_manager)
 
-            if not file_key:
+            if file_key:
+                # A plain name inside this session's uploads, nothing else.
+                try:
+                    file_key = check_file_key(file_key)
+                except ValueError:
+                    return {"error": f"'{file_key}' isn't one of your uploaded files."}
+            else:
                 uploads = storage.list_uploads(session.session_id)
                 if not uploads:
                     return {"error": "No uploaded files found. Please upload a file first."}

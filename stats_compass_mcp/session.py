@@ -17,7 +17,9 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Dict
 
 from stats_compass_core import DataFrameState
+from stats_compass_core.utils.file_safety import FilePolicy
 
+from stats_compass_mcp import exports
 from stats_compass_mcp.exports import (
     ExportCategory,
     cleanup_session_exports,
@@ -25,6 +27,7 @@ from stats_compass_mcp.exports import (
     get_export_path,
     list_session_exports,
 )
+from stats_compass_mcp.safety import check_session_id
 
 if TYPE_CHECKING:
     from fastmcp import Context
@@ -43,18 +46,31 @@ class Session:
     - Optional metadata
     """
 
-    def __init__(self, session_id: str, memory_limit_mb: float = 500.0):
+    def __init__(self, session_id: str, memory_limit_mb: float = 500.0, confine_files: bool = True):
         """
         Initialize a session.
         
         Args:
-            session_id: Required - the MCP session ID from FastMCP.
+            session_id: Required - the MCP session ID from FastMCP. It names the
+                session's folders, so it must be a single safe path component.
             memory_limit_mb: Memory limit for this session's DataFrameState.
+            confine_files: Writes go only to this session's exports folder and
+                reads come only from its uploads folder (core's FilePolicy).
+                On by default: a served session's paths come from whoever
+                calls the tools (security scan, 8 Oct 2026). Only the local
+                stdio server turns it off, where the paths are the user's own.
         """
-        if not session_id:
-            raise ValueError("session_id is required")
-        self.session_id = session_id
-        self.state = DataFrameState(memory_limit_mb=memory_limit_mb)
+        self.session_id = check_session_id(session_id)
+        self.confined = confine_files
+        policy = (
+            FilePolicy(
+                write_root=exports.EXPORTS_BASE_DIR / session_id,
+                read_roots=(exports.UPLOADS_BASE_DIR / session_id,),
+            )
+            if confine_files
+            else None
+        )
+        self.state = DataFrameState(memory_limit_mb=memory_limit_mb, file_policy=policy)
         self.created_at = datetime.now()
         self.last_active = datetime.now()
         self.metadata: dict = {}
@@ -136,12 +152,15 @@ class SessionManager:
         self,
         memory_limit_mb: float = 500.0,
         max_sessions: int = 100,
-        session_id_resolver=None
+        session_id_resolver=None,
+        *,
+        confine_files: bool = True,
     ):
         self._sessions: Dict[str, Session] = {}
         self.memory_limit_mb = memory_limit_mb
         self.max_sessions = max_sessions
         self._session_id_resolver = session_id_resolver
+        self.confine_files = confine_files
 
         logger.info(
             f"SessionManager initialized: memory_limit={memory_limit_mb}MB, "
@@ -174,7 +193,7 @@ class SessionManager:
             self._evict_oldest()
 
         # Create new session
-        session = Session(session_id, self.memory_limit_mb)
+        session = Session(session_id, self.memory_limit_mb, confine_files=self.confine_files)
         self._sessions[session_id] = session
         logger.info(f"Created new session: {session_id}")
         return session

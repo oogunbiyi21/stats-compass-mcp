@@ -7,9 +7,12 @@ Supports presigned URLs for direct client uploads.
 
 import logging
 import os
+import uuid
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
+
+from stats_compass_mcp.safety import check_file_key, check_session_id
 
 logger = logging.getLogger(__name__)
 
@@ -130,7 +133,20 @@ class LocalStorageBackend(StorageBackend):
 
     def _session_path(self, session_id: str) -> Path:
         """Get path for session's files."""
-        return self.base_path / session_id
+        return self.base_path / check_session_id(session_id)
+
+    def _file_path(self, session_id: str, file_key: str) -> Path:
+        """A file key's path inside the session's folder, or ValueError.
+
+        The key comes from the caller (register_uploaded_file), so it must be a
+        plain name that resolves inside the folder: joined as given, '../..'
+        climbed out of it (security scan, 8 Oct 2026).
+        """
+        base = self._session_path(session_id).resolve()
+        path = (base / check_file_key(file_key)).resolve()
+        if not path.is_relative_to(base) or path == base:
+            raise ValueError("That isn't one of this session's uploaded files.")
+        return path
 
     def get_upload_url(
         self,
@@ -160,8 +176,10 @@ class LocalStorageBackend(StorageBackend):
         }
 
     def get_file_path(self, session_id: str, file_key: str) -> str:
-        """Get local file path."""
-        return str(self._session_path(session_id) / file_key)
+        """Get local file path. An empty key gives the session's folder."""
+        if file_key == "":
+            return str(self._session_path(session_id))
+        return str(self._file_path(session_id, file_key))
 
     def delete_session_files(self, session_id: str) -> int:
         """Delete session directory and all files."""
@@ -182,7 +200,10 @@ class LocalStorageBackend(StorageBackend):
 
     def file_exists(self, session_id: str, file_key: str) -> bool:
         """Check if file exists locally."""
-        return (self._session_path(session_id) / file_key).exists()
+        try:
+            return self._file_path(session_id, file_key).is_file()
+        except ValueError:
+            return False
 
     def list_uploads(self, session_id: str) -> list[str]:
         """Return uploaded filenames sorted by most recently modified."""
@@ -261,8 +282,8 @@ class S3StorageBackend(StorageBackend):
         logger.info(f"S3StorageBackend initialized: s3://{bucket}/{prefix}")
 
     def _object_key(self, session_id: str, file_key: str) -> str:
-        """Get S3 object key."""
-        return f"{self.prefix}/{session_id}/{file_key}"
+        """Get S3 object key, from a safe session id and a plain file name."""
+        return f"{self.prefix}/{check_session_id(session_id)}/{check_file_key(file_key)}"
 
     def get_upload_url(
         self,
@@ -276,7 +297,12 @@ class S3StorageBackend(StorageBackend):
         
         Client uses PUT request to this URL with file body.
         """
-        file_key = filename
+        # A plain name: the caller may suggest one, or none at all.
+        if filename:
+            file_key = os.path.basename(filename)
+        else:
+            ext = "xlsx" if ("sheet" in content_type or "excel" in content_type) else "csv"
+            file_key = f"upload_{uuid.uuid4().hex[:8]}.{ext}"
         object_key = self._object_key(session_id, file_key)
 
         presigned_url = self.s3.generate_presigned_url(

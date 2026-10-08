@@ -45,7 +45,9 @@ MAX_SESSIONS = int(os.getenv("STATS_COMPASS_MAX_SESSIONS", "100"))
 
 def create_mcp_server(
     name: str = "stats-compass",
-    with_storage: bool = False
+    with_storage: bool = False,
+    *,
+    local: bool = False,
 ) -> FastMCP:
     """
     Create a configured FastMCP server with all tools registered.
@@ -53,6 +55,9 @@ def create_mcp_server(
     Args:
         name: Server name
         with_storage: Whether to enable file upload storage (for remote deployments)
+        local: The stdio server on the user's own machine. Only then are
+            sessions unconfined (the paths are the user's own) and the admin
+            tool registered. Anything else is treated as shared.
     
     Returns:
         Configured FastMCP server
@@ -91,7 +96,8 @@ def create_mcp_server(
     # Create session manager (single instance)
     session_manager = SessionManager(
         memory_limit_mb=MEMORY_LIMIT_MB,
-        max_sessions=MAX_SESSIONS
+        max_sessions=MAX_SESSIONS,
+        confine_files=not local,
     )
 
     # Optional storage backend for remote deployments
@@ -105,7 +111,7 @@ def create_mcp_server(
             logger.warning("Storage backend not available - file uploads disabled")
 
     # Register all tools (single source of truth)
-    register_all_tools(mcp, session_manager, storage=storage)
+    register_all_tools(mcp, session_manager, storage=storage, include_admin=local)
 
     # Register resources
     @mcp.resource("stats-compass://skills")
@@ -152,7 +158,7 @@ def get_server(with_storage: bool = False) -> FastMCP:
 def run_stdio() -> None:
     """Run server with stdio transport (for local MCP clients)."""
     logger.info("Starting Stats Compass MCP (stdio transport)")
-    mcp = create_mcp_server(with_storage=False)
+    mcp = create_mcp_server(with_storage=False, local=True)
     mcp.run()
 
 

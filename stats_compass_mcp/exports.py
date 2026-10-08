@@ -14,8 +14,12 @@ from typing import Literal, Optional
 
 logger = logging.getLogger(__name__)
 
-# Configuration
+from stats_compass_mcp.safety import check_session_id
+
+# Configuration. Read through the module (exports.EXPORTS_BASE_DIR), not copied,
+# so a session's folders and its file policy always agree.
 EXPORTS_BASE_DIR = Path(os.getenv("STATS_COMPASS_EXPORTS_DIR", "/tmp/stats-compass-exports"))  # nosec B108
+UPLOADS_BASE_DIR = Path(os.getenv("LOCAL_STORAGE_PATH", "/tmp/stats-compass-uploads"))  # nosec B108
 SERVER_URL = os.getenv("STATS_COMPASS_SERVER_URL", "")
 
 # Export categories
@@ -48,7 +52,7 @@ def get_exports_dir(session_id: str, category: Optional[ExportCategory] = None) 
     Returns:
         Path to the exports directory
     """
-    base = EXPORTS_BASE_DIR / session_id
+    base = EXPORTS_BASE_DIR / check_session_id(session_id)
     if category:
         base = base / category
     return base

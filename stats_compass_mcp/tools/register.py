@@ -15,7 +15,9 @@ from stats_compass_mcp.tools.workflows import register_workflow_tools
 def register_all_tools(
     mcp: FastMCP,
     session_manager: SessionManager,
-    storage=None
+    storage=None,
+    *,
+    include_admin: bool = False,
 ) -> None:
     """
     Register all Stats Compass tools with the FastMCP server.
@@ -27,9 +29,11 @@ def register_all_tools(
         mcp: FastMCP server instance
         session_manager: SessionManager for session isolation
         storage: Optional storage backend for file uploads (remote only)
+        include_admin: Register server_stats, which lists every session. Only
+            for a local operator; off on any shared server.
     """
     # Data management tools (includes remote-only upload tools if storage provided)
-    register_data_tools(mcp, session_manager, storage=storage)
+    register_data_tools(mcp, session_manager, storage=storage, include_admin=include_admin)
 
     # Parent describe/execute tools
     register_parent_tools(mcp, session_manager)
