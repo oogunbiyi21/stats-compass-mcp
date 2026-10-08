@@ -23,6 +23,9 @@ import time
 MAX_TOKEN_LENGTH = 2048
 DEFAULT_TTL_SECONDS = 3600
 
+# Read once, at import: a deployment must set the variable before this module
+# loads. KEY_SOURCE says which happened, so a server can log it.
+KEY_SOURCE = "environment" if os.getenv("STATS_COMPASS_SECRET_KEY") else "generated"
 _SECRET = (os.getenv("STATS_COMPASS_SECRET_KEY") or secrets.token_hex(32)).encode()
 
 

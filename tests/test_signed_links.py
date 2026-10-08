@@ -133,3 +133,8 @@ def test_tokens_expire_when_asked():
     assert tokens.read_token(token, "upload")["session_id"] == "s1"
     time.sleep(1.1)
     assert tokens.read_token(token, "upload") is None
+
+
+def test_the_key_source_is_known():
+    """run_http logs it, so links dying on restart has a visible cause."""
+    assert tokens.KEY_SOURCE in ("environment", "generated")

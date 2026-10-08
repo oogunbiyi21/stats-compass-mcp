@@ -299,6 +299,15 @@ def run_http(
     logger.info(f"Starting Stats Compass MCP (HTTP transport) at {host}:{port}")
     logger.info(f"Config: memory_limit={MEMORY_LIMIT_MB}MB, max_sessions={MAX_SESSIONS}")
     logger.info("Authentication: %s", "bearer token" if auth_token else "none (local only)")
+    from stats_compass_mcp.tokens import KEY_SOURCE
+
+    if KEY_SOURCE == "generated":
+        logger.warning(
+            "STATS_COMPASS_SECRET_KEY is unset: upload and download links are signed "
+            "with a key generated for this process and stop working on restart."
+        )
+    else:
+        logger.info("Upload and download links are signed with STATS_COMPASS_SECRET_KEY.")
     logger.info("Upload endpoints: GET /upload, POST /api/upload")
 
     uvicorn.run(
