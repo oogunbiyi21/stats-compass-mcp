@@ -25,6 +25,10 @@ services:
       - STATS_COMPASS_MAX_SESSIONS=100
       # Public URL for upload links (set in .env for your domain)
       - STATS_COMPASS_SERVER_URL=${STATS_COMPASS_SERVER_URL:-http://localhost:8000}
+      # Required: clients send "Authorization: Bearer <token>" (16+ characters)
+      - STATS_COMPASS_AUTH_TOKEN=${STATS_COMPASS_AUTH_TOKEN:?Set STATS_COMPASS_AUTH_TOKEN in .env}
+      # Signs upload and download links; set it so links survive a restart
+      - STATS_COMPASS_SECRET_KEY=${STATS_COMPASS_SECRET_KEY:-}
 
       # Storage config (local for dev, S3 for prod)
       - STORAGE_BACKEND=local

@@ -12,11 +12,14 @@ Usage:
     stats-compass-mcp serve --port 8000
 """
 
+import hmac
+import ipaddress
 import logging
 import os
 from pathlib import Path
 
 from fastmcp import FastMCP
+from starlette.responses import JSONResponse
 
 from stats_compass_mcp.session import SessionManager
 from stats_compass_mcp.tools import register_all_tools
@@ -162,18 +165,81 @@ def run_stdio() -> None:
     mcp.run()
 
 
-def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:  # nosec B104
-    """Run server with HTTP transport (for remote deployments)."""
-    import uvicorn
+MIN_AUTH_TOKEN_LENGTH = 16
+
+# Not behind the bearer token: their signed, expiring link is their credential,
+# and a browser following an upload link cannot send an Authorization header.
+_TOKEN_EXEMPT_PATHS = ("/upload", "/api/upload")
+_TOKEN_EXEMPT_PREFIXES = ("/download/",)
+
+
+def _is_loopback(host: str) -> bool:
+    if host == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
+def check_bind(host: str, auth_token: str | None, allow_no_auth: bool) -> None:
+    """Refuse to serve beyond this machine without a bearer token.
+
+    ``serve`` used to bind 0.0.0.0 with no authentication, so anyone who could
+    reach the port could use every tool (security scan, 8 Oct 2026, F3).
+    """
+    if auth_token is not None and len(auth_token) < MIN_AUTH_TOKEN_LENGTH:
+        raise SystemExit(
+            f"The auth token must be at least {MIN_AUTH_TOKEN_LENGTH} characters."
+        )
+    if _is_loopback(host) or auth_token:
+        return
+    if allow_no_auth:
+        logger.warning(
+            "Serving on %s without authentication: anyone who can reach this port "
+            "can use every tool. Only do this on a network you trust.", host
+        )
+        return
+    raise SystemExit(
+        f"Refusing to serve on {host} without authentication. Set "
+        "STATS_COMPASS_AUTH_TOKEN (or --auth-token), bind to 127.0.0.1, or pass "
+        "--no-auth on a network you trust."
+    )
+
+
+class BearerAuthMiddleware:
+    """401 for any HTTP request without ``Authorization: Bearer <token>``,
+    except the upload and download routes."""
+
+    def __init__(self, app, token: str):
+        self.app = app
+        self._expected = f"Bearer {token}".encode()
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            path = scope.get("path", "")
+            exempt = path in _TOKEN_EXEMPT_PATHS or path.startswith(_TOKEN_EXEMPT_PREFIXES)
+            if not exempt:
+                supplied = dict(scope.get("headers", [])).get(b"authorization", b"")
+                if not hmac.compare_digest(supplied, self._expected):
+                    response = JSONResponse(
+                        {"error": "unauthorized"},
+                        status_code=401,
+                        headers={"WWW-Authenticate": "Bearer"},
+                    )
+                    await response(scope, receive, send)
+                    return
+        await self.app(scope, receive, send)
+
+
+def create_http_app(auth_token: str | None = None):
+    """The HTTP app: MCP plus upload and download routes, behind the token if given."""
     from starlette.applications import Starlette
     from starlette.routing import Mount
 
+    from stats_compass_mcp.image_utils import _inline_images_ctx, set_inline_images
     from stats_compass_mcp.upload import create_upload_routes
 
-    logger.info(f"Starting Stats Compass MCP (HTTP transport) at {host}:{port}")
-    logger.info(f"Config: memory_limit={MEMORY_LIMIT_MB}MB, max_sessions={MAX_SESSIONS}")
-
-    from stats_compass_mcp.image_utils import set_inline_images, _inline_images_ctx
     set_inline_images(False)  # Default: strip images in HTTP mode
 
     mcp = create_mcp_server(with_storage=True)
@@ -208,11 +274,34 @@ def run_http(host: str = "0.0.0.0", port: int = 8000) -> None:  # nosec B104
         ],
         lifespan=mcp_app.lifespan,  # Required for FastMCP's async task group
     ))
+    if auth_token:
+        app = BearerAuthMiddleware(app, auth_token)
+    return app
 
+
+def run_http(
+    host: str = "127.0.0.1",
+    port: int = 8000,
+    auth_token: str | None = None,
+    allow_no_auth: bool = False,
+) -> None:
+    """Run server with HTTP transport (for remote deployments).
+
+    Binds 127.0.0.1 unless told otherwise; any other address needs a bearer
+    token (``auth_token`` or STATS_COMPASS_AUTH_TOKEN) or ``allow_no_auth``.
+    """
+    import uvicorn
+
+    auth_token = auth_token or os.getenv("STATS_COMPASS_AUTH_TOKEN") or None
+    check_bind(host, auth_token, allow_no_auth)
+
+    logger.info(f"Starting Stats Compass MCP (HTTP transport) at {host}:{port}")
+    logger.info(f"Config: memory_limit={MEMORY_LIMIT_MB}MB, max_sessions={MAX_SESSIONS}")
+    logger.info("Authentication: %s", "bearer token" if auth_token else "none (local only)")
     logger.info("Upload endpoints: GET /upload, POST /api/upload")
 
     uvicorn.run(
-        app,
+        create_http_app(auth_token),
         host=host,
         port=port,
     )

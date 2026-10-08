@@ -20,8 +20,8 @@ logging.basicConfig(
 )
 
 
-def main() -> None:
-    """Main CLI entrypoint."""
+def build_parser() -> argparse.ArgumentParser:
+    """The CLI's arguments."""
     parser = argparse.ArgumentParser(
         prog="stats-compass-mcp",
         description="MCP server for stats-compass-core data analysis tools",
@@ -42,8 +42,24 @@ def main() -> None:
     )
     serve_parser.add_argument(
         "--host",
-        default="0.0.0.0",  # nosec B104 - intentional for Docker/server
-        help="Host to bind to (default: 0.0.0.0)",
+        default="127.0.0.1",
+        help=(
+            "Host to bind to (default: 127.0.0.1). Any other address needs "
+            "STATS_COMPASS_AUTH_TOKEN, or --no-auth on a network you trust."
+        ),
+    )
+    serve_parser.add_argument(
+        "--auth-token",
+        default=None,
+        help=(
+            "Bearer token clients must send (prefer the STATS_COMPASS_AUTH_TOKEN "
+            "environment variable: a flag is visible in the process list)."
+        ),
+    )
+    serve_parser.add_argument(
+        "--no-auth",
+        action="store_true",
+        help="Serve beyond this machine without authentication. Logs a warning.",
     )
     serve_parser.add_argument(
         "--port",
@@ -73,6 +89,12 @@ def main() -> None:
         help="Also add remote server config (e.g., http://localhost:8000/mcp)",
     )
 
+    return parser
+
+
+def main() -> None:
+    """Main CLI entrypoint."""
+    parser = build_parser()
     args = parser.parse_args()
 
     if args.command == "run":
@@ -81,7 +103,7 @@ def main() -> None:
 
     elif args.command == "serve":
         from stats_compass_mcp.server import run_http
-        run_http(host=args.host, port=args.port)
+        run_http(host=args.host, port=args.port, auth_token=args.auth_token, allow_no_auth=args.no_auth)
 
     elif args.command == "list-tools":
         # Create server and list its tools

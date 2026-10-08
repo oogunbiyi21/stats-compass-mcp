@@ -42,5 +42,8 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -s --max-time 5 http://localhost:8000/mcp > /dev/null && exit 0 || exit 1
 
-# Run server using new unified CLI
-CMD ["stats-compass-mcp", "serve"]
+# Run server using new unified CLI. Binding beyond the container's loopback
+# needs a bearer token: set STATS_COMPASS_AUTH_TOKEN (16+ characters) when you
+# run the container, and STATS_COMPASS_SECRET_KEY so upload and download links
+# survive a restart. Without the token the server refuses to start.
+CMD ["stats-compass-mcp", "serve", "--host", "0.0.0.0"]

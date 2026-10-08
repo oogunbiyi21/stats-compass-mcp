@@ -91,6 +91,21 @@ For Docker deployments or multi-client setups:
 stats-compass-mcp serve --port 8000
 ```
 
+`serve` binds `127.0.0.1` by default. To accept connections from other machines,
+set a bearer token of at least 16 characters and bind a public address:
+
+```bash
+export STATS_COMPASS_AUTH_TOKEN="$(openssl rand -hex 24)"
+export STATS_COMPASS_SECRET_KEY="$(openssl rand -hex 32)"   # signs upload/download links
+stats-compass-mcp serve --host 0.0.0.0 --port 8000
+```
+
+Clients send `Authorization: Bearer <token>`. Without a token the server refuses
+a public address; `--no-auth` overrides that, with a warning, for a network you
+trust. Each session reads only its own uploads and writes only its own exports.
+Upload and download links carry a signed token that expires (downloads after
+24 hours, `STATS_COMPASS_DOWNLOAD_TTL_SECONDS`), never the session id.
+
 ### File Uploads
 
 When running remotely, users can upload files via browser:
