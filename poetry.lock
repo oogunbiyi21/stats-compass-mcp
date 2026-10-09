@@ -3410,14 +3410,14 @@ full = ["httpx (>=0.27.0,<0.29.0)", "itsdangerous", "jinja2", "python-multipart 
 
 [[package]]
 name = "stats-compass-core"
-version = "0.1.27"
+version = "0.1.40"
 description = "A clean toolkit of deterministic pandas-based data tools"
 optional = false
 python-versions = "<4.0,>=3.11"
 groups = ["main"]
 files = [
-    {file = "stats_compass_core-0.1.27-py3-none-any.whl", hash = "sha256:17317002e65c71f83a2ca9522d09ee1ee71e6a8bbd08c1a4ccca06006695cfeb"},
-    {file = "stats_compass_core-0.1.27.tar.gz", hash = "sha256:1b3b5c812d627ade32017ada6e3a4c632da7ffb54e5320711977692c1aaad437"},
+    {file = "stats_compass_core-0.1.40-py3-none-any.whl", hash = "sha256:bdef1d6ff9f52360a3fa1da9b0a616745753d4474a4880014de274f6b60ed3d1"},
+    {file = "stats_compass_core-0.1.40.tar.gz", hash = "sha256:484a1b383dbb3663a344d74422b37c6dacbe3a289c877e6826bbc4633dc76a24"},
 ]
 
 [package.dependencies]
@@ -3798,4 +3798,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.11"
-content-hash = "03ccb640425f9d70463102be46a3353b6cbbdeca5b4a73cdad0b7a11ba1e50ee"
+content-hash = "0647cbabc6d350e9d9c019c94d410efdb0e2a24bdb714e1ce5d794d8a4a816d9"

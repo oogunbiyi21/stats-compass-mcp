@@ -12,7 +12,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Optional
 
-from stats_compass_mcp.safety import check_file_key, check_session_id, short_id
+from stats_compass_mcp.safety import check_file_key, check_session_id, session_folder, short_id
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +133,7 @@ class LocalStorageBackend(StorageBackend):
 
     def _session_path(self, session_id: str) -> Path:
         """Get path for session's files."""
-        return self.base_path / check_session_id(session_id)
+        return self.base_path / session_folder(session_id)
 
     def _file_path(self, session_id: str, file_key: str) -> Path:
         """A file key's path inside the session's folder, or ValueError.
@@ -289,7 +289,7 @@ class S3StorageBackend(StorageBackend):
 
     def _object_key(self, session_id: str, file_key: str) -> str:
         """Get S3 object key, from a safe session id and a plain file name."""
-        return f"{self.prefix}/{check_session_id(session_id)}/{check_file_key(file_key)}"
+        return f"{self.prefix}/{session_folder(session_id)}/{check_file_key(file_key)}"
 
     def get_upload_url(
         self,
@@ -330,7 +330,6 @@ class S3StorageBackend(StorageBackend):
             "file_key": file_key,
             "storage_type": "s3",
             "bucket": self.bucket,
-            "object_key": object_key,
         }
 
     def get_file_path(self, session_id: str, file_key: str) -> str:
@@ -362,7 +361,7 @@ class S3StorageBackend(StorageBackend):
 
     def delete_session_files(self, session_id: str) -> int:
         """Delete all S3 objects for session."""
-        prefix = f"{self.prefix}/{session_id}/"
+        prefix = f"{self.prefix}/{session_folder(session_id)}/"
 
         # List all objects with prefix
         paginator = self.s3.get_paginator("list_objects_v2")

@@ -208,6 +208,42 @@ def check_bind(host: str, auth_token: str | None, allow_no_auth: bool) -> None:
     )
 
 
+_LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1", "[::1]"}
+
+
+def _host_name(value: str) -> str:
+    """The host part of a Host header or an origin, without scheme or port."""
+    value = value.split("://", 1)[-1].split("/", 1)[0]
+    if value.startswith("["):
+        return value.split("]", 1)[0] + "]"
+    return value.rsplit(":", 1)[0] if value.count(":") == 1 else value
+
+
+class LoopbackOnlyMiddleware:
+    """403 unless Host, and Origin when sent, name this machine.
+
+    Without a token, loopback serve trusts whoever reaches it, and a web page
+    whose name has been rebound to 127.0.0.1 reaches it as same-origin: it could
+    open sessions until the user's was evicted (re-scan of 0.3.32, F4). A
+    rebound page still sends its own name as Host and Origin.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            headers = dict(scope.get("headers", []))
+            host = _host_name(headers.get(b"host", b"").decode("latin-1"))
+            origin = headers.get(b"origin")
+            origin_ok = origin is None or _host_name(origin.decode("latin-1")) in _LOOPBACK_HOSTS
+            if host not in _LOOPBACK_HOSTS or not origin_ok:
+                response = JSONResponse({"error": "forbidden host or origin"}, status_code=403)
+                await response(scope, receive, send)
+                return
+        await self.app(scope, receive, send)
+
+
 class BearerAuthMiddleware:
     """401 for any HTTP request without ``Authorization: Bearer <token>``,
     except the upload and download routes."""
@@ -233,8 +269,13 @@ class BearerAuthMiddleware:
         await self.app(scope, receive, send)
 
 
-def create_http_app(auth_token: str | None = None):
-    """The HTTP app: MCP plus upload and download routes, behind the token if given."""
+def create_http_app(auth_token: str | None = None, host: str = "127.0.0.1"):
+    """The HTTP app: MCP plus upload and download routes, behind the token if given.
+
+    Without a token on a loopback address, only requests naming this machine in
+    Host and Origin get through (DNS rebinding). With a token, or a public bind
+    with --no-auth, the Host is whatever the operator's name is.
+    """
     from starlette.applications import Starlette
     from starlette.routing import Mount
 
@@ -277,6 +318,8 @@ def create_http_app(auth_token: str | None = None):
     ))
     if auth_token:
         app = BearerAuthMiddleware(app, auth_token)
+    elif _is_loopback(host):
+        app = LoopbackOnlyMiddleware(app)
     return app
 
 
@@ -310,8 +353,15 @@ def run_http(
         logger.info("Upload and download links are encrypted with STATS_COMPASS_SECRET_KEY.")
     logger.info("Upload endpoints: GET /upload, POST /api/upload")
 
+    # Session folders are named by HMAC here: the session id is the session's
+    # credential in serve mode, and folder paths reach logs and listings.
+    from stats_compass_mcp.safety import set_session_folder_namer
+    from stats_compass_mcp.tokens import folder_name
+
+    set_session_folder_namer(folder_name)
+
     uvicorn.run(
-        create_http_app(auth_token),
+        create_http_app(auth_token, host=host),
         host=host,
         port=port,
     )

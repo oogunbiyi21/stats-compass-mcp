@@ -90,6 +90,60 @@ the key.
 - `STATS_COMPASS_LOG_FILE` adds a file, created with mode 0600.
 - Session ids appear in logs cut to eight characters.
 
+## Re-scan of 0.3.32, 9 October 2026
+
+Six findings: two MEDIUM, four LOW. Fixed in 0.3.34; 0.3.33 moved the core
+dependency to a range so core 0.1.40's fixes could reach hosted first.
+
+| Finding | Fix |
+|---|---|
+| F1, F2: core 0.1.39's plot `save_path` and `run_step` format flaws, reached through `execute_plot_tool` and the workflows | core 0.1.40, through the range in 0.3.33; a guard in served sessions; a lock that matches |
+| F3: plot exports named after a workflow step, which can carry a column name | `safe_name_token` plus a containment check in `get_export_path` |
+| F4: loopback serve without a token checked neither Host nor Origin | `LoopbackOnlyMiddleware` |
+| F5: served session folders named with the session id, the credential | HMAC-named folders in `serve` |
+| F6: tool results echoed server paths holding the session folder | names and download links only |
+
+**F1, F2: core's fixes, plus a guard.**
+- Core 0.1.40 fixes both, and 0.3.33's range lets hosted install it.
+- As a second line, a served session refuses `save_path`, `filepath` and
+  `model_save_path` anywhere in an `execute_*` sub-tool's params or a
+  workflow's config. It saves into its own exports automatically.
+- `poetry.lock`, which the Docker image installs from, resolved core 0.1.27.
+  It now resolves 0.1.40.
+
+**F3: plot export names.**
+- A workflow step's name can carry a column name, and it named the plot export
+  as given, so `/` and `..` in a CSV header walked out of the plots folder.
+- `save_plot_export` now reduces the prefix with `safe_name_token`:
+  `[A-Za-z0-9_-]`, capped at 80 characters.
+- `get_export_path` checks every name with `check_file_key` and checks that the
+  resolved path stays in the session's category folder.
+
+**F4: loopback serve trusted any Host.**
+- Without a token, loopback serve trusted any caller. A page whose name had been
+  rebound to 127.0.0.1 could open sessions until the user's was evicted.
+- `LoopbackOnlyMiddleware` now returns 403 unless Host, and Origin when sent,
+  is 127.0.0.1, `localhost` or `::1`.
+- It is not applied with a token, or on a public bind with `--no-auth`, where
+  the Host is the operator's own name.
+
+**F5: session folders named with the credential.**
+- `run_http` sets `safety.set_session_folder_namer(tokens.folder_name)`, so
+  folders are named by HMAC-SHA256 of the session id under the secret key.
+- Every folder path goes through `safety.session_folder`: exports, uploads,
+  `FilePolicy` roots, local and S3 storage, and the upload and download routes.
+- Without a namer, folders keep the session id. Hosted relies on that, because
+  its own routes name folders after its hashed user ids, which are not
+  credentials there.
+
+**F6: server paths in tool results.**
+- `save_csv`, `save_model`, `load_csv`, `load_excel` and `list_files` now return
+  the file's name and its download link, never the server path or core's
+  message.
+- The S3 upload result no longer includes `object_key`.
+- Two tests added on the 0.3.32 branch asserted the full path in `filepath`.
+  They now check the name and the file on disk.
+
 ## Not covered
 
 - **One shared token.** The bearer token is shared by every client of a

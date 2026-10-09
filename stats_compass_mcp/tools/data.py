@@ -37,6 +37,21 @@ def _export_target(session, filepath: str, category: str, extension: str):
     return session.export_path(category, filename)
 
 
+def _without_server_paths(session, result: dict) -> dict:
+    """A load result as a served session sees it: the file's name, not its server path.
+
+    The path holds the session's folder, which in serve mode used to be the
+    session id, its credential (re-scan of 0.3.32, F6).
+    """
+    if session.confined and result.get("source"):
+        from pathlib import Path as PathLib
+
+        name = PathLib(str(result["source"])).name
+        result["source"] = name
+        result["message"] = f"Loaded '{name}' as '{result.get('dataframe_name')}'"
+    return result
+
+
 def register_data_tools(
     mcp: FastMCP,
     session_manager: SessionManager,
@@ -159,7 +174,7 @@ def register_data_tools(
             set_active=set_active
         )
         result = core_load_csv(state=session.state, params=params)
-        return result.model_dump()
+        return _without_server_paths(session, result.model_dump())
 
     @mcp.tool(annotations={"readOnlyHint": False, "openWorldHint": False, "destructiveHint": False})
     def load_excel(
@@ -196,7 +211,7 @@ def register_data_tools(
             set_active=set_active
         )
         result = core_load_excel(state=session.state, params=params)
-        return result.model_dump()
+        return _without_server_paths(session, result.model_dump())
 
     @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
     def list_files(
@@ -217,7 +232,11 @@ def register_data_tools(
         from stats_compass_core.data.list_files import list_files as core_list_files
         params = ListFilesInput(directory=directory)
         result = core_list_files(state=session.state, params=params)
-        return result.model_dump()
+        result_dict = result.model_dump()
+        if session.confined:
+            result_dict["directory"] = "uploads"
+            result_dict["message"] = f"Found {result_dict.get('count', 0)} file(s) in your uploads"
+        return result_dict
 
     @mcp.tool(annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
     def get_sample(
@@ -300,10 +319,14 @@ def register_data_tools(
         result = core_save_csv(state=session.state, input_data=input_data)
 
         # Link to the file actually written: core never overwrites, so a second
-        # save of x.csv is x_1.csv.
+        # save of x.csv is x_1.csv. A served session sees the name, never the
+        # server path, which holds its session folder (re-scan of 0.3.32, F6).
         result_dict = result if isinstance(result, dict) else result.model_dump()
         if session.confined:
-            download_url = session.download_url("data", PathLib(result_dict["filepath"]).name)
+            name = PathLib(result_dict["filepath"]).name
+            result_dict["filepath"] = name
+            result_dict["message"] = f"DataFrame '{dataframe_name}' saved as '{name}'"
+            download_url = session.download_url("data", name)
             if download_url:
                 result_dict["download_url"] = download_url
 
@@ -337,10 +360,14 @@ def register_data_tools(
         input_data = SaveModelInput(model_id=model_id, filepath=str(export_path))
         result = core_save_model(state=session.state, input_data=input_data)
 
-        # Link to the file actually written (core adds _1 rather than overwrite).
+        # Link to the file actually written (core adds _1 rather than overwrite);
+        # a served session sees the name, not the server path (re-scan F6).
         result_dict = result if isinstance(result, dict) else result
         if session.confined:
-            download_url = session.download_url("models", PathLib(result_dict["filepath"]).name)
+            name = PathLib(result_dict["filepath"]).name
+            result_dict["filepath"] = name
+            result_dict["message"] = f"Model '{model_id}' saved as '{name}'"
+            download_url = session.download_url("models", name)
             if download_url:
                 result_dict["download_url"] = download_url
 

@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import hmac
 import json
 import os
 import secrets
@@ -62,3 +63,13 @@ def read_token(token: str, purpose: str) -> dict | None:
     if kind != purpose or not isinstance(expires, int) or expires < time.time():
         return None
     return {"session_id": session_id, "category": category, "filename": filename}
+
+
+def folder_name(session_id: str) -> str:
+    """An opaque, stable folder name for a session: HMAC-SHA256 of its id under the key.
+
+    The session id is the session's credential in `serve`, and folder paths
+    appear in logs, listings and tool results (re-scan of 0.3.32, F5).
+    """
+    digest = hmac.new(_SECRET, b"stats-compass-mcp session folder v1|" + session_id.encode(), hashlib.sha256)
+    return digest.hexdigest()[:32]

@@ -27,7 +27,7 @@ from stats_compass_mcp.exports import (
     get_export_path,
     list_session_exports,
 )
-from stats_compass_mcp.safety import check_session_id, short_id
+from stats_compass_mcp.safety import check_session_id, session_folder, short_id
 
 if TYPE_CHECKING:
     from fastmcp import Context
@@ -64,8 +64,8 @@ class Session:
         self.confined = confine_files
         policy = (
             FilePolicy(
-                write_root=exports.EXPORTS_BASE_DIR / session_id,
-                read_roots=(exports.UPLOADS_BASE_DIR / session_id,),
+                write_root=exports.EXPORTS_BASE_DIR / session_folder(session_id),
+                read_roots=(exports.UPLOADS_BASE_DIR / session_folder(session_id),),
             )
             if confine_files
             else None

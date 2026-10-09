@@ -25,7 +25,7 @@ from starlette.responses import FileResponse, HTMLResponse, JSONResponse
 from starlette.routing import Route
 
 from stats_compass_mcp import exports
-from stats_compass_mcp.safety import check_file_key, check_session_id, short_id
+from stats_compass_mcp.safety import check_file_key, check_session_id, session_folder, short_id
 from stats_compass_mcp.tokens import read_token
 
 logger = logging.getLogger(__name__)
@@ -329,7 +329,7 @@ async def upload_file(request: Request) -> JSONResponse:
                 status_code=400
             )
 
-        session_path = (exports.UPLOADS_BASE_DIR / session_id).resolve()
+        session_path = (exports.UPLOADS_BASE_DIR / session_folder(session_id)).resolve()
         session_path.mkdir(parents=True, exist_ok=True)
         file_path = (session_path / filename).resolve()
         if not file_path.is_relative_to(session_path) or file_path == session_path:
@@ -371,7 +371,7 @@ async def download_file(request: Request) -> FileResponse | JSONResponse:
     except ValueError:
         return JSONResponse({"error": "Invalid link"}, status_code=403)
 
-    session_dir = (exports.EXPORTS_BASE_DIR / session_id).resolve()
+    session_dir = (exports.EXPORTS_BASE_DIR / session_folder(session_id)).resolve()
     file_path = (session_dir / category / filename).resolve()
     if not file_path.is_relative_to(session_dir):
         return JSONResponse({"error": "Invalid link"}, status_code=403)
