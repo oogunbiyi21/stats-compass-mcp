@@ -113,7 +113,7 @@ def get_download_url(session_id: str, category: ExportCategory, filename: str) -
         # Local mode - no download URL available
         return ""
 
-    # A signed, expiring token naming this one file, never the session id
+    # An encrypted, expiring token naming this one file, never the session id
     # itself: that is the session's credential, and a link gets shared
     # (security scan, 8 Oct 2026, F6).
     from stats_compass_mcp.tokens import make_token

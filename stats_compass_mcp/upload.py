@@ -7,7 +7,7 @@ Provides:
 - Session-isolated file storage
 - File download endpoint for exports
 
-Both endpoints take a signed, expiring token (stats_compass_mcp.tokens) and
+Both endpoints take an encrypted, expiring token (stats_compass_mcp.tokens) and
 derive every path from fixed folders, never from request data. They used to
 take the session id itself and join caller-supplied names onto it: '..' as a
 session id lifted /download's containment base to /tmp, and /api/upload wrote
@@ -354,7 +354,7 @@ async def download_file(request: Request) -> FileResponse | JSONResponse:
     """
     Handle file download.
 
-    URL: /download/{token}. The token, signed by this server, names the
+    URL: /download/{token}. The token, encrypted by this server, names the
     session, category and file; the path is rebuilt from the fixed exports
     folder and must stay inside that session's folder.
     """

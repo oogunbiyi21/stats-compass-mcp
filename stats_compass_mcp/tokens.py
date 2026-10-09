@@ -1,24 +1,31 @@
-"""Signed, expiring tokens for upload and download links.
+"""Encrypted, expiring tokens for upload and download links.
 
 The links used to carry the raw session id, the session's only credential, so
 one link in a shared transcript or a proxy log handed over the session, and the
 routes trusted it to decide where files were read and written (security scan,
-8 Oct 2026, F2, F4, F6, F7). A token names what it is for and expires; the
-session id inside it is signed, not readable as a credential on its own.
+8 Oct 2026, F2, F4, F6, F7). A token names what it is for, the session, the
+folder and the file, and when it expires.
 
-The key is STATS_COMPASS_SECRET_KEY, or a random one per process when that is
-unset, in which case links stop working when the server restarts.
+It is encrypted and authenticated (Fernet: AES-128-CBC with HMAC-SHA256), not
+just signed. A signed token's payload is only base64, so decoding a shared link
+gave the session id back (pre-release review F1, 8 Oct 2026). Nothing in a
+token is readable without the key, and a changed token is refused.
+
+The key is derived from STATS_COMPASS_SECRET_KEY, or from a random secret per
+process when that is unset, in which case links stop working when the server
+restarts.
 """
 
 from __future__ import annotations
 
 import base64
 import hashlib
-import hmac
 import json
 import os
 import secrets
 import time
+
+from cryptography.fernet import Fernet, InvalidToken
 
 MAX_TOKEN_LENGTH = 2048
 DEFAULT_TTL_SECONDS = 3600
@@ -27,18 +34,9 @@ DEFAULT_TTL_SECONDS = 3600
 # loads. KEY_SOURCE says which happened, so a server can log it.
 KEY_SOURCE = "environment" if os.getenv("STATS_COMPASS_SECRET_KEY") else "generated"
 _SECRET = (os.getenv("STATS_COMPASS_SECRET_KEY") or secrets.token_hex(32)).encode()
-
-
-def _b64(data: bytes) -> str:
-    return base64.urlsafe_b64encode(data).rstrip(b"=").decode()
-
-
-def _unb64(text: str) -> bytes:
-    return base64.urlsafe_b64decode(text + "=" * (-len(text) % 4))
-
-
-def _sign(payload: str) -> str:
-    return _b64(hmac.new(_SECRET, payload.encode(), hashlib.sha256).digest())
+_FERNET = Fernet(
+    base64.urlsafe_b64encode(hashlib.sha256(b"stats-compass-mcp link tokens v2|" + _SECRET).digest())
+)
 
 
 def make_token(
@@ -50,20 +48,16 @@ def make_token(
 ) -> str:
     """A token for ``purpose`` ("upload" or "download"), valid for ``ttl`` seconds."""
     body = [purpose, session_id, category, filename, int(time.time()) + int(ttl)]
-    payload = _b64(json.dumps(body, separators=(",", ":")).encode())
-    return f"{payload}.{_sign(payload)}"
+    return _FERNET.encrypt(json.dumps(body, separators=(",", ":")).encode()).decode()
 
 
 def read_token(token: str, purpose: str) -> dict | None:
     """The token's fields if it is genuine, unexpired and for ``purpose``; else None."""
-    if not isinstance(token, str) or not token or len(token) > MAX_TOKEN_LENGTH or token.count(".") != 1:
-        return None
-    payload, signature = token.split(".")
-    if not hmac.compare_digest(signature, _sign(payload)):
+    if not isinstance(token, str) or not token or len(token) > MAX_TOKEN_LENGTH:
         return None
     try:
-        kind, session_id, category, filename, expires = json.loads(_unb64(payload))
-    except (ValueError, TypeError):
+        kind, session_id, category, filename, expires = json.loads(_FERNET.decrypt(token.encode()))
+    except (InvalidToken, ValueError, TypeError):
         return None
     if kind != purpose or not isinstance(expires, int) or expires < time.time():
         return None

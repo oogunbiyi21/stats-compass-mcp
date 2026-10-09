@@ -27,6 +27,9 @@ stats-compass-core = {version = "0.1.38", extras = ["all"]}
 mcp = "^1.0.0"
 fastmcp = "^2.14.2"
 boto3 = "^1.42.25"
+# Encrypts upload and download link tokens (Fernet). Already installed through
+# fastmcp -> authlib; declared because tokens.py imports it directly.
+cryptography = ">=42"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.0"

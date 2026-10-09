@@ -14,10 +14,10 @@ The statistics library had its own scan and fixes, in stats-compass-core's
 | Finding | Severity | Fix |
 |---|---|---|
 | F1, F5, F8: `load_csv`, `load_excel`, `list_files` read any host path | HIGH, MEDIUM | Sessions confined by default (§1) |
-| F2: `/download` traversal through `..` as the session id | HIGH | Signed links; paths from fixed folders (§2) |
+| F2: `/download` traversal through `..` as the session id | HIGH | Encrypted links; paths from fixed folders (§2) |
 | F3: `serve` on 0.0.0.0 with no authentication | HIGH | Loopback by default; bearer token for a public bind (§3) |
-| F4: `/api/upload` wrote to a caller-chosen path | MEDIUM | Signed upload token; base name only; containment (§2) |
-| F6, F7: download and upload URLs carried the session id | MEDIUM | Signed, expiring tokens (§2) |
+| F4: `/api/upload` wrote to a caller-chosen path | MEDIUM | Encrypted upload token; base name only; containment (§2) |
+| F6, F7: download and upload URLs carried the session id | MEDIUM | Encrypted, expiring tokens (§2) |
 | F9, F10: `save_csv`/`save_model` honoured absolute paths unless `STATS_COMPASS_SERVER_URL` was set | MEDIUM | Decided by the session, not the variable (§1) |
 | F11: `server_stats` listed every session to anyone | LOW | Registered only for a local operator (§1) |
 | F12: DEBUG log to a world-readable `/tmp` file with session ids | LOW | stderr at INFO; private file on request; short ids (§4) |
@@ -53,8 +53,12 @@ core's `FilePolicy`:
 
 ## 2. Upload and download links
 
-`stats_compass_mcp/tokens.py` signs `purpose | session | category | file |
-expiry` with HMAC-SHA256.
+`stats_compass_mcp/tokens.py` encrypts and authenticates `purpose | session |
+category | file | expiry` with Fernet (AES-128-CBC and HMAC-SHA256, from
+`cryptography`, already installed through fastmcp). The first version only
+signed it: the payload was base64, so decoding a shared link gave the session id
+back (pre-release review F1, 8 Oct 2026). Nothing in a token is readable without
+the key.
 - **Key:** `STATS_COMPASS_SECRET_KEY`. If unset, a random key is chosen per
   process and links stop working on restart.
 - **Download:** `/download/{token}`, valid for 24 hours by default
@@ -76,7 +80,7 @@ expiry` with HMAC-SHA256.
   without one, with a warning.
 - With a token, every request except `/upload`, `/api/upload` and
   `/download/...` needs `Authorization: Bearer <token>`. Those three routes are
-  exempt because their signed link is their credential.
+  exempt because their encrypted link is their credential.
 - The Dockerfile passes `--host 0.0.0.0`, so a container without the token
   refuses to start. `docker-compose.yml` requires the token.
 

@@ -65,9 +65,9 @@ class TestDownload:
 
     def test_a_tampered_token_is_refused(self, client):
         token = tokens.make_token("download", "s1", "data", "report.csv")
-        payload, sig = token.split(".")
-        forged = tokens.make_token("download", "s2", "data", "theirs.csv").split(".")[0] + "." + sig
-        assert client.get(f"/download/{forged}").status_code == 403
+        middle = len(token) // 2
+        flipped = token[:middle] + ("A" if token[middle] != "A" else "B") + token[middle + 1:]
+        assert client.get(f"/download/{flipped}").status_code == 403
 
     def test_an_expired_token_is_refused(self, client):
         token = tokens.make_token("download", "s1", "data", "report.csv", ttl=-1)
@@ -138,3 +138,21 @@ def test_tokens_expire_when_asked():
 def test_the_key_source_is_known():
     """run_http logs it, so links dying on restart has a visible cause."""
     assert tokens.KEY_SOURCE in ("environment", "generated")
+
+
+LONG_SESSION = "f3a9c2e1d4b5a6978877665544332211"
+
+
+@pytest.mark.parametrize("purpose", ["upload", "download"])
+def test_the_session_id_cannot_be_read_from_a_token(purpose):
+    """Pre-release review F1: signed is not secret. The session id is the
+    session's credential, so a shared link must not carry it readably."""
+    import base64
+
+    token = tokens.make_token(purpose, LONG_SESSION, "data", "report.csv")
+    assert LONG_SESSION not in token
+    for part in token.split("."):
+        decoded = base64.urlsafe_b64decode(part + "=" * (-len(part) % 4))
+        assert LONG_SESSION.encode() not in decoded
+        assert b"report.csv" not in decoded
+    assert tokens.read_token(token, purpose)["session_id"] == LONG_SESSION

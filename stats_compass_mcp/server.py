@@ -168,7 +168,7 @@ def run_stdio() -> None:
 
 MIN_AUTH_TOKEN_LENGTH = 16
 
-# Not behind the bearer token: their signed, expiring link is their credential,
+# Not behind the bearer token: their encrypted, expiring link is their credential,
 # and a browser following an upload link cannot send an Authorization header.
 _TOKEN_EXEMPT_PATHS = ("/upload", "/api/upload")
 _TOKEN_EXEMPT_PREFIXES = ("/download/",)
@@ -303,11 +303,11 @@ def run_http(
 
     if KEY_SOURCE == "generated":
         logger.warning(
-            "STATS_COMPASS_SECRET_KEY is unset: upload and download links are signed "
+            "STATS_COMPASS_SECRET_KEY is unset: upload and download links are encrypted "
             "with a key generated for this process and stop working on restart."
         )
     else:
-        logger.info("Upload and download links are signed with STATS_COMPASS_SECRET_KEY.")
+        logger.info("Upload and download links are encrypted with STATS_COMPASS_SECRET_KEY.")
     logger.info("Upload endpoints: GET /upload, POST /api/upload")
 
     uvicorn.run(

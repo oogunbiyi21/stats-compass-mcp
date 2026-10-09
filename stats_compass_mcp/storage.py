@@ -164,7 +164,7 @@ class LocalStorageBackend(StorageBackend):
         session_path = self._session_path(session_id)
         session_path.mkdir(parents=True, exist_ok=True)
 
-        # A signed, expiring token, not the session id: the session id is the
+        # An encrypted, expiring token, not the session id: the session id is the
         # session's credential and this URL is shown to the user (security
         # scan, 8 Oct 2026, F7).
         from stats_compass_mcp.tokens import make_token
