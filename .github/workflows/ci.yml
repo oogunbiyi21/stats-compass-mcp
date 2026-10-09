@@ -1,0 +1,39 @@
+# The full test suite, on every pull request and every push to main.
+#
+# "tests" is the check to make required on main: a pull request that fails it
+# cannot merge, and release.yml publishes only a commit this workflow passed.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  tests:
+    name: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install the package and the dev tools
+        run: poetry install --with dev --no-interaction
+
+      - name: Run the test suite
+        run: poetry run pytest -q -p no:cacheprovider
