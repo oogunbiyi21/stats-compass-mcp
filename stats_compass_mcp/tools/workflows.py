@@ -28,6 +28,7 @@ from stats_compass_core.workflows.timeseries import RunTimeseriesForecastInput
 
 from stats_compass_mcp.exports import save_plot_export
 from stats_compass_mcp.image_utils import with_images
+from stats_compass_mcp.safety import refuse_write_paths
 from stats_compass_mcp.session import Session, SessionManager, get_session
 
 logger = logging.getLogger(__name__)
@@ -96,6 +97,8 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
             Workflow result with steps, metrics, and charts.
         """
         session = get_session(ctx, session_manager)
+        if session.confined:
+            refuse_write_paths(config or {}, "config")
         eda_config = EDAConfig(**config) if config else None
         params = RunEDAReportInput(dataframe_name=dataframe_name, config=eda_config)
         result = run_eda_report(state=session.state, params=params)
@@ -122,6 +125,8 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
             Workflow result with steps and cleaned DataFrame name.
         """
         session = get_session(ctx, session_manager)
+        if session.confined:
+            refuse_write_paths(config or {}, "config")
         preproc_config = PreprocessingConfig(**config) if config else None
         params = RunPreprocessingInput(
             dataframe_name=dataframe_name, save_as=save_as, config=preproc_config
@@ -152,6 +157,8 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
             Workflow result with metrics, model ID, and diagnostic charts.
         """
         session = get_session(ctx, session_manager)
+        if session.confined:
+            refuse_write_paths(config or {}, "config")
         class_config = ClassificationConfig(**config) if config else None
         params = RunClassificationInput(
             dataframe_name=dataframe_name,
@@ -185,6 +192,8 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
             Workflow result with metrics, model ID, and charts.
         """
         session = get_session(ctx, session_manager)
+        if session.confined:
+            refuse_write_paths(config or {}, "config")
         reg_config = RegressionConfig(**config) if config else None
         params = RunRegressionInput(
             dataframe_name=dataframe_name,

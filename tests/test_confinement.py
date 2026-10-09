@@ -117,7 +117,9 @@ class TestWritesStayInTheSessionsExports:
         tools, manager = _server(dirs)
         _session_with_frame(manager)
         result = _call(tools, "save_csv", dataframe_name="t", filepath=str(dirs["elsewhere"] / "planted.csv"))
-        assert Path(result["filepath"]) == (dirs["exports"] / "s1" / "data" / "planted.csv").resolve()
+        # 0.3.33: a served session's result names the file, not its server path (re-scan F6)
+        assert result["filepath"] == "planted.csv"
+        assert (dirs["exports"] / "s1" / "data" / "planted.csv").exists()
         assert sorted(p.name for p in dirs["elsewhere"].iterdir()) == ["secret.csv"]
 
     def test_save_model_too(self, dirs):
@@ -125,7 +127,9 @@ class TestWritesStayInTheSessionsExports:
         session = _session_with_frame(manager)
         model_id = session.state.store_model({"w": 1}, "toy", "a", [], "t")
         result = _call(tools, "save_model", model_id=model_id, filepath="~/model.joblib")
-        assert Path(result["filepath"]).parent == (dirs["exports"] / "s1" / "models").resolve()
+        # 0.3.33: the result names the file; it is written in the session's models folder
+        assert result["filepath"] == "model.joblib"
+        assert (dirs["exports"] / "s1" / "models" / "model.joblib").exists()
 
     def test_the_download_link_names_the_file_actually_written(self, dirs, monkeypatch):
         """Core never overwrites; a second save is x_1.csv and the link must say so."""

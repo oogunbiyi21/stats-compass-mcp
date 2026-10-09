@@ -25,6 +25,7 @@ from stats_compass_core.parent.tools import (
 )
 
 from stats_compass_mcp.image_utils import with_images
+from stats_compass_mcp.safety import refuse_write_paths
 from stats_compass_mcp.session import SessionManager, get_session
 
 
@@ -70,6 +71,8 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
             tool_name="split_column_by_group" to reshape it, then run the test.
         """
         session = get_session(ctx, session_manager)
+        if session.confined:
+            refuse_write_paths(params or {})
         input_params = ExecuteCategoryInput(
             tool_name=tool_name,
             params=params or {},
@@ -110,6 +113,8 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
             dataframe_name: Override active DataFrame
         """
         session = get_session(ctx, session_manager)
+        if session.confined:
+            refuse_write_paths(params or {})
         input_params = ExecuteCategoryInput(
             tool_name=tool_name,
             params=params or {},
@@ -150,6 +155,8 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
             dataframe_name: Override active DataFrame
         """
         session = get_session(ctx, session_manager)
+        if session.confined:
+            refuse_write_paths(params or {})
         input_params = ExecuteCategoryInput(
             tool_name=tool_name,
             params=params or {},
@@ -205,6 +212,8 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
             filter_dataframe for filtering.
         """
         session = get_session(ctx, session_manager)
+        if session.confined:
+            refuse_write_paths(params or {})
         input_params = ExecuteCategoryInput(
             tool_name=tool_name,
             params=params or {},
@@ -246,6 +255,8 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
             dataframe_name: Override active DataFrame
         """
         session = get_session(ctx, session_manager)
+        if session.confined:
+            refuse_write_paths(params or {})
         input_params = ExecuteCategoryInput(
             tool_name=tool_name,
             params=params or {},
@@ -306,6 +317,8 @@ def register_parent_tools(mcp: FastMCP, session_manager: SessionManager):
             Plot result with image and download_url (if remote).
         """
         session = get_session(ctx, session_manager)
+        if session.confined:
+            refuse_write_paths(params or {})
         input_params = ExecuteCategoryInput(
             tool_name=tool_name,
             params=params or {},
