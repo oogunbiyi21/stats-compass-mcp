@@ -19,8 +19,10 @@
         "type": "uv",
         "entry_point": "stats_compass_mcp/server.py",
         "mcp_config": {
-            "command": "uvx",
+            "command": "uv",
             "args": [
+                "tool",
+                "run",
                 "stats-compass-mcp",
                 "run"
             ]
