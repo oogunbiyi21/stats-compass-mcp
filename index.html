@@ -4,18 +4,18 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stats Compass MCP - Data Analysis Tools for AI Agents</title>
+    <title>Stats Compass: commerce analytics with real statistics, for Shopify brands</title>
     <meta name="description"
-        content="Connect your AI assistant to 50+ data analysis tools via Model Context Protocol. Load, transform, visualize, and export data through Claude, ChatGPT, and VS Code." />
+        content="Commerce analytics with real statistics for Shopify brands. Every number carries a verdict: expected, real change, noise, or not enough data yet. Know what changed, what your promotions actually earned, and where every figure came from." />
     <link rel="shortcut icon" href="./assets/logo/logo1.png" type="image/x-icon" />
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="Stats Compass MCP - Data Analysis Tools for AI Agents" />
+    <meta property="og:title" content="Stats Compass: commerce analytics with real statistics, for Shopify brands" />
     <meta property="og:description"
-        content="Connect your AI assistant to 50+ data analysis tools via Model Context Protocol. Works with Claude, ChatGPT, and VS Code." />
+        content="Most analytics tell you what happened. Stats Compass tells you whether it means anything. Every number carries a verdict, for Shopify brands." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://statscompass.io" />
-    <meta property="og:image" content="./assets/demos/upload_screenshot.png" />
+    <meta property="og:image" content="https://statscompass.io/assets/commerce/promotions.png" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { prefix: 'tw-' }</script>
@@ -36,10 +36,9 @@
         <div class="collapsible-header animated-collapse max-lg:tw-shadow-md" id="collapsed-header-items">
             <div
                 class="tw-flex tw-h-full tw-w-max tw-gap-5 tw-text-base tw-text-black max-lg:tw-mt-[30px] max-lg:tw-flex-col max-lg:tw-place-items-end max-lg:tw-gap-5 lg:tw-mx-auto lg:tw-place-items-center">
-                <a class="header-links" href="#about"> About </a>
-                <a class="header-links" href="#features"> Features </a>
-                <a class="header-links" href="#google-sheets"> Google Sheets </a>
-                <a class="header-links" href="#prompts"> How to Use </a>
+                <a class="header-links" href="#verdicts"> How it works </a>
+                <a class="header-links" href="#commerce"> Commerce </a>
+                <a class="header-links" href="#data-tools"> Data tools </a>
                 <a class="header-links" href="#installation"> Install </a>
                 <a class="header-links" href="#pricing"> Pricing </a>
                 <a class="header-links" href="https://github.com/oogunbiyi21/stats-compass-mcp" rel="noreferrer"
@@ -49,9 +48,10 @@
             </div>
             <div
                 class="tw-flex tw-place-items-center tw-gap-[20px] tw-text-lg max-md:tw-w-full max-md:tw-flex-col max-md:tw-place-content-center">
-                <a href="#installation" aria-label="Get Started"
+                <a href="mailto:tunji@statscompass.io?subject=Stats%20Compass%20Commerce%20early%20access"
+                    aria-label="Get early access"
                     class="tw-rounded-sm tw-border-2 tw-border-[#1c1c1c] tw-p-1 tw-px-2 tw-transition-colors tw-duration-[0.3s] hover:tw-bg-black hover:tw-text-white">
-                    Get Started
+                    Get early access
                 </a>
             </div>
         </div>
@@ -59,80 +59,193 @@
             onclick="toggleHeader()" aria-label="menu" id="collapse-btn"></button>
     </header>
 
-    <section
-        class="tw-relative tw-flex tw-min-h-[100vh] tw-w-full tw-max-w-[100vw] tw-flex-col tw-overflow-hidden max-lg:tw-p-4 max-md:tw-mt-[50px]">
+    <!-- Hero: the measurement position, with the promotion that shows it -->
+    <section class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-overflow-hidden tw-pt-[90px]">
         <div
-            class="tw-flex tw-h-full tw-min-h-[100vh] tw-w-full tw-place-content-center tw-gap-6 tw-p-[5%] max-xl:tw-flex-col max-xl:tw-place-items-center">
-            <div
-                class="tw-flex tw-min-w-[450px] tw-max-w-[800px] tw-flex-col tw-place-content-center max-xl:tw-min-w-[250px]">
-                <div
-                    class="tw-flex tw-flex-wrap tw-text-6xl tw-font-semibold tw-uppercase tw-leading-[80px] max-lg:tw-text-4xl max-md:tw-leading-snug">
-                    50+ Data Tools
-                    <br />
-                    For Your
-                    <br />
-                    AI Assistant.
-                </div>
-                <div class="reveal tw-mt-10 tw-p-2 tw-text-justify max-lg:tw-max-w-full">
-                    Stats Compass MCP connects Claude, ChatGPT, and VS Code to powerful data analysis tools
-                    via the Model Context Protocol. Load CSVs, create visualizations, transform data,
-                    and export results - all through natural conversation.
-                </div>
+            class="tw-mx-auto tw-flex tw-w-full tw-max-w-[1280px] tw-items-center tw-gap-12 tw-px-[5%] tw-py-12 max-xl:tw-flex-col max-md:tw-px-4 max-md:tw-py-6">
+            <div class="tw-flex tw-max-w-[600px] tw-flex-col">
+                <h1 class="tw-text-6xl tw-font-semibold tw-leading-[1.1] tw-tracking-tight max-lg:tw-text-5xl max-md:tw-text-4xl">
+                    Know what's real. Act on what matters.
+                </h1>
+                <p class="tw-mt-6 tw-text-2xl tw-leading-snug tw-text-gray-800 max-md:tw-text-xl">
+                    Most analytics tell you what happened. Stats Compass tells you whether it means anything.
+                </p>
+                <p class="tw-mt-5 tw-text-lg tw-leading-relaxed tw-text-gray-600">
+                    Every number carries a verdict: expected, real change, noise, or not enough data yet.
+                    So you know what changed, what your promotions actually earned, and where every figure
+                    came from.
+                </p>
 
-                <h2 class="reveal tw-mt-6 tw-text-lg">Works with</h2>
-                <div class="reveal tw-mt-2 tw-flex tw-flex-wrap tw-gap-4 tw-text-gray-600">
-                    <span class="tw-flex tw-items-center tw-gap-1">
-                        <i class="bi bi-check-circle-fill tw-text-green-600"></i> Claude Desktop
-                    </span>
-                    <span class="tw-flex tw-items-center tw-gap-1">
-                        <i class="bi bi-check-circle-fill tw-text-green-600"></i> VS Code
-                    </span>
-                    <span class="tw-flex tw-items-center tw-gap-1">
-                        <i class="bi bi-check-circle-fill tw-text-green-600"></i> Cursor
-                    </span>
-                    <span class="tw-flex tw-items-center tw-gap-1">
-                        <i class="bi bi-check-circle-fill tw-text-green-600"></i> ChatGPT
-                    </span>
-                </div>
-
-                <div class="reveal tw-mt-6 tw-flex tw-w-full tw-max-w-[350px]">
-                    <a class="btn tw-h-[50px] tw-w-full tw-transition-colors tw-duration-[0.3s] tw-justify-center"
-                        href="#installation">
-                        Get Started
+                <div class="tw-mt-8 tw-flex tw-flex-wrap tw-gap-3">
+                    <a class="btn tw-h-[50px] tw-px-6 tw-text-lg tw-transition-colors tw-duration-[0.3s]"
+                        href="mailto:tunji@statscompass.io?subject=Stats%20Compass%20Commerce%20early%20access">
+                        Get early access
+                    </a>
+                    <a href="https://claude.ai/customize/connectors?modal=add-custom-connector" target="_blank"
+                        rel="noreferrer"
+                        class="tw-inline-flex tw-h-[50px] tw-items-center tw-gap-2 tw-rounded-[10px] tw-border-2 tw-border-gray-900 tw-px-5 tw-font-semibold tw-text-gray-900 tw-transition-colors tw-duration-200 hover:tw-bg-gray-900 hover:tw-text-white">
+                        Connect your AI assistant <i class="bi bi-box-arrow-up-right tw-text-sm"></i>
                     </a>
                 </div>
-
-                <div class="reveal tw-mt-6 tw-flex tw-gap-4 tw-text-2xl">
-                    <a href="https://github.com/oogunbiyi21/stats-compass-mcp" aria-label="GitHub" target="_blank">
-                        <i class="bi bi-github"></i>
-                    </a>
-                    <a href="https://pypi.org/project/stats-compass-mcp/" aria-label="PyPI" target="_blank">
-                        <i class="bi bi-box-seam"></i>
-                    </a>
-                </div>
+                <p class="tw-mt-3 tw-text-sm tw-text-gray-500">Stats Compass Commerce is free during early access.</p>
             </div>
 
-            <div
-                class="tw-flex tw-w-full tw-max-w-[900px] tw-place-content-center tw-place-items-center max-md:tw-max-w-full">
-                <div class="tw-relative tw-flex tw-w-full tw-place-content-center tw-place-items-center">
-                    <div
-                        class="tw-flex tw-w-full tw-aspect-[16/10] tw-overflow-hidden tw-rounded-2xl tw-shadow-2xl tw-border tw-border-gray-200">
-                        <img src="./assets/demos/stats_compass_mcp_1.gif" alt="Stats Compass MCP demo with Claude"
-                            class="tw-h-full tw-w-full tw-object-contain tw-bg-white" />
-                    </div>
+            <figure class="tw-m-0 tw-flex tw-w-full tw-max-w-[600px] tw-flex-col tw-gap-3">
+                <div class="tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-shadow-2xl">
+                    <img src="./assets/commerce/promotions.webp" width="752" height="816"
+                        alt="Stats Compass Commerce promotion result for the SUMMER40 discount code, 14 May to 3 June 2026, 1,353 orders: revenue up 32% (real change), contribution margin down 44% (real change), new customers up 153% (real change), with a weekly revenue chart highlighting the promotion window."
+                        class="tw-block tw-h-auto tw-w-full" />
                 </div>
+                <figcaption class="tw-text-center tw-text-sm tw-text-gray-600">
+                    On our demo store, SUMMER40 lifted revenue 32% and cut contribution margin 44%.
+                    Both real changes.
+                </figcaption>
+            </figure>
+        </div>
+
+        <!-- Works with -->
+        <div class="tw-border-y tw-border-gray-100 tw-bg-gray-50 tw-py-5">
+            <div
+                class="tw-mx-auto tw-flex tw-max-w-[1100px] tw-flex-wrap tw-items-center tw-justify-center tw-gap-x-8 tw-gap-y-3 tw-px-4 tw-text-gray-700">
+                <span class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-gray-500">Works with</span>
+                <span class="tw-flex tw-items-center tw-gap-2"><i class="bi bi-bag-check-fill tw-text-green-600"></i> Shopify</span>
+                <span class="tw-flex tw-items-center tw-gap-2"><i class="bi bi-chat-square-text-fill tw-text-[#d97757]"></i> Claude</span>
+                <span class="tw-flex tw-items-center tw-gap-2"><i class="bi bi-chat-dots-fill tw-text-gray-800"></i> ChatGPT</span>
+                <span class="tw-flex tw-items-center tw-gap-2"><i class="bi bi-code-square tw-text-blue-600"></i> VS Code &amp; Cursor</span>
             </div>
         </div>
     </section>
 
-    <section
-        class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6">
-        <h2 class="tw-text-3xl tw-text-[#5d5d5d] max-lg:tw-text-2xl">
-            Data analysis through natural conversation
-        </h2>
+    <!-- The four verdicts, and what they let you answer -->
+    <section class="tw-flex tw-w-full tw-flex-col tw-items-center tw-px-6 tw-py-20 max-md:tw-px-4 max-md:tw-py-14"
+        id="verdicts">
+        <div class="tw-flex tw-max-w-[760px] tw-flex-col tw-items-center tw-text-center">
+            <h2 class="tw-text-4xl tw-font-semibold max-lg:tw-text-3xl">Four verdicts, not a wall of charts</h2>
+            <p class="tw-mt-4 tw-text-lg tw-text-gray-600">
+                A number on its own can't tell you whether to act. Stats Compass judges each one against what
+                your own history says is normal for this time of year, and says so in plain words.
+            </p>
+        </div>
+
+        <div class="tw-mt-10 tw-grid tw-w-full tw-max-w-[1100px] tw-grid-cols-4 tw-gap-4 max-lg:tw-grid-cols-2 max-sm:tw-grid-cols-1">
+            <div class="tw-flex tw-flex-col tw-gap-3 tw-rounded-xl tw-border tw-border-gray-200 tw-p-5">
+                <span class="tw-w-max tw-rounded-full tw-bg-green-100 tw-px-3 tw-py-1 tw-text-sm tw-font-semibold tw-text-green-800">Expected</span>
+                <p class="tw-text-gray-700">Within the range this time of year usually brings. Nothing to chase.</p>
+            </div>
+            <div class="tw-flex tw-flex-col tw-gap-3 tw-rounded-xl tw-border tw-border-gray-200 tw-p-5">
+                <span class="tw-w-max tw-rounded-full tw-bg-blue-100 tw-px-3 tw-py-1 tw-text-sm tw-font-semibold tw-text-blue-800">Real change</span>
+                <p class="tw-text-gray-700">Outside the usual range, and too large to be chance. Worth acting on.</p>
+            </div>
+            <div class="tw-flex tw-flex-col tw-gap-3 tw-rounded-xl tw-border tw-border-gray-200 tw-p-5">
+                <span class="tw-w-max tw-rounded-full tw-bg-gray-100 tw-px-3 tw-py-1 tw-text-sm tw-font-semibold tw-text-gray-700">Noise</span>
+                <p class="tw-text-gray-700">It moved, but by no more than week-to-week swings already do.</p>
+            </div>
+            <div class="tw-flex tw-flex-col tw-gap-3 tw-rounded-xl tw-border tw-border-gray-200 tw-p-5">
+                <span class="tw-w-max tw-rounded-full tw-bg-amber-100 tw-px-3 tw-py-1 tw-text-sm tw-font-semibold tw-text-amber-800">Not enough data yet</span>
+                <p class="tw-text-gray-700">Too little history to judge, and we tell you how much more it needs.</p>
+            </div>
+        </div>
+
+        <div class="tw-mt-14 tw-grid tw-w-full tw-max-w-[1100px] tw-grid-cols-3 tw-gap-6 max-lg:tw-grid-cols-1">
+            <div class="tw-flex tw-flex-col tw-gap-2">
+                <i class="bi bi-calendar-week tw-text-3xl tw-text-blue-600"></i>
+                <h3 class="tw-text-xl tw-font-semibold">What changed</h3>
+                <p class="tw-text-gray-600">
+                    A weekly report with a verdict on every headline figure: revenue, orders, average order
+                    value, margin, new and returning customers. "Nothing unusual happened" is a complete
+                    report.
+                </p>
+            </div>
+            <div class="tw-flex tw-flex-col tw-gap-2">
+                <i class="bi bi-tags tw-text-3xl tw-text-blue-600"></i>
+                <h3 class="tw-text-xl tw-font-semibold">What your promotions actually earned</h3>
+                <p class="tw-text-gray-600">
+                    Each discount's lift in revenue and contribution margin, measured against the sales that
+                    were coming anyway, with a range and a verdict. A busy week isn't a profitable one.
+                </p>
+            </div>
+            <div class="tw-flex tw-flex-col tw-gap-2">
+                <i class="bi bi-diagram-3 tw-text-3xl tw-text-blue-600"></i>
+                <h3 class="tw-text-xl tw-font-semibold">Where every figure came from</h3>
+                <p class="tw-text-gray-600">
+                    Every number opens "How this was calculated": the definition, its version, and how
+                    many orders it was computed from.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Commerce: the first vertical, usable now -->
+    <section class="tw-flex tw-w-full tw-flex-col tw-items-center tw-bg-gray-50 tw-px-6 tw-py-20 max-md:tw-px-4 max-md:tw-py-14"
+        id="commerce">
+        <div class="tw-flex tw-max-w-[760px] tw-flex-col tw-items-center tw-text-center">
+            <span class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-blue-700">Stats Compass Commerce</span>
+            <h2 class="tw-mt-3 tw-text-4xl tw-font-semibold max-lg:tw-text-3xl">Real statistics for Shopify brands</h2>
+            <p class="tw-mt-4 tw-text-lg tw-text-gray-600">
+                Connect your Shopify store and Stats Compass reads your orders, products and customers. It
+                never writes to your store. Your seasons, your promotions and your customers are judged
+                against your own history, not an industry average.
+            </p>
+        </div>
+
+        <div class="tw-mt-12 tw-flex tw-w-full tw-max-w-[1200px] tw-flex-col tw-gap-16 max-md:tw-gap-10">
+            <div class="tw-flex tw-items-center tw-gap-10 max-lg:tw-flex-col">
+                <div class="tw-w-[62%] tw-shrink-0 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-xl max-lg:tw-w-full">
+                    <img src="./assets/commerce/overview.webp" width="1018" height="885" loading="lazy"
+                        alt="Stats Compass Commerce weekly overview for 21 to 27 September 2026, headed 'New customers have fallen 5 weeks in a row': revenue £5,927.06 and orders 162 both marked expected, 90-day repeat rate 26.2% marked real change, and a chart of weekly revenue over 24 months against the range this time of year usually brings."
+                        class="tw-block tw-h-auto tw-w-full" />
+                </div>
+                <div class="tw-flex tw-flex-col tw-gap-3">
+                    <h3 class="tw-text-2xl tw-font-semibold">The week, judged</h3>
+                    <p class="tw-text-gray-600">
+                        Each headline figure with its verdict, and this week against the range this time of
+                        year usually brings. When something is worth a look, it leads the report: here, new
+                        customers falling five weeks in a row while revenue stays within its usual range.
+                    </p>
+                </div>
+            </div>
+            <div class="tw-flex tw-flex-row-reverse tw-items-center tw-gap-10 max-lg:tw-flex-col">
+                <div class="tw-w-[62%] tw-shrink-0 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-xl max-lg:tw-w-full">
+                    <img src="./assets/commerce/seasonality.webp" width="1018" height="577" loading="lazy"
+                        alt="Stats Compass Commerce seasonality view: the underlying sales trend with the seasons taken out, up about 20% on a year ago, beside a chart of how far each month usually runs above or below the yearly average, with ranges."
+                        class="tw-block tw-h-auto tw-w-full" />
+                </div>
+                <div class="tw-flex tw-flex-col tw-gap-3">
+                    <h3 class="tw-text-2xl tw-font-semibold">Your seasons, measured</h3>
+                    <p class="tw-text-gray-600">
+                        Your underlying trend with the seasons taken out, and how each month usually runs
+                        against your yearly average, with the range each estimate could fall in. So a busy
+                        November reads as November, not as growth.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tw-mt-12 tw-flex tw-flex-col tw-items-center tw-gap-3 tw-text-center">
+            <a class="btn tw-h-[50px] tw-px-6 tw-text-lg tw-transition-colors tw-duration-[0.3s]"
+                href="mailto:tunji@statscompass.io?subject=Stats%20Compass%20Commerce%20early%20access">
+                Get early access
+            </a>
+            <p class="tw-text-sm tw-text-gray-500">Free during early access. Email us and we'll get your store connected.</p>
+        </div>
+    </section>
+
+    <!-- The engine: the MCP data tools -->
+    <section class="tw-flex tw-w-full tw-flex-col tw-items-center tw-px-6 tw-pt-20 tw-pb-6 max-md:tw-px-4 max-md:tw-pt-14"
+        id="data-tools">
+        <div class="tw-flex tw-max-w-[760px] tw-flex-col tw-items-center tw-text-center">
+            <span class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-blue-700">The engine</span>
+            <h2 class="tw-mt-3 tw-text-4xl tw-font-semibold max-lg:tw-text-3xl">Your data, everywhere</h2>
+            <p class="tw-mt-4 tw-text-lg tw-text-gray-600">
+                Commerce is built on stats-compass-core, our open-source statistics library. The same
+                engine plugs into your AI assistant through the Model Context Protocol: 50+ data tools to
+                load, clean, chart and model any CSV, spreadsheet or Google Sheet, from Claude, ChatGPT,
+                VS Code or Cursor.
+            </p>
+        </div>
 
         <div
-            class="tw-mt-8 tw-flex tw-w-full tw-place-content-center tw-gap-10 max-md:tw-flex-col max-md:tw-place-items-center">
+            class="tw-mt-10 tw-flex tw-w-full tw-place-content-center tw-gap-10 max-md:tw-flex-col max-md:tw-place-items-center">
             <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-2">
                 <i class="bi bi-upload tw-text-4xl tw-text-blue-600"></i>
                 <h3 class="tw-text-lg tw-font-semibold">Load Data</h3>
@@ -156,22 +269,6 @@
         </div>
     </section>
 
-    <section
-        class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6"
-        id="about">
-        <div class="tw-flex tw-max-w-[750px] tw-flex-col tw-gap-5 tw-text-center">
-            <h2 class="tw-mt-5 tw-text-4xl tw-font-semibold max-lg:tw-text-3xl">
-                What is MCP?
-            </h2>
-
-            <div class="tw-text-gray-700">
-                The Model Context Protocol (MCP) is an open standard that lets AI assistants
-                connect to external tools and data sources. Stats Compass MCP exposes 50+ data
-                analysis tools that Claude, ChatGPT, and other AI assistants can use directly -
-                no coding required from you.
-            </div>
-        </div>
-    </section>
 
     <section
         class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6"
@@ -355,7 +452,7 @@
 
             <div class="tw-w-full tw-mt-4">
                 <h3 class="tw-text-2xl tw-mb-3">Option 1: Claude</h3>
-                <p class="tw-text-gray-600 tw-mb-4">Add Stats Compass as a custom connector on <a href="https://claude.ai" target="_blank" class="tw-text-blue-600 hover:tw-underline">claude.ai</a>:</p>
+                <p class="tw-text-gray-600 tw-mb-4">Add Stats Compass as a custom connector on <a href="https://claude.ai/customize/connectors?modal=add-custom-connector" target="_blank" rel="noreferrer" class="tw-text-blue-600 hover:tw-underline">claude.ai</a>:</p>
                 <div class="tw-flex tw-flex-col tw-gap-3">
                     <div class="tw-flex tw-items-start tw-gap-3 tw-bg-gray-50 tw-rounded-xl tw-p-4">
                         <span class="tw-flex-shrink-0 tw-w-7 tw-h-7 tw-rounded-full tw-bg-black tw-text-white tw-flex tw-items-center tw-justify-center tw-font-bold tw-text-xs">1</span>
@@ -475,8 +572,9 @@
         class="tw-flex tw-w-full tw-flex-col tw-items-center tw-gap-10 tw-px-[10%] tw-py-20 max-lg:tw-px-6"
         id="pricing">
         <div class="tw-text-center">
-            <h2 class="tw-text-4xl tw-font-bold tw-mb-3">Pricing</h2>
-            <p class="tw-text-gray-500 tw-text-lg">Start for free — locally or in the cloud. Upgrade when you need more.</p>
+            <h2 class="tw-text-4xl tw-font-bold tw-mb-3">Data tools pricing</h2>
+            <p class="tw-text-gray-500 tw-text-lg">For the AI assistant data tools. Start for free — locally or in the cloud. Upgrade when you need more.</p>
+            <p class="tw-mt-2 tw-text-gray-500">Stats Compass Commerce is free during early access.</p>
         </div>
 
         <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-3 tw-gap-4 tw-w-full tw-max-w-5xl">
@@ -605,16 +703,17 @@
     </section>
 
 
+
     <footer
         class="tw-mt-auto tw-flex tw-w-full tw-place-content-around tw-gap-3 tw-p-[5%] tw-px-[10%] tw-text-black max-md:tw-flex-col">
         <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-6 max-md:tw-w-full">
             <img src="./assets/logo/logo1.png" alt="Stats Compass logo" class="tw-max-w-[120px]" />
             <div>
-                Stats Compass MCP
+                Stats Compass
                 <br />
-                Open Source Data Analysis
+                Know what's real.
                 <br />
-                For AI Assistants
+                Act on what matters.
             </div>
             <div class="tw-text-sm tw-text-gray-600 tw-mt-2">
                 Operated by <a href="https://www.inferencelabs.co.uk/" target="_blank"
@@ -631,9 +730,19 @@
         </div>
 
         <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
-            <h2 class="tw-text-3xl max-md:tw-text-xl">Resources</h2>
+            <h2 class="tw-text-3xl max-md:tw-text-xl">Commerce</h2>
             <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
-                <a href="#about" class="footer-link">About</a>
+                <a href="#verdicts" class="footer-link">How it works</a>
+                <a href="#commerce" class="footer-link">Stats Compass Commerce</a>
+                <a href="mailto:tunji@statscompass.io?subject=Stats%20Compass%20Commerce%20early%20access"
+                    class="footer-link">Get early access</a>
+            </div>
+        </div>
+
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
+            <h2 class="tw-text-3xl max-md:tw-text-xl">Data tools</h2>
+            <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
+                <a href="#data-tools" class="footer-link">About</a>
                 <a href="https://github.com/oogunbiyi21/stats-compass-mcp#readme" class="footer-link"
                     target="_blank">Documentation</a>
                 <a href="https://github.com/oogunbiyi21/stats-compass-mcp" class="footer-link"
