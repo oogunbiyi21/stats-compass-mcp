@@ -80,10 +80,10 @@
                     When you use our hosted cloud service, we collect and process the following:
                 </p>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
-                    <li><strong>Email address</strong> — collected via OAuth sign-in (Google or email/password) and held by our authentication provider, Auth0. We use it to identify your account and to contact you about your subscription or service changes. It is not stored on the Stats Compass server, which identifies accounts by a salted, irreversible hash instead.</li>
-                    <li><strong>Usage counts</strong> — we count the number of tool calls you make per billing period to enforce free tier limits and bill paid subscribers. These are recorded against the hashed identifier, not your email.</li>
-                    <li><strong>Uploaded files and analysis results</strong> — files you upload and results generated during your session are stored temporarily on our server for the duration of your session. These are used solely to provide the service.</li>
-                    <li><strong>Account preferences and status</strong> — recorded against your hashed identifier: whether you have opted out of product email, whether a welcome email has been sent, and which AI assistant application you connected from. This last one tells us which clients are in use; it records the application, not your activity. These are retained while your account is active and deleted when you delete it.</li>
+                    <li><strong>Email address</strong>: collected via OAuth sign-in (Google or email/password) and held by our authentication provider, Auth0. We use it to identify your account and to contact you about your subscription or service changes. It is not stored on the Stats Compass server, which identifies accounts by a salted, irreversible hash instead.</li>
+                    <li><strong>Usage counts</strong>: we count the number of tool calls you make per billing period to enforce free tier limits and bill paid subscribers. These are recorded against the hashed identifier, not your email.</li>
+                    <li><strong>Uploaded files and analysis results</strong>: files you upload and results generated during your session are stored temporarily on our server for the duration of your session. These are used solely to provide the service.</li>
+                    <li><strong>Account preferences and status</strong>: recorded against your hashed identifier: whether you have opted out of product email, whether a welcome email has been sent, and which AI assistant application you connected from. This last one tells us which clients are in use; it records the application, not your activity. These are retained while your account is active and deleted when you delete it.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
                     We do not collect or store the content of your conversations with your AI assistant, and we do not access your data for any purpose beyond providing the service.
@@ -93,14 +93,14 @@
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Data Retention</h2>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
-                    <li><strong>Session data, uploaded files and exports</strong> — deleted when you call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code> tool, and automatically removed after 24 hours of inactivity.</li>
-                    <li><strong>Google Sheets access tokens</strong> — deleted when you disconnect, when you delete your account, or automatically after 90 days without use.</li>
-                    <li><strong>Usage counts</strong> — stored per calendar month against a pseudonymous account identifier, and deleted automatically 35 days after your first call in that month.</li>
-                    <li><strong>Server logs</strong> — automatically rotated, with the oldest entries overwritten once a fixed size is reached. Retention therefore varies with traffic. Logs record request paths and timestamps for security and debugging; they do not contain the contents of your files or spreadsheets.</li>
-                    <li><strong>Account data</strong> — retained for as long as your account is active. You can request deletion at any time by emailing us.</li>
+                    <li><strong>Session data, uploaded files and exports</strong>: deleted when you call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code> tool, and automatically removed after 24 hours of inactivity.</li>
+                    <li><strong>Google Sheets access tokens</strong>: deleted when you disconnect, when you delete your account, or automatically after 90 days without use.</li>
+                    <li><strong>Usage counts</strong>: stored per calendar month against a pseudonymous account identifier, and deleted automatically 35 days after your first call in that month.</li>
+                    <li><strong>Server logs</strong>: automatically rotated, with the oldest entries overwritten once a fixed size is reached. Retention therefore varies with traffic. Logs record request paths and timestamps for security and debugging; they do not contain the contents of your files or spreadsheets.</li>
+                    <li><strong>Account data</strong>: retained for as long as your account is active. You can request deletion at any time by emailing us.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
-                    Your email address is held by our authentication provider (Auth0) and, if you subscribe, by Stripe. Stats Compass does not store your email address on its own servers — accounts are identified internally by a salted, irreversible hash.
+                    Your email address is held by our authentication provider (Auth0) and, if you subscribe, by Stripe. Stats Compass does not store your email address on its own servers. Accounts are identified internally by a salted, irreversible hash.
                 </p>
             </section>
 
@@ -112,7 +112,7 @@
 
                 <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data accessed</h3>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
-                    Stats Compass requests only the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">drive.file</code> permission. Under this permission Google grants access to individual files one at a time, and only when you select them yourself in Google's own file picker. Stats Compass cannot list, search or open anything else in your Google Drive — not other spreadsheets, and not files of any other kind.
+                    Stats Compass requests only the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">drive.file</code> permission. Under this permission Google grants access to individual files one at a time, and only when you select them yourself in Google's own file picker. Stats Compass cannot list, search or open anything else in your Google Drive: not other spreadsheets, and not files of any other kind.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
                     This is enforced by Google rather than promised by us: a request for a spreadsheet you have not picked is refused by Google, not by our code. Files that Stats Compass creates for you, such as a sheet of analysis results, are also covered, since we created them.
@@ -125,13 +125,13 @@
 
                 <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data storage and retention</h3>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
-                    Spreadsheet data loaded from Google Sheets is held in memory for the duration of your session and is not written to disk, <em>unless you explicitly export it</em> — for example by asking your assistant to save results as a CSV. Exported files are written to our server so you can download them, and are deleted along with the rest of your session data.
+                    Spreadsheet data loaded from Google Sheets is held in memory for the duration of your session and is not written to disk, <em>unless you explicitly export it</em>, for example by asking your assistant to save results as a CSV. Exported files are written to our server so you can download them, and are deleted along with the rest of your session data.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
                     Session data and any exported files are deleted when you call <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code>, and are automatically removed after 24 hours of inactivity.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
-                    OAuth tokens, and a list of which spreadsheets you have selected, are stored in our Redis datastore on the same server and are automatically deleted after 90 days without use. The stored list is only a record of what you chose — it grants nothing on its own, since the access itself is held by Google against your account.
+                    OAuth tokens, and a list of which spreadsheets you have selected, are stored in our Redis datastore on the same server and are automatically deleted after 90 days without use. The stored list is only a record of what you chose. It grants nothing on its own, since the access itself is held by Google against your account.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
                     You can disconnect at any time in three ways: ask your AI assistant to disconnect Google Sheets, visit <code class="tw-bg-gray-100 tw-px-1 tw-rounded">mcp.statscompass.io/google/disconnect</code>, or revoke access from <a href="https://myaccount.google.com/connections" class="tw-text-blue-600 hover:tw-underline" target="_blank">your Google Account connections</a>. The first two revoke the grant with Google <em>and</em> delete our copy of the tokens and your selection list. Deleting your Stats Compass account does the same.
@@ -160,32 +160,32 @@
                     We use the following third-party services in hosted mode:
                 </p>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
-                    <li><strong>Auth0</strong> — handles authentication and sign-in. Your email address is shared with Auth0 for this purpose. See <a href="https://auth0.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Auth0's Privacy Policy</a>.</li>
-                    <li><strong>Stripe</strong> — handles payment processing for paid subscriptions. Payment information is processed directly by Stripe and is not stored on our servers. See <a href="https://stripe.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Stripe's Privacy Policy</a>.</li>
-                    <li><strong>Google</strong> — if you connect Google Sheets, OAuth tokens and API requests are processed by Google. Only the specific spreadsheets you choose to load are accessed. See <a href="https://policies.google.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Google's Privacy Policy</a>.</li>
-                    <li><strong>Resend</strong> — delivers our account and product emails. Your email address and name are shared with Resend for this purpose. No file contents, spreadsheet data or analysis results are ever sent to Resend. See <a href="https://resend.com/legal/privacy-policy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Resend's Privacy Policy</a>.</li>
+                    <li><strong>Auth0</strong>: handles authentication and sign-in. Your email address is shared with Auth0 for this purpose. See <a href="https://auth0.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Auth0's Privacy Policy</a>.</li>
+                    <li><strong>Stripe</strong>: handles payment processing for paid subscriptions. Payment information is processed directly by Stripe and is not stored on our servers. See <a href="https://stripe.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Stripe's Privacy Policy</a>.</li>
+                    <li><strong>Google</strong>: if you connect Google Sheets, OAuth tokens and API requests are processed by Google. Only the specific spreadsheets you choose to load are accessed. See <a href="https://policies.google.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Google's Privacy Policy</a>.</li>
+                    <li><strong>Resend</strong>: delivers our account and product emails. Your email address and name are shared with Resend for this purpose. No file contents, spreadsheet data or analysis results are ever sent to Resend. See <a href="https://resend.com/legal/privacy-policy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Resend's Privacy Policy</a>.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
                     Stats Compass does not sell your data or share it with any third parties beyond those listed above.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
-                    Stats Compass runs inside an AI assistant, so the results you ask for are returned to that assistant and handled under its own privacy policy. Depending on the platform and your settings there, general conversation content — <strong>excluding any content derived from Google Workspace data</strong> — may be used by that provider to improve their services.
+                    Stats Compass runs inside an AI assistant, so the results you ask for are returned to that assistant and handled under its own privacy policy. Depending on the platform and your settings there, general conversation content (<strong>excluding any content derived from Google Workspace data</strong>) may be used by that provider to improve their services.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
                     <strong>Google Workspace data is excluded from all such use.</strong> Data retrieved from Google Sheets, and any results derived from it, is used solely to carry out the analysis you request. It is never used to develop, improve, or train any AI or machine-learning model, and is never transferred to any third party for that purpose.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
-                    The only transfer of Google Workspace data that occurs is returning the analysis you requested to the assistant you connected, so that it can be shown to you. That is the user-facing feature you invoked, and it happens only at your request. If you want to control how your assistant provider handles conversation content more generally, that setting lives with the provider — for example, Anthropic does not train models on business-tier or API traffic, and consumer accounts offer a training opt-out.
+                    The only transfer of Google Workspace data that occurs is returning the analysis you requested to the assistant you connected, so that it can be shown to you. That is the user-facing feature you invoked, and it happens only at your request. If you want to control how your assistant provider handles conversation content more generally, that setting lives with the provider. For example, Anthropic does not train models on business-tier or API traffic, and consumer accounts offer a training opt-out.
                 </p>
             </section>
 
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Your Controls</h2>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
-                    <li><strong>Delete session data</strong> — call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code> tool at any time to delete your session and all associated uploaded files from our servers.</li>
-                    <li><strong>Unsubscribe from product emails</strong> — use the unsubscribe link in the footer of any product email, or email us. You will still receive service messages about your account, billing, security and outages.</li>
-                    <li><strong>Disconnect Google Sheets</strong> — ask your AI assistant to disconnect Google Sheets, or visit <code class="tw-bg-gray-100 tw-px-1 tw-rounded">mcp.statscompass.io/google/disconnect</code>. Both revoke our access with Google and delete the stored tokens.</li>
-                    <li><strong>Delete your account</strong> — email us at <a href="mailto:tunji@statscompass.io" class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a> to request full account deletion.</li>
+                    <li><strong>Delete session data</strong>: call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code> tool at any time to delete your session and all associated uploaded files from our servers.</li>
+                    <li><strong>Unsubscribe from product emails</strong>: use the unsubscribe link in the footer of any product email, or email us. You will still receive service messages about your account, billing, security and outages.</li>
+                    <li><strong>Disconnect Google Sheets</strong>: ask your AI assistant to disconnect Google Sheets, or visit <code class="tw-bg-gray-100 tw-px-1 tw-rounded">mcp.statscompass.io/google/disconnect</code>. Both revoke our access with Google and delete the stored tokens.</li>
+                    <li><strong>Delete your account</strong>: email us at <a href="mailto:tunji@statscompass.io" class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a> to request full account deletion.</li>
                 </ul>
             </section>
 
@@ -195,9 +195,9 @@
                     We process your personal data under the following legal bases:
                 </p>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
-                    <li><strong>Contract performance</strong> — processing your email, usage counts, and uploaded data is necessary to provide the Stats Compass hosted service and manage your subscription.</li>
-                    <li><strong>Legitimate interest</strong> — we use aggregated, non-identifying usage data to maintain and improve the service.</li>
-                    <li><strong>Legitimate interest (soft opt-in)</strong> — we send occasional product emails, such as a welcome message and notices of significant new features, to people who have signed up for the service. You can opt out of these at any time using the unsubscribe link in any such email, or by contacting us, and we will stop. Service messages about your account, billing, security or outages are sent on the basis of contract performance and are not affected by that choice.</li>
+                    <li><strong>Contract performance</strong>: processing your email, usage counts, and uploaded data is necessary to provide the Stats Compass hosted service and manage your subscription.</li>
+                    <li><strong>Legitimate interest</strong>: we use aggregated, non-identifying usage data to maintain and improve the service.</li>
+                    <li><strong>Legitimate interest (soft opt-in)</strong>: we send occasional product emails, such as a welcome message and notices of significant new features, to people who have signed up for the service. You can opt out of these at any time using the unsubscribe link in any such email, or by contacting us, and we will stop. Service messages about your account, billing, security or outages are sent on the basis of contract performance and are not affected by that choice.</li>
                 </ul>
             </section>
 
@@ -207,12 +207,12 @@
                     If you are located in the European Economic Area (EEA) or the United Kingdom, you have the following rights regarding your personal data:
                 </p>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
-                    <li><strong>Access</strong> — request a copy of the personal data we hold about you.</li>
-                    <li><strong>Rectification</strong> — request correction of inaccurate data.</li>
-                    <li><strong>Erasure</strong> — request deletion of your personal data.</li>
-                    <li><strong>Portability</strong> — request your data in a machine-readable format.</li>
-                    <li><strong>Restriction</strong> — request that we limit how we process your data.</li>
-                    <li><strong>Objection</strong> — object to processing based on legitimate interest.</li>
+                    <li><strong>Access</strong>: request a copy of the personal data we hold about you.</li>
+                    <li><strong>Rectification</strong>: request correction of inaccurate data.</li>
+                    <li><strong>Erasure</strong>: request deletion of your personal data.</li>
+                    <li><strong>Portability</strong>: request your data in a machine-readable format.</li>
+                    <li><strong>Restriction</strong>: request that we limit how we process your data.</li>
+                    <li><strong>Objection</strong>: object to processing based on legitimate interest.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-3">
                     To exercise any of these rights, contact us at <a href="mailto:tunji@statscompass.io" class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a>. We will respond within 30 days.
@@ -242,10 +242,10 @@
                     Your data may be processed in the following locations:
                 </p>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
-                    <li><strong>Stats Compass servers</strong> — hosted on DigitalOcean in London, United Kingdom.</li>
-                    <li><strong>Auth0 (Okta)</strong> — authentication services based in the United States. Auth0 maintains EU Standard Contractual Clauses for cross-border data transfers. See <a href="https://auth0.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Auth0's Privacy Policy</a>.</li>
-                    <li><strong>Stripe</strong> — payment processing based in the United States. Stripe maintains EU Standard Contractual Clauses for cross-border data transfers. See <a href="https://stripe.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Stripe's Privacy Policy</a>.</li>
-                    <li><strong>Resend</strong> — email delivery. Your email address is processed in Resend's EU region (Ireland). See <a href="https://resend.com/legal/privacy-policy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Resend's Privacy Policy</a>.</li>
+                    <li><strong>Stats Compass servers</strong>: hosted on DigitalOcean in London, United Kingdom.</li>
+                    <li><strong>Auth0 (Okta)</strong>: authentication services based in the United States. Auth0 maintains EU Standard Contractual Clauses for cross-border data transfers. See <a href="https://auth0.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Auth0's Privacy Policy</a>.</li>
+                    <li><strong>Stripe</strong>: payment processing based in the United States. Stripe maintains EU Standard Contractual Clauses for cross-border data transfers. See <a href="https://stripe.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Stripe's Privacy Policy</a>.</li>
+                    <li><strong>Resend</strong>: email delivery. Your email address is processed in Resend's EU region (Ireland). See <a href="https://resend.com/legal/privacy-policy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Resend's Privacy Policy</a>.</li>
                 </ul>
             </section>
 
