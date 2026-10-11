@@ -5,8 +5,10 @@ These wrap stats-compass-core workflow functions with session isolation.
 """
 
 import logging
+import warnings
 from typing import Any, List, Optional
 
+import pandas as pd
 from fastmcp import Context, FastMCP
 from stats_compass_core.workflows import (
     ClassificationConfig,
@@ -32,6 +34,37 @@ from stats_compass_mcp.safety import refuse_write_paths
 from stats_compass_mcp.session import Session, SessionManager, get_session
 
 logger = logging.getLogger(__name__)
+
+# run_timeseries_workflow fits ARIMA on at most this many rows, the most recent.
+TIMESERIES_MAX_ROWS = 500
+
+
+def most_recent_rows(df: pd.DataFrame, date_column: Optional[str], n: int) -> pd.DataFrame:
+    """The last n rows, by date when there is a date column: rows may not be in date order.
+
+    Rows whose date can't be read sort first, so they are the first dropped. Unless
+    the index holds dates, the rows are renumbered from 0, as a whole series would
+    be: statsmodels can't forecast from an integer index that starts part-way.
+    """
+    if date_column and date_column in df.columns:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", UserWarning)  # pandas guessing a date format
+            dates = pd.to_datetime(df[date_column], errors="coerce")
+        order = dates.reset_index(drop=True).sort_values(kind="stable", na_position="first").index
+        df = df.iloc[order]
+    recent = df.tail(n)
+    if not isinstance(recent.index, (pd.DatetimeIndex, pd.PeriodIndex)):
+        recent = recent.reset_index(drop=True)
+    return recent
+
+
+def unused_name(state: Any, base: str) -> str:
+    """base, or base_2, base_3... whichever no DataFrame in state already has."""
+    taken = {info.name for info in state.list_dataframes()}
+    name, i = base, 2
+    while name in taken:
+        name, i = f"{base}_{i}", i + 1
+    return name
 
 
 def save_workflow_exports(result_dict: dict, session: Session, workflow_name: str) -> dict:
@@ -217,8 +250,9 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
     ) -> Any:
         """
         Run time series forecasting: fit ARIMA model, generate forecasts and
-        visualization. Datasets larger than 500 rows are auto-sliced to the
-        most recent 500 rows before fitting.
+        visualization. Datasets larger than 500 rows are fitted on their most
+        recent 500 rows (by date_column when given), to keep the fit fast; the
+        forecast DataFrame is then named <name>_last500_forecast.
 
         Args:
             target_column: Column with values to forecast
@@ -233,24 +267,35 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         Returns:
             Workflow result with model info, forecast values, and chart download URL.
         """
-        MAX_ROWS = 500
         session = get_session(ctx, session_manager)
 
-        # Auto-slice to last MAX_ROWS rows to keep ARIMA fitting fast
+        # Fit only the most recent rows, to keep ARIMA fitting fast. The slice is
+        # stored under a name that says so; the forecast DataFrame is named after it.
         temp_name = None
         try:
             df = session.state.get_dataframe(dataframe_name)
-            if len(df) > MAX_ROWS:
-                sliced = df.tail(MAX_ROWS).reset_index(drop=False)
-                temp_name = f"__ts_slice_{session.session_id[:8]}"
-                session.state.set_dataframe(temp_name, sliced)
-                logger.info(
-                    f"Timeseries: sliced {dataframe_name or 'active'} "
-                    f"from {len(df)} to {MAX_ROWS} rows"
+            source_name = dataframe_name or session.state.get_active_dataframe_name()
+        except ValueError:
+            df = None  # No such DataFrame: the workflow reports it
+        if df is not None and len(df) > TIMESERIES_MAX_ROWS:
+            sliced_name = unused_name(session.state, f"{source_name}_last{TIMESERIES_MAX_ROWS}")
+            try:
+                session.state.set_dataframe(
+                    most_recent_rows(df, date_column, TIMESERIES_MAX_ROWS),
+                    name=sliced_name,
+                    operation="timeseries_slice",
+                    set_active=False,
                 )
-                dataframe_name = temp_name
-        except Exception:
-            pass  # If slicing fails, let the workflow handle it normally
+            except MemoryError as e:
+                logger.warning(
+                    f"Timeseries: could not store the last {TIMESERIES_MAX_ROWS} rows of "
+                    f"{source_name}, so fitting all {len(df)}: {e}"
+                )
+            else:
+                temp_name = dataframe_name = sliced_name
+                logger.info(
+                    f"Timeseries: fitting the last {TIMESERIES_MAX_ROWS} of {len(df)} rows of {source_name}"
+                )
 
         try:
             ts_config = TimeSeriesConfig(
@@ -271,5 +316,5 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
             if temp_name:
                 try:
                     session.state.remove_dataframe(temp_name)
-                except Exception:
-                    pass
+                except ValueError:
+                    pass  # Already gone
