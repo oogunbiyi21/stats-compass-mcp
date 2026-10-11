@@ -32,8 +32,9 @@
 <body class="tw-flex tw-min-h-[100vh] tw-flex-col tw-bg-[#ffffff]">
     <header
         class="tw-absolute tw-top-0 tw-z-20 tw-flex tw-h-[60px] tw-w-full tw-bg-white tw-px-[10%] tw-text-black max-lg:tw-mr-auto max-lg:tw-px-4 lg:tw-justify-around">
-        <a class="tw-h-[50px] tw-w-[50px] tw-p-[4px]" href="">
-            <img src="./assets/logo/logo1.png" alt="Stats Compass logo" class="tw-object tw-h-full tw-w-full" />
+        <a class="tw-flex tw-shrink-0 tw-items-center tw-gap-2 tw-self-center" href="/">
+            <img src="./assets/logo/mark.svg" alt="" width="44" height="44" class="tw-h-11 tw-w-11" />
+            <span class="tw-text-lg tw-font-semibold tw-tracking-tight">Stats Compass</span>
         </a>
         <div class="collapsible-header animated-collapse max-lg:tw-shadow-md" id="collapsed-header-items">
             <div
@@ -49,10 +50,9 @@
                 </a>
             </div>
             <div
-                class="tw-flex tw-place-items-center tw-gap-[20px] tw-text-lg max-md:tw-w-full max-md:tw-flex-col max-md:tw-place-content-center">
+                class="tw-flex tw-place-items-center tw-gap-[20px] max-md:tw-w-full max-md:tw-flex-col max-md:tw-place-content-center">
                 <a href="mailto:tunji@statscompass.io?subject=Stats%20Compass%20Commerce%20early%20access"
-                    aria-label="Get early access"
-                    class="tw-rounded-sm tw-border-2 tw-border-[#1c1c1c] tw-p-1 tw-px-2 tw-transition-colors tw-duration-[0.3s] hover:tw-bg-black hover:tw-text-white">
+                    class="btn tw-h-9 tw-px-4 tw-py-0 tw-text-[15px] tw-font-medium tw-transition-colors tw-duration-[0.3s]">
                     Get early access
                 </a>
             </div>
@@ -70,7 +70,7 @@
                     Know what's real.<br class="max-sm:tw-hidden" /> Act on what matters.
                 </h1>
                 <p class="tw-mt-6 tw-text-2xl tw-leading-snug tw-text-gray-800 max-md:tw-text-xl">
-                    Most analytics tell you what happened. Stats Compass tells you whether it means anything.
+                    Most analytics tell you what happened.<br class="max-sm:tw-hidden" /> Stats Compass tells you whether it means anything.
                 </p>
                 <p class="tw-mt-5 tw-max-w-[680px] tw-text-lg tw-leading-relaxed tw-text-gray-600">
                     Every number carries a verdict: expected, real change, noise, or not enough data yet.
@@ -114,10 +114,16 @@
             <div
                 class="tw-mx-auto tw-flex tw-max-w-[1100px] tw-flex-wrap tw-items-center tw-justify-center tw-gap-x-8 tw-gap-y-3 tw-px-4 tw-text-gray-700">
                 <span class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-gray-500">Works with</span>
-                <span class="tw-flex tw-items-center tw-gap-2"><i class="bi bi-bag-check-fill tw-text-green-600"></i> Shopify</span>
-                <span class="tw-flex tw-items-center tw-gap-2"><i class="bi bi-chat-square-text-fill tw-text-[#d97757]"></i> Claude</span>
-                <span class="tw-flex tw-items-center tw-gap-2"><i class="bi bi-chat-dots-fill tw-text-gray-800"></i> ChatGPT</span>
-                <span class="tw-flex tw-items-center tw-gap-2"><i class="bi bi-code-square tw-text-blue-600"></i> VS Code &amp; Cursor</span>
+                <!-- Marks from Simple Icons 16.35.0 (CC0 SVG data; each mark stays its owner's trademark),
+                     sources shopify.com/brand-assets, claude.ai and cursor.com/brand. Black, because Shopify's
+                     partner rules allow only the black or white bag. ChatGPT and VS Code are names only: VS Code's
+                     icon rules (code.visualstudio.com/brand) rule out promoting another product with it or a
+                     one-colour version, and the OpenAI Blossom has to come from openai.com/brand itself. -->
+                <span class="tw-flex tw-items-center tw-gap-2"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" class="tw-h-5 tw-w-5 tw-shrink-0 tw-text-black"><path d="M15.337 23.979l7.216-1.561s-2.604-17.613-2.625-17.73c-.018-.116-.114-.192-.211-.192s-1.929-.136-1.929-.136-1.275-1.274-1.439-1.411c-.045-.037-.075-.057-.121-.074l-.914 21.104h.023zM11.71 11.305s-.81-.424-1.774-.424c-1.447 0-1.504.906-1.504 1.141 0 1.232 3.24 1.715 3.24 4.629 0 2.295-1.44 3.76-3.406 3.76-2.354 0-3.54-1.465-3.54-1.465l.646-2.086s1.245 1.066 2.28 1.066c.675 0 .975-.545.975-.932 0-1.619-2.654-1.694-2.654-4.359-.034-2.237 1.571-4.416 4.827-4.416 1.257 0 1.875.361 1.875.361l-.945 2.715-.02.01zM11.17.83c.136 0 .271.038.405.135-.984.465-2.064 1.639-2.508 3.992-.656.213-1.293.405-1.889.578C7.697 3.75 8.951.84 11.17.84V.83zm1.235 2.949v.135c-.754.232-1.583.484-2.394.736.466-1.777 1.333-2.645 2.085-2.971.193.501.309 1.176.309 2.1zm.539-2.234c.694.074 1.141.867 1.429 1.755-.349.114-.735.231-1.158.366v-.252c0-.752-.096-1.371-.271-1.871v.002zm2.992 1.289c-.02 0-.06.021-.078.021s-.289.075-.714.21c-.423-1.233-1.176-2.37-2.508-2.37h-.115C12.135.209 11.669 0 11.265 0 8.159 0 6.675 3.877 6.21 5.846c-1.194.365-2.063.636-2.16.674-.675.213-.694.232-.772.87-.075.462-1.83 14.063-1.83 14.063L15.009 24l.927-21.166z"/></svg> Shopify</span>
+                <span class="tw-flex tw-items-center tw-gap-2"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" class="tw-h-5 tw-w-5 tw-shrink-0 tw-text-black"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg> Claude</span>
+                <span class="tw-flex tw-items-center tw-gap-2">ChatGPT</span>
+                <span class="tw-flex tw-items-center tw-gap-2">VS Code</span>
+                <span class="tw-flex tw-items-center tw-gap-2"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor" class="tw-h-5 tw-w-5 tw-shrink-0 tw-text-black"><path d="M11.503.131 1.891 5.678a.84.84 0 0 0-.42.726v11.188c0 .3.162.575.42.724l9.609 5.55a1 1 0 0 0 .998 0l9.61-5.55a.84.84 0 0 0 .42-.724V6.404a.84.84 0 0 0-.42-.726L12.497.131a1.01 1.01 0 0 0-.996 0M2.657 6.338h18.55c.263 0 .43.287.297.515L12.23 22.918c-.062.107-.229.064-.229-.06V12.335a.59.59 0 0 0-.295-.51l-9.11-5.257c-.109-.063-.064-.23.061-.23"/></svg> Cursor</span>
             </div>
         </div>
     </section>
@@ -126,7 +132,7 @@
     <section class="tw-flex tw-w-full tw-flex-col tw-items-center tw-px-6 tw-py-20 max-md:tw-px-4 max-md:tw-py-14"
         id="verdicts">
         <div class="tw-flex tw-max-w-[760px] tw-flex-col tw-items-center tw-text-center">
-            <h2 class="tw-text-4xl tw-font-semibold max-lg:tw-text-3xl">Four verdicts, not a wall of charts</h2>
+            <h2 class="tw-text-[40px] tw-font-semibold tw-leading-tight max-lg:tw-text-3xl">Four verdicts, not a wall of charts</h2>
             <p class="tw-mt-4 tw-text-lg tw-text-gray-600">
                 A number on its own can't tell you whether to act. Stats Compass judges each one against what
                 your own history says is normal for this time of year, and says so in plain words.
@@ -186,7 +192,7 @@
         id="commerce">
         <div class="tw-flex tw-max-w-[760px] tw-flex-col tw-items-center tw-text-center">
             <span class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-blue-700">Stats Compass Commerce</span>
-            <h2 class="tw-mt-3 tw-text-4xl tw-font-semibold max-lg:tw-text-3xl">Real statistics for Shopify brands</h2>
+            <h2 class="tw-mt-3 tw-text-[40px] tw-font-semibold tw-leading-tight max-lg:tw-text-3xl">Real statistics for Shopify brands</h2>
             <p class="tw-mt-4 tw-text-lg tw-text-gray-600">
                 Connect your Shopify store and Stats Compass reads your orders, products and customers. It
                 never writes to your store. Your seasons, your promotions and your customers are judged
@@ -194,15 +200,15 @@
             </p>
         </div>
 
-        <div class="tw-mt-12 tw-flex tw-w-full tw-max-w-[1200px] tw-flex-col tw-gap-16 max-md:tw-gap-10">
-            <div class="tw-flex tw-items-center tw-gap-10 max-lg:tw-flex-col">
-                <div class="tw-w-[62%] tw-shrink-0 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-xl max-lg:tw-w-full">
-                    <img src="./assets/commerce/promotions.webp" width="2036" height="1744" loading="lazy"
+        <div class="tw-mt-12 tw-flex tw-w-full tw-max-w-[1040px] tw-flex-col tw-gap-16 max-md:tw-gap-10">
+            <div class="tw-flex tw-items-center tw-justify-center tw-gap-12 max-lg:tw-flex-col max-lg:tw-gap-6">
+                <div class="tw-w-full tw-max-w-[480px] tw-shrink-0 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-xl">
+                    <img src="./assets/commerce/promotions.webp" width="960" height="1736" loading="lazy"
                         alt="Stats Compass Commerce promotion view for SUMMER40: revenue +32%, contribution margin -44% and new customers +153%, each a real change with its range, above a weekly revenue chart with the promotion window from mid-May to early June highlighted."
                         class="tw-block tw-h-auto tw-w-full" />
                 </div>
                 <div class="tw-flex tw-flex-col tw-gap-3">
-                    <h3 class="tw-text-2xl tw-font-semibold">Promotions, measured</h3>
+                    <h3 class="tw-text-xl tw-font-semibold">Promotions, measured</h3>
                     <p class="tw-text-gray-600">
                         Each promotion's lift in revenue, contribution margin and new customers, measured
                         against the sales that were coming anyway, with the range each could fall in. The
@@ -210,14 +216,14 @@
                     </p>
                 </div>
             </div>
-            <div class="tw-flex tw-flex-row-reverse tw-items-center tw-gap-10 max-lg:tw-flex-col">
-                <div class="tw-w-[62%] tw-shrink-0 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-xl max-lg:tw-w-full">
-                    <img src="./assets/commerce/overview.webp" width="2036" height="1770" loading="lazy"
+            <div class="tw-flex tw-flex-row-reverse tw-items-center tw-justify-center tw-gap-12 max-lg:tw-flex-col max-lg:tw-gap-6">
+                <div class="tw-w-full tw-max-w-[480px] tw-shrink-0 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-xl">
+                    <img src="./assets/commerce/overview.webp" width="960" height="1922" loading="lazy"
                         alt="Stats Compass Commerce weekly overview for 21 to 27 September 2026, headed 'New customers have fallen 5 weeks in a row': revenue £5,927.06 and orders 162 both marked expected, 90-day repeat rate 26.2% marked real change, and a chart of weekly revenue over 24 months against the range this time of year usually brings."
                         class="tw-block tw-h-auto tw-w-full" />
                 </div>
                 <div class="tw-flex tw-flex-col tw-gap-3">
-                    <h3 class="tw-text-2xl tw-font-semibold">The week, judged</h3>
+                    <h3 class="tw-text-xl tw-font-semibold">The week, judged</h3>
                     <p class="tw-text-gray-600">
                         Each headline figure with its verdict, and this week against the range this time of
                         year usually brings. When something is worth a look, it leads the report: here, new
@@ -225,14 +231,14 @@
                     </p>
                 </div>
             </div>
-            <div class="tw-flex tw-items-center tw-gap-10 max-lg:tw-flex-col">
-                <div class="tw-w-[62%] tw-shrink-0 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-xl max-lg:tw-w-full">
-                    <img src="./assets/commerce/seasonality.webp" width="2036" height="1154" loading="lazy"
+            <div class="tw-flex tw-items-center tw-justify-center tw-gap-12 max-lg:tw-flex-col max-lg:tw-gap-6">
+                <div class="tw-w-full tw-max-w-[480px] tw-shrink-0 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-xl">
+                    <img src="./assets/commerce/seasonality.webp" width="960" height="1932" loading="lazy"
                         alt="Stats Compass Commerce seasonality view: the underlying sales trend with the seasons taken out, up about 20% on a year ago, beside a chart of how far each month usually runs above or below the yearly average, with ranges."
                         class="tw-block tw-h-auto tw-w-full" />
                 </div>
                 <div class="tw-flex tw-flex-col tw-gap-3">
-                    <h3 class="tw-text-2xl tw-font-semibold">Your seasons, measured</h3>
+                    <h3 class="tw-text-xl tw-font-semibold">Your seasons, measured</h3>
                     <p class="tw-text-gray-600">
                         Your underlying trend with the seasons taken out, and how each month usually runs
                         against your yearly average, with the range each estimate could fall in. So a busy
@@ -251,12 +257,83 @@
         </div>
     </section>
 
+    <!-- How a merchant uses Commerce from an AI assistant. The Commerce app and hosted's link pages
+         link to statscompass.io/#connect-ai, so keep the id. -->
+    <section class="tw-flex tw-w-full tw-scroll-mt-4 tw-flex-col tw-items-center tw-px-6 tw-py-20 max-md:tw-px-4 max-md:tw-py-14"
+        id="connect-ai">
+        <div class="tw-flex tw-w-full tw-max-w-[800px] tw-flex-col">
+            <div class="tw-text-center">
+                <span class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-blue-700">Stats Compass Commerce</span>
+                <h2 class="tw-mt-3 tw-text-[28px] tw-font-semibold tw-leading-tight">Use Stats Compass with your AI assistant</h2>
+                <p class="tw-mt-4 tw-text-lg tw-text-gray-600">
+                    Ask Claude about your store's orders in conversation. Set it up once, in four steps.
+                </p>
+            </div>
+            <ol class="tw-mt-8 tw-flex tw-flex-col tw-gap-3">
+                <li class="tw-flex tw-items-start tw-gap-3 tw-rounded-xl tw-bg-gray-50 tw-p-4">
+                    <span class="tw-flex tw-h-7 tw-w-7 tw-flex-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-black tw-text-xs tw-font-bold tw-text-white">1</span>
+                    <div>
+                        <p class="tw-font-semibold">Connect your store</p>
+                        <p class="tw-text-gray-600">
+                            In the Stats Compass app in your Shopify admin, click <strong>Connect an AI
+                            assistant</strong>, on the overview or in Settings. Sign in when asked, with Google
+                            or email.
+                        </p>
+                    </div>
+                </li>
+                <li class="tw-flex tw-items-start tw-gap-3 tw-rounded-xl tw-bg-gray-50 tw-p-4">
+                    <span class="tw-flex tw-h-7 tw-w-7 tw-flex-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-black tw-text-xs tw-font-bold tw-text-white">2</span>
+                    <div>
+                        <p class="tw-font-semibold">Add Stats Compass to Claude</p>
+                        <p class="tw-text-gray-600">
+                            On claude.ai, <a href="https://claude.ai/customize/connectors?modal=add-custom-connector"
+                                target="_blank" rel="noreferrer" class="tw-text-blue-600 hover:tw-underline">add a
+                                custom connector</a> with:
+                        </p>
+                        <ul class="tw-mt-1 tw-space-y-1 tw-text-gray-600">
+                            <li><strong>Name:</strong> Stats Compass</li>
+                            <li><strong>URL:</strong> <code class="tw-break-words tw-rounded tw-bg-gray-100 tw-px-1">https://<wbr />mcp.statscompass.io/mcp</code></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="tw-flex tw-items-start tw-gap-3 tw-rounded-xl tw-bg-gray-50 tw-p-4">
+                    <span class="tw-flex tw-h-7 tw-w-7 tw-flex-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-black tw-text-xs tw-font-bold tw-text-white">3</span>
+                    <div>
+                        <p class="tw-font-semibold">Sign in the same way</p>
+                        <p class="tw-text-gray-600">
+                            When Claude asks you to sign in, use the same sign-in as in step 1, for example the
+                            same Google account. A different sign-in is a different account, and won't see your
+                            store.
+                        </p>
+                    </div>
+                </li>
+                <li class="tw-flex tw-items-start tw-gap-3 tw-rounded-xl tw-bg-gray-50 tw-p-4">
+                    <span class="tw-flex tw-h-7 tw-w-7 tw-flex-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-black tw-text-xs tw-font-bold tw-text-white">4</span>
+                    <div>
+                        <p class="tw-font-semibold">Ask about your store</p>
+                        <p class="tw-text-gray-600">Start with "Use stats compass to…", for example:</p>
+                        <ul class="tw-mt-2 tw-flex tw-flex-col tw-gap-2 tw-text-gray-800">
+                            <li class="tw-rounded-lg tw-bg-white tw-px-3 tw-py-2">"Use stats compass to load my store's orders and chart weekly revenue for the past year."</li>
+                            <li class="tw-rounded-lg tw-bg-white tw-px-3 tw-py-2">"Use stats compass to find which discount codes brought in the most revenue last quarter."</li>
+                            <li class="tw-rounded-lg tw-bg-white tw-px-3 tw-py-2">"Use stats compass to compare last week's revenue with the same week last year."</li>
+                        </ul>
+                    </div>
+                </li>
+            </ol>
+            <p class="tw-mt-6 tw-text-center tw-text-sm tw-text-gray-600">
+                Using ChatGPT, VS Code or Cursor? Add Stats Compass with the
+                <a href="#installation" class="tw-text-blue-600 hover:tw-underline">install options below</a>,
+                then sign in the same way as in step 1.
+            </p>
+        </div>
+    </section>
+
     <!-- The engine: the MCP data tools -->
     <section class="tw-flex tw-w-full tw-flex-col tw-items-center tw-px-6 tw-pt-20 tw-pb-6 max-md:tw-px-4 max-md:tw-pt-14"
         id="data-tools">
         <div class="tw-flex tw-max-w-[760px] tw-flex-col tw-items-center tw-text-center">
             <span class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-blue-700">The engine</span>
-            <h2 class="tw-mt-3 tw-text-4xl tw-font-semibold max-lg:tw-text-3xl">Your data, everywhere</h2>
+            <h2 class="tw-mt-3 tw-text-[40px] tw-font-semibold tw-leading-tight max-lg:tw-text-3xl">Your data, everywhere</h2>
             <p class="tw-mt-4 tw-text-lg tw-text-gray-600">
                 Commerce is built on stats-compass-core, our open-source statistics library. The same
                 engine plugs into your AI assistant through the Model Context Protocol: 50+ data tools to
@@ -269,22 +346,22 @@
             class="tw-mt-10 tw-flex tw-w-full tw-place-content-center tw-gap-10 max-md:tw-flex-col max-md:tw-place-items-center">
             <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-2">
                 <i class="bi bi-upload tw-text-4xl tw-text-blue-600"></i>
-                <h3 class="tw-text-lg tw-font-semibold">Load Data</h3>
+                <h3 class="tw-text-xl tw-font-semibold">Load data</h3>
                 <p class="tw-text-center tw-text-sm tw-text-gray-600">CSV, Excel, JSON, Parquet</p>
             </div>
             <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-2">
                 <i class="bi bi-bar-chart tw-text-4xl tw-text-green-600"></i>
-                <h3 class="tw-text-lg tw-font-semibold">Visualize</h3>
+                <h3 class="tw-text-xl tw-font-semibold">Visualize</h3>
                 <p class="tw-text-center tw-text-sm tw-text-gray-600">Charts, histograms, heatmaps</p>
             </div>
             <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-2">
                 <i class="bi bi-arrows-angle-expand tw-text-4xl tw-text-purple-600"></i>
-                <h3 class="tw-text-lg tw-font-semibold">Transform</h3>
+                <h3 class="tw-text-xl tw-font-semibold">Transform</h3>
                 <p class="tw-text-center tw-text-sm tw-text-gray-600">Filter, merge, pivot, aggregate</p>
             </div>
             <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-2">
                 <i class="bi bi-download tw-text-4xl tw-text-orange-600"></i>
-                <h3 class="tw-text-lg tw-font-semibold">Export</h3>
+                <h3 class="tw-text-xl tw-font-semibold">Export</h3>
                 <p class="tw-text-center tw-text-sm tw-text-gray-600">CSV, Excel, charts as images</p>
             </div>
         </div>
@@ -295,8 +372,8 @@
         class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6"
         id="features">
         <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-5">
-            <h2 class="tw-mt-5 tw-text-4xl tw-font-semibold">
-                50+ Tools at Your AI's Fingertips
+            <h2 class="tw-mt-5 tw-text-[28px] tw-font-semibold tw-leading-tight tw-text-center">
+                50+ tools at your AI's fingertips
             </h2>
 
             <div class="tw-flex tw-gap-6 max-lg:tw-flex-col">
@@ -305,7 +382,7 @@
                         class="tw-h-[200px] tw-w-full tw-overflow-clip tw-rounded-xl tw-bg-blue-100 tw-flex tw-place-items-center tw-place-content-center">
                         <i class="bi bi-table tw-text-6xl tw-text-blue-600"></i>
                     </div>
-                    <h3 class="tw-text-2xl">Data Loading</h3>
+                    <h3 class="tw-text-xl tw-font-semibold">Data loading</h3>
                     <div>
                         Load CSV, Excel, JSON, and Parquet files. Get instant summaries,
                         column info, and data type detection. Works with local files or URLs.
@@ -316,7 +393,7 @@
                         class="tw-h-[200px] tw-w-full tw-overflow-clip tw-rounded-xl tw-bg-green-100 tw-flex tw-place-items-center tw-place-content-center">
                         <i class="bi bi-graph-up tw-text-6xl tw-text-green-600"></i>
                     </div>
-                    <h3 class="tw-text-2xl">Visualization</h3>
+                    <h3 class="tw-text-xl tw-font-semibold">Visualization</h3>
                     <div>
                         Create line charts, bar charts, scatter plots, histograms, box plots,
                         heatmaps, and more. Export as PNG or SVG.
@@ -327,7 +404,7 @@
                         class="tw-h-[200px] tw-w-full tw-overflow-clip tw-rounded-xl tw-bg-purple-100 tw-flex tw-place-items-center tw-place-content-center">
                         <i class="bi bi-funnel tw-text-6xl tw-text-purple-600"></i>
                     </div>
-                    <h3 class="tw-text-2xl">Data Transformation</h3>
+                    <h3 class="tw-text-xl tw-font-semibold">Data transformation</h3>
                     <div>
                         Filter rows, select columns, merge datasets, pivot tables, group and
                         aggregate, handle missing values, and more.
@@ -341,8 +418,8 @@
         class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6 tw-bg-gray-50"
         id="google-sheets">
         <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-5 tw-max-w-[900px]">
-            <h2 class="tw-mt-5 tw-text-4xl tw-font-semibold tw-text-center">
-                Analyse Your Google Sheets
+            <h2 class="tw-mt-5 tw-text-[28px] tw-font-semibold tw-leading-tight tw-text-center">
+                Analyse your Google Sheets
             </h2>
             <p class="tw-text-center tw-text-lg tw-text-gray-700">
                 Ask your AI assistant to analyse a spreadsheet and pick it from your Drive —
@@ -354,7 +431,7 @@
                 <div class="tw-flex tw-w-[280px] tw-flex-col tw-gap-2 tw-rounded-xl tw-bg-white tw-p-5 tw-shadow-lg">
                     <div class="tw-flex tw-place-items-center tw-gap-3">
                         <span class="tw-flex tw-h-8 tw-w-8 tw-place-content-center tw-place-items-center tw-rounded-full tw-bg-green-100 tw-font-semibold tw-text-green-700">1</span>
-                        <h3 class="tw-text-xl">Ask</h3>
+                        <h3 class="tw-text-xl tw-font-semibold">Ask</h3>
                     </div>
                     <div class="tw-text-gray-700">
                         Tell your assistant you want to analyse a Google Sheet. It hands you a
@@ -364,7 +441,7 @@
                 <div class="tw-flex tw-w-[280px] tw-flex-col tw-gap-2 tw-rounded-xl tw-bg-white tw-p-5 tw-shadow-lg">
                     <div class="tw-flex tw-place-items-center tw-gap-3">
                         <span class="tw-flex tw-h-8 tw-w-8 tw-place-content-center tw-place-items-center tw-rounded-full tw-bg-green-100 tw-font-semibold tw-text-green-700">2</span>
-                        <h3 class="tw-text-xl">Pick</h3>
+                        <h3 class="tw-text-xl tw-font-semibold">Pick</h3>
                     </div>
                     <div class="tw-text-gray-700">
                         Browse your own spreadsheets and choose one or several. Every tab loads
@@ -374,7 +451,7 @@
                 <div class="tw-flex tw-w-[280px] tw-flex-col tw-gap-2 tw-rounded-xl tw-bg-white tw-p-5 tw-shadow-lg">
                     <div class="tw-flex tw-place-items-center tw-gap-3">
                         <span class="tw-flex tw-h-8 tw-w-8 tw-place-content-center tw-place-items-center tw-rounded-full tw-bg-green-100 tw-font-semibold tw-text-green-700">3</span>
-                        <h3 class="tw-text-xl">Save back</h3>
+                        <h3 class="tw-text-xl tw-font-semibold">Save back</h3>
                     </div>
                     <div class="tw-text-gray-700">
                         Write cleaned data, summaries or predictions back to Google Sheets when
@@ -384,7 +461,7 @@
             </div>
 
             <div class="tw-mt-6 tw-w-full tw-rounded-xl tw-bg-white tw-p-5 tw-shadow-lg">
-                <h3 class="tw-mb-2 tw-text-lg tw-font-semibold">Try it</h3>
+                <h3 class="tw-text-xl tw-font-semibold tw-mb-2">Try it</h3>
                 <code class="tw-block tw-rounded tw-bg-gray-100 tw-p-3 tw-text-sm">
                     "Use stats compass to let me pick a churn dataset from Google Sheets, then build a model to predict customer churn"
                 </code>
@@ -406,22 +483,30 @@
         class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6"
         id="demos">
         <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-5 tw-max-w-[1200px]">
-            <h2 class="tw-mt-5 tw-text-4xl tw-font-semibold">
-                See It In Action
+            <h2 class="tw-mt-5 tw-text-[28px] tw-font-semibold tw-leading-tight tw-text-center">
+                See it in action
             </h2>
 
             <div class="tw-flex tw-gap-6 tw-mt-6 max-lg:tw-flex-col">
                 <div class="tw-flex tw-flex-col tw-gap-3 tw-place-items-center">
                     <div class="tw-rounded-xl tw-overflow-hidden tw-shadow-xl tw-border tw-border-gray-200">
-                        <img src="./assets/demos/stats_compass_mcp_2.gif" alt="Data visualization demo"
-                            class="tw-max-w-[500px] max-md:tw-max-w-full" />
+                        <video autoplay muted loop playsinline width="800" height="452" aria-label="Data visualization demo"
+                            poster="./assets/demos/stats_compass_mcp_2-poster.jpg"
+                            class="tw-block tw-h-auto tw-w-[500px] tw-max-w-full">
+                            <source src="./assets/demos/stats_compass_mcp_2.mp4" type="video/mp4" />
+                            <img src="./assets/demos/stats_compass_mcp_2.gif" alt="Data visualization demo" />
+                        </video>
                     </div>
                     <p class="tw-text-gray-600">Creating visualizations with Claude</p>
                 </div>
                 <div class="tw-flex tw-flex-col tw-gap-3 tw-place-items-center">
                     <div class="tw-rounded-xl tw-overflow-hidden tw-shadow-xl tw-border tw-border-gray-200">
-                        <img src="./assets/demos/stats_compass_mcp_3.gif" alt="VS Code integration demo"
-                            class="tw-max-w-[500px] max-md:tw-max-w-full" />
+                        <video autoplay muted loop playsinline width="800" height="452" aria-label="VS Code integration demo"
+                            poster="./assets/demos/stats_compass_mcp_3-poster.jpg"
+                            class="tw-block tw-h-auto tw-w-[500px] tw-max-w-full">
+                            <source src="./assets/demos/stats_compass_mcp_3.mp4" type="video/mp4" />
+                            <img src="./assets/demos/stats_compass_mcp_3.gif" alt="VS Code integration demo" />
+                        </video>
                     </div>
                     <p class="tw-text-gray-600">Data analysis in VS Code</p>
                 </div>
@@ -433,8 +518,8 @@
         class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6 tw-bg-white"
         id="prompts">
         <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-5 tw-max-w-[800px] tw-w-full">
-            <h2 class="tw-mt-5 tw-text-4xl tw-font-semibold tw-text-center">
-                How to Use
+            <h2 class="tw-mt-5 tw-text-[28px] tw-font-semibold tw-leading-tight tw-text-center">
+                How to use
             </h2>
             <p class="tw-text-gray-600 tw-text-center">
                 Start your message with <strong>"Use stats compass to..."</strong> — this tells the AI to use Stats
@@ -466,13 +551,13 @@
     <section
         class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6"
         id="installation">
-        <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-5 tw-max-w-[800px]">
-            <h2 class="tw-mt-5 tw-text-4xl tw-font-semibold">
-                Get Started in 2 Minutes
+        <div class="tw-flex tw-w-full tw-flex-col tw-place-items-center tw-gap-5 tw-max-w-[800px]">
+            <h2 class="tw-mt-5 tw-text-[28px] tw-font-semibold tw-leading-tight tw-text-center">
+                Get started in 2 minutes
             </h2>
 
             <div class="tw-w-full tw-mt-4">
-                <h3 class="tw-text-2xl tw-mb-3">Option 1: Claude</h3>
+                <h3 class="tw-text-xl tw-font-semibold tw-mb-3">Option 1: Claude</h3>
                 <p class="tw-text-gray-600 tw-mb-4">Add Stats Compass as a custom connector on <a href="https://claude.ai/customize/connectors?modal=add-custom-connector" target="_blank" rel="noreferrer" class="tw-text-blue-600 hover:tw-underline">claude.ai</a>:</p>
                 <div class="tw-flex tw-flex-col tw-gap-3">
                     <div class="tw-flex tw-items-start tw-gap-3 tw-bg-gray-50 tw-rounded-xl tw-p-4">
@@ -504,7 +589,7 @@
             </div>
 
             <div class="tw-w-full tw-mt-6">
-                <h3 class="tw-text-2xl tw-mb-3">Option 2: VS Code / Cursor</h3>
+                <h3 class="tw-text-xl tw-font-semibold tw-mb-3">Option 2: VS Code / Cursor</h3>
                 <p class="tw-text-gray-600 tw-mb-3">Install the extension from the Marketplace — no Python or dependencies needed:</p>
                 <div class="tw-flex tw-gap-3 tw-flex-wrap">
                     <a href="https://marketplace.visualstudio.com/items?itemName=inference-labs.stats-compass-mcp"
@@ -521,7 +606,7 @@
             </div>
 
             <div class="tw-w-full tw-mt-6" id="chatgpt">
-                <h3 class="tw-text-2xl tw-mb-3">Option 3: ChatGPT</h3>
+                <h3 class="tw-text-xl tw-font-semibold tw-mb-3">Option 3: ChatGPT</h3>
                 <p class="tw-text-gray-600 tw-mb-4">Connect the hosted server directly from ChatGPT settings. Requires a ChatGPT paid account (Plus or above).</p>
                 <div class="tw-flex tw-flex-col tw-gap-3">
                     <div class="tw-flex tw-items-start tw-gap-3 tw-bg-gray-50 tw-rounded-xl tw-p-4">
@@ -549,7 +634,7 @@
             </div>
 
             <div class="tw-w-full tw-mt-6">
-                <h3 class="tw-text-2xl tw-mb-3">Option 4: Claude Desktop</h3>
+                <h3 class="tw-text-xl tw-font-semibold tw-mb-3">Option 4: Claude Desktop</h3>
                 <p class="tw-text-gray-600 tw-mb-3">Add Stats Compass from the connector store — no local setup required:</p>
                 <a href="https://claude.ai/directory/connectors/ant.dir.gh.oogunbiyi21.stats-compass-mcp"
                     target="_blank"
@@ -559,7 +644,7 @@
             </div>
 
             <div class="tw-w-full tw-mt-8 tw-pt-6 tw-border-t tw-border-gray-200">
-                <h3 class="tw-text-2xl tw-mb-2">Open Source / Self-Hosted</h3>
+                <h3 class="tw-text-xl tw-font-semibold tw-mb-2">Open source / self-hosted</h3>
                 <p class="tw-text-gray-600 tw-mb-4">Run Stats Compass locally with unlimited free usage. Requires Python 3.11+ and <a href="https://docs.astral.sh/uv/" target="_blank" class="tw-text-blue-600 hover:tw-underline">UV</a>.</p>
 
                 <div class="tw-space-y-4">
@@ -593,7 +678,7 @@
         class="tw-flex tw-w-full tw-flex-col tw-items-center tw-gap-10 tw-px-[10%] tw-py-20 max-lg:tw-px-6"
         id="pricing">
         <div class="tw-text-center">
-            <h2 class="tw-text-4xl tw-font-bold tw-mb-3">Data tools pricing</h2>
+            <h2 class="tw-mb-3 tw-text-[28px] tw-font-semibold tw-leading-tight">Data tools pricing</h2>
             <p class="tw-text-gray-500 tw-text-lg">For the AI assistant data tools. Start for free — locally or in the cloud. Upgrade when you need more.</p>
             <p class="tw-mt-2 tw-text-gray-500">Stats Compass Commerce is free during early access.</p>
         </div>
@@ -728,7 +813,7 @@
     <footer
         class="tw-mt-auto tw-flex tw-w-full tw-place-content-around tw-gap-3 tw-p-[5%] tw-px-[10%] tw-text-black max-md:tw-flex-col">
         <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-6 max-md:tw-w-full">
-            <img src="./assets/logo/logo1.png" alt="Stats Compass logo" class="tw-max-w-[120px]" />
+            <img src="./assets/logo/mark.svg" alt="" width="72" height="72" class="tw-h-[72px] tw-w-[72px]" />
             <div>
                 Stats Compass
                 <br />
@@ -751,17 +836,18 @@
         </div>
 
         <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
-            <h2 class="tw-text-3xl max-md:tw-text-xl">Commerce</h2>
+            <h2 class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-gray-500">Commerce</h2>
             <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
                 <a href="#verdicts" class="footer-link">How it works</a>
                 <a href="#commerce" class="footer-link">Stats Compass Commerce</a>
+                <a href="#connect-ai" class="footer-link">Use it with your AI assistant</a>
                 <a href="mailto:tunji@statscompass.io?subject=Stats%20Compass%20Commerce%20early%20access"
                     class="footer-link">Get early access</a>
             </div>
         </div>
 
         <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
-            <h2 class="tw-text-3xl max-md:tw-text-xl">Data tools</h2>
+            <h2 class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-gray-500">Data tools</h2>
             <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
                 <a href="#data-tools" class="footer-link">About</a>
                 <a href="https://github.com/oogunbiyi21/stats-compass-mcp#readme" class="footer-link"
