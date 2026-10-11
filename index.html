@@ -257,6 +257,77 @@
         </div>
     </section>
 
+    <!-- How a merchant uses Commerce from an AI assistant. The Commerce app and hosted's link pages
+         link to statscompass.io/#connect-ai, so keep the id. -->
+    <section class="tw-flex tw-w-full tw-scroll-mt-4 tw-flex-col tw-items-center tw-px-6 tw-py-20 max-md:tw-px-4 max-md:tw-py-14"
+        id="connect-ai">
+        <div class="tw-flex tw-w-full tw-max-w-[800px] tw-flex-col">
+            <div class="tw-text-center">
+                <span class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-blue-700">Stats Compass Commerce</span>
+                <h2 class="tw-mt-3 tw-text-[28px] tw-font-semibold tw-leading-tight">Use Stats Compass with your AI assistant</h2>
+                <p class="tw-mt-4 tw-text-lg tw-text-gray-600">
+                    Ask Claude about your store's orders in conversation. Set it up once, in four steps.
+                </p>
+            </div>
+            <ol class="tw-mt-8 tw-flex tw-flex-col tw-gap-3">
+                <li class="tw-flex tw-items-start tw-gap-3 tw-rounded-xl tw-bg-gray-50 tw-p-4">
+                    <span class="tw-flex tw-h-7 tw-w-7 tw-flex-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-black tw-text-xs tw-font-bold tw-text-white">1</span>
+                    <div>
+                        <p class="tw-font-semibold">Connect your store</p>
+                        <p class="tw-text-gray-600">
+                            In the Stats Compass app in your Shopify admin, click <strong>Connect an AI
+                            assistant</strong>, on the overview or in Settings. Sign in when asked, with Google
+                            or email.
+                        </p>
+                    </div>
+                </li>
+                <li class="tw-flex tw-items-start tw-gap-3 tw-rounded-xl tw-bg-gray-50 tw-p-4">
+                    <span class="tw-flex tw-h-7 tw-w-7 tw-flex-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-black tw-text-xs tw-font-bold tw-text-white">2</span>
+                    <div>
+                        <p class="tw-font-semibold">Add Stats Compass to Claude</p>
+                        <p class="tw-text-gray-600">
+                            On claude.ai, <a href="https://claude.ai/customize/connectors?modal=add-custom-connector"
+                                target="_blank" rel="noreferrer" class="tw-text-blue-600 hover:tw-underline">add a
+                                custom connector</a> with:
+                        </p>
+                        <ul class="tw-mt-1 tw-space-y-1 tw-text-gray-600">
+                            <li><strong>Name:</strong> Stats Compass</li>
+                            <li><strong>URL:</strong> <code class="tw-break-all tw-rounded tw-bg-gray-100 tw-px-1">https://mcp.statscompass.io/mcp</code></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="tw-flex tw-items-start tw-gap-3 tw-rounded-xl tw-bg-gray-50 tw-p-4">
+                    <span class="tw-flex tw-h-7 tw-w-7 tw-flex-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-black tw-text-xs tw-font-bold tw-text-white">3</span>
+                    <div>
+                        <p class="tw-font-semibold">Sign in the same way</p>
+                        <p class="tw-text-gray-600">
+                            When Claude asks you to sign in, use the same sign-in as in step 1, for example the
+                            same Google account. A different sign-in is a different account, and won't see your
+                            store.
+                        </p>
+                    </div>
+                </li>
+                <li class="tw-flex tw-items-start tw-gap-3 tw-rounded-xl tw-bg-gray-50 tw-p-4">
+                    <span class="tw-flex tw-h-7 tw-w-7 tw-flex-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-black tw-text-xs tw-font-bold tw-text-white">4</span>
+                    <div>
+                        <p class="tw-font-semibold">Ask about your store</p>
+                        <p class="tw-text-gray-600">Start with "Use stats compass to…", for example:</p>
+                        <ul class="tw-mt-2 tw-flex tw-flex-col tw-gap-2 tw-text-gray-800">
+                            <li class="tw-rounded-lg tw-bg-white tw-px-3 tw-py-2">"Use stats compass to load my store's orders and chart weekly revenue for the past year."</li>
+                            <li class="tw-rounded-lg tw-bg-white tw-px-3 tw-py-2">"Use stats compass to find which discount codes brought in the most revenue last quarter."</li>
+                            <li class="tw-rounded-lg tw-bg-white tw-px-3 tw-py-2">"Use stats compass to compare last week's revenue with the same week last year."</li>
+                        </ul>
+                    </div>
+                </li>
+            </ol>
+            <p class="tw-mt-6 tw-text-center tw-text-sm tw-text-gray-600">
+                Using ChatGPT, VS Code or Cursor? Add Stats Compass with the
+                <a href="#installation" class="tw-text-blue-600 hover:tw-underline">install options below</a>,
+                then sign in the same way as in step 1.
+            </p>
+        </div>
+    </section>
+
     <!-- The engine: the MCP data tools -->
     <section class="tw-flex tw-w-full tw-flex-col tw-items-center tw-px-6 tw-pt-20 tw-pb-6 max-md:tw-px-4 max-md:tw-pt-14"
         id="data-tools">
@@ -480,7 +551,7 @@
     <section
         class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-place-content-center tw-place-items-center tw-overflow-hidden tw-p-6"
         id="installation">
-        <div class="tw-flex tw-flex-col tw-place-items-center tw-gap-5 tw-max-w-[800px]">
+        <div class="tw-flex tw-w-full tw-flex-col tw-place-items-center tw-gap-5 tw-max-w-[800px]">
             <h2 class="tw-mt-5 tw-text-[28px] tw-font-semibold tw-leading-tight tw-text-center">
                 Get started in 2 minutes
             </h2>
@@ -769,6 +840,7 @@
             <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
                 <a href="#verdicts" class="footer-link">How it works</a>
                 <a href="#commerce" class="footer-link">Stats Compass Commerce</a>
+                <a href="#connect-ai" class="footer-link">Use it with your AI assistant</a>
                 <a href="mailto:tunji@statscompass.io?subject=Stats%20Compass%20Commerce%20early%20access"
                     class="footer-link">Get early access</a>
             </div>
