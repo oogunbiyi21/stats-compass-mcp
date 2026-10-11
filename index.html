@@ -15,7 +15,9 @@
         content="Most analytics tell you what happened. Stats Compass tells you whether it means anything. Every number carries a verdict, for Shopify brands." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://statscompass.io" />
-    <meta property="og:image" content="https://statscompass.io/assets/commerce/promotions.png" />
+    <meta property="og:image" content="https://statscompass.io/assets/commerce/promotions-og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { prefix: 'tw-' }</script>
@@ -60,23 +62,23 @@
     </header>
 
     <!-- Hero: the measurement position, with the promotion that shows it -->
-    <section class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-overflow-hidden tw-pt-[90px]">
+    <section class="tw-relative tw-flex tw-w-full tw-max-w-[100vw] tw-flex-col tw-overflow-hidden tw-pt-[76px]">
         <div
-            class="tw-mx-auto tw-flex tw-w-full tw-max-w-[1280px] tw-items-center tw-gap-12 tw-px-[5%] tw-py-12 max-xl:tw-flex-col max-md:tw-px-4 max-md:tw-py-6">
-            <div class="tw-flex tw-max-w-[600px] tw-flex-col">
+            class="tw-mx-auto tw-flex tw-w-full tw-max-w-[1280px] tw-flex-col tw-items-center tw-gap-10 tw-px-[5%] tw-py-8 max-md:tw-px-4 max-md:tw-py-6">
+            <div class="tw-flex tw-max-w-[820px] tw-flex-col tw-items-center tw-text-center">
                 <h1 class="tw-text-6xl tw-font-semibold tw-leading-[1.1] tw-tracking-tight max-lg:tw-text-5xl max-md:tw-text-4xl">
-                    Know what's real. Act on what matters.
+                    Know what's real.<br class="max-sm:tw-hidden" /> Act on what matters.
                 </h1>
                 <p class="tw-mt-6 tw-text-2xl tw-leading-snug tw-text-gray-800 max-md:tw-text-xl">
                     Most analytics tell you what happened. Stats Compass tells you whether it means anything.
                 </p>
-                <p class="tw-mt-5 tw-text-lg tw-leading-relaxed tw-text-gray-600">
+                <p class="tw-mt-5 tw-max-w-[680px] tw-text-lg tw-leading-relaxed tw-text-gray-600">
                     Every number carries a verdict: expected, real change, noise, or not enough data yet.
                     So you know what changed, what your promotions actually earned, and where every figure
                     came from.
                 </p>
 
-                <div class="tw-mt-8 tw-flex tw-flex-wrap tw-gap-3">
+                <div class="tw-mt-8 tw-flex tw-flex-wrap tw-justify-center tw-gap-3">
                     <a class="btn tw-h-[50px] tw-px-6 tw-text-lg tw-transition-colors tw-duration-[0.3s]"
                         href="mailto:tunji@statscompass.io?subject=Stats%20Compass%20Commerce%20early%20access">
                         Get early access
@@ -90,11 +92,15 @@
                 <p class="tw-mt-3 tw-text-sm tw-text-gray-500">Stats Compass Commerce is free during early access.</p>
             </div>
 
-            <figure class="tw-m-0 tw-flex tw-w-full tw-max-w-[600px] tw-flex-col tw-gap-3">
+            <figure class="tw-m-0 tw-flex tw-w-full tw-max-w-[752px] tw-flex-col tw-gap-3">
                 <div class="tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-shadow-2xl">
-                    <img src="./assets/commerce/promotions.webp" width="752" height="816"
-                        alt="Stats Compass Commerce promotion result for the SUMMER40 discount code, 14 May to 3 June 2026, 1,353 orders: revenue up 32% (real change), contribution margin down 44% (real change), new customers up 153% (real change), with a weekly revenue chart highlighting the promotion window."
-                        class="tw-block tw-h-auto tw-w-full" />
+                    <picture>
+                        <source media="(max-width: 640px)" srcset="./assets/commerce/promotions-results-phone.webp"
+                            width="900" height="738" />
+                        <img src="./assets/commerce/promotions-results.webp" width="1503" height="548"
+                            alt="Stats Compass Commerce result for the SUMMER40 discount code, 14 May to 3 June 2026, 1,353 orders. Revenue +32%, real change: £9,144.36 more than expected, likely between +13% and +51%. Contribution margin -44%, real change: £5,920.83 less than expected, likely between -63% and -25%. New customers +153%, real change: 714 more than expected, likely between +131% and +175%."
+                            class="tw-block tw-h-auto tw-w-full" />
+                    </picture>
                 </div>
                 <figcaption class="tw-text-center tw-text-sm tw-text-gray-600">
                     On our demo store, SUMMER40 lifted revenue 32% and cut contribution margin 44%.
@@ -191,7 +197,22 @@
         <div class="tw-mt-12 tw-flex tw-w-full tw-max-w-[1200px] tw-flex-col tw-gap-16 max-md:tw-gap-10">
             <div class="tw-flex tw-items-center tw-gap-10 max-lg:tw-flex-col">
                 <div class="tw-w-[62%] tw-shrink-0 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-xl max-lg:tw-w-full">
-                    <img src="./assets/commerce/overview.webp" width="1018" height="885" loading="lazy"
+                    <img src="./assets/commerce/promotions.webp" width="2036" height="1744" loading="lazy"
+                        alt="Stats Compass Commerce promotion view for SUMMER40: revenue +32%, contribution margin -44% and new customers +153%, each a real change with its range, above a weekly revenue chart with the promotion window from mid-May to early June highlighted."
+                        class="tw-block tw-h-auto tw-w-full" />
+                </div>
+                <div class="tw-flex tw-flex-col tw-gap-3">
+                    <h3 class="tw-text-2xl tw-font-semibold">Promotions, measured</h3>
+                    <p class="tw-text-gray-600">
+                        Each promotion's lift in revenue, contribution margin and new customers, measured
+                        against the sales that were coming anyway, with the range each could fall in. The
+                        chart marks the promotion window against the weeks around it.
+                    </p>
+                </div>
+            </div>
+            <div class="tw-flex tw-flex-row-reverse tw-items-center tw-gap-10 max-lg:tw-flex-col">
+                <div class="tw-w-[62%] tw-shrink-0 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-xl max-lg:tw-w-full">
+                    <img src="./assets/commerce/overview.webp" width="2036" height="1770" loading="lazy"
                         alt="Stats Compass Commerce weekly overview for 21 to 27 September 2026, headed 'New customers have fallen 5 weeks in a row': revenue £5,927.06 and orders 162 both marked expected, 90-day repeat rate 26.2% marked real change, and a chart of weekly revenue over 24 months against the range this time of year usually brings."
                         class="tw-block tw-h-auto tw-w-full" />
                 </div>
@@ -204,9 +225,9 @@
                     </p>
                 </div>
             </div>
-            <div class="tw-flex tw-flex-row-reverse tw-items-center tw-gap-10 max-lg:tw-flex-col">
+            <div class="tw-flex tw-items-center tw-gap-10 max-lg:tw-flex-col">
                 <div class="tw-w-[62%] tw-shrink-0 tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-shadow-xl max-lg:tw-w-full">
-                    <img src="./assets/commerce/seasonality.webp" width="1018" height="577" loading="lazy"
+                    <img src="./assets/commerce/seasonality.webp" width="2036" height="1154" loading="lazy"
                         alt="Stats Compass Commerce seasonality view: the underlying sales trend with the seasons taken out, up about 20% on a year ago, beside a chart of how far each month usually runs above or below the yearly average, with ranges."
                         class="tw-block tw-h-auto tw-w-full" />
                 </div>
