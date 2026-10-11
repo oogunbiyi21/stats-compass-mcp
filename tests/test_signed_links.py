@@ -17,6 +17,8 @@ from starlette.testclient import TestClient
 from stats_compass_mcp import exports, tokens, upload
 from stats_compass_mcp.storage import LocalStorageBackend
 
+DISTINCT_ID = "session-7f3a9c2e41b8"
+
 
 @pytest.fixture
 def dirs(tmp_path, monkeypatch):
@@ -42,12 +44,14 @@ def client(dirs):
 class TestDownload:
     def test_a_signed_link_downloads_its_file(self, client):
         url = exports.get_download_url("s1", "data", "report.csv")
-        assert "s1" not in url.split("/download/")[1].split(".")[-1]
         response = client.get(url.replace("https://example.test", ""))
         assert response.status_code == 200 and response.text == "a\n1\n"
 
     def test_the_session_id_is_not_in_the_link(self, dirs):
         assert "/s1/" not in exports.get_download_url("s1", "data", "report.csv")
+        # A short id like "s1" turns up inside the random token about once in 30 runs,
+        # so the token itself is checked with an id that can't appear by chance.
+        assert DISTINCT_ID not in exports.get_download_url(DISTINCT_ID, "data", "report.csv")
 
     @pytest.mark.parametrize(
         "path",
@@ -89,8 +93,8 @@ class TestUpload:
 
     def test_the_upload_link_carries_a_token_not_the_session(self, dirs):
         backend = LocalStorageBackend(base_path=str(dirs["uploads"]), server_url="https://example.test")
-        url = backend.get_upload_url("s1", "")["upload_url"]
-        assert "token=" in url and "s1" not in url
+        url = backend.get_upload_url(DISTINCT_ID, "")["upload_url"]
+        assert "token=" in url and DISTINCT_ID not in url
 
     def test_a_valid_token_stores_the_file_in_its_session(self, client, dirs):
         assert self._post(client, tokens.make_token("upload", "s1")).status_code == 200
