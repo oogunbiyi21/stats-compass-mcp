@@ -6,6 +6,7 @@ on:
     paths:
       - 'index.html'
       - 'privacy.html'
+      - 'commerce-privacy.html'
       - 'terms.html'
       - 'index.js'
       - 'css/**'
