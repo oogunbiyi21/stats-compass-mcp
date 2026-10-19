@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shopify Sidekick vs Stats Compass: did my discount make money?</title>
+    <meta name="description"
+        content="Asked plainly if a 40% discount made money, Shopify Sidekick called it &quot;promising&quot; but unconfirmed. Stats Compass said it lost money. Tested 19 October 2026." />
+    <link rel="canonical" href="https://statscompass.io/stats-compass-vs-shopify-sidekick.html" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Shopify Sidekick vs Stats Compass: did my discount make money?" />
+    <meta property="og:description" content="Asked plainly if a 40% discount made money, Shopify Sidekick called it &quot;promising&quot; but unconfirmed. Stats Compass said it lost money. Tested 19 October 2026." />
+    <meta property="og:url" content="https://statscompass.io/stats-compass-vs-shopify-sidekick.html" />
+    <meta property="og:image" content="https://statscompass.io/assets/commerce/sidekick-comparison-og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Stats Compass's promotion chart: daily sales against the sales expected without the promotion." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Shopify Sidekick vs Stats Compass: did my discount make money?" />
+    <meta name="twitter:description" content="Asked plainly if a 40% discount made money, Shopify Sidekick called it &quot;promising&quot; but unconfirmed. Stats Compass said it lost money. Tested 19 October 2026." />
+    <meta name="twitter:image" content="https://statscompass.io/assets/commerce/sidekick-comparison-og.png" />
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Shopify Sidekick vs Stats Compass: can Sidekick tell if a promotion made money?",
+      "description": "Asked plainly if a 40% discount made money, Shopify Sidekick called it \"promising\" but unconfirmed. Stats Compass said it lost money. Tested 19 October 2026.",
+      "image": "https://statscompass.io/assets/commerce/sidekick-comparison-og.png",
+      "datePublished": "2026-10-19",
+      "dateModified": "2026-10-19",
+      "author": {
+        "@type": "Organization",
+        "name": "Stats Compass",
+        "url": "https://statscompass.io/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Stats Compass",
+        "url": "https://statscompass.io/"
+      },
+      "mainEntityOfPage": "https://statscompass.io/stats-compass-vs-shopify-sidekick.html"
+    },
+    {
+      "@type": "FAQPage",
+      "url": "https://statscompass.io/stats-compass-vs-shopify-sidekick.html",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Can Shopify Sidekick tell me whether a discount made money?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It can work out what a promotion's orders brought in after discounts and recorded costs, and it is careful to say what it doesn't know. Asked plainly, it didn't compare the promotion with what the store would have sold anyway, and it said so: \"it doesn't tell us how many sales would have happened without the promotion.\" So it called both promotions \"promising\", though one lost money. When we asked for the comparison, it made a sensible one."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does Stats Compass decide whether a discount made money?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It estimates what the store would have sold without the promotion, from the weeks before it and the same time of year, and measures the promotion against that. Each result has a range and a verdict: expected, real change, noise, or not enough data yet. It also works out how much more revenue the promotion needed to break even, the largest discount the extra sales could afford, and how many new customers it brought."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Do they agree?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "When the question includes the comparison, closely. On SUMMER40's lost margin, Sidekick said £1,361 less against the 21 days before, and Stats Compass £1,377 less against a season-adjusted expectation. On break-even, both counted the discount once. The difference is in what each does when the comparison isn't in the question."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "When should I use Sidekick, and when Stats Compass?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sidekick: questions about your store and tasks in your Shopify admin. If you ask it to compare a promotion with a normal period, it will. Stats Compass: whether a promotion made money compared with what would have happened anyway, whether this week's numbers are normal for the time of year, and a weekly verdict without having to ask. They work side by side. Stats Compass only reads your store, so it doesn't replace Sidekick."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How fair was this test?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Generated data. The orders were generated so the answers are known. One leading question. We added the comparison to the second question's wording. The third and fourth followed it in the same conversation, so Sidekick may have carried that comparison forward. Each question was asked once. Stats Compass's answers aren't generated: they come from fixed, versioned calculations, so the same question on the same data gives the same answer every time, and every figure can be traced to how it was worked out. Sidekick's answers are generated, so, like any generated answer, they can differ from one asking to the next. Both products change. This is how they answered on 19 October 2026."
+          }
+        }
+      ]
+    }
+  ]
+}
+    </script>
+    <link rel="shortcut icon" href="./assets/logo/logo1.png" type="image/x-icon" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { prefix: 'tw-' }</script>
+    <link rel="stylesheet" href="./css/index.css" />
+</head>
+
+<!--
+A comparison with Shopify Sidekick, from the test recorded in
+stats-compass-commerce/docs/uat/sidekick-benchmark.md, "Results, 19 October 2026"
+(commit ecb6009). Every figure and quotation here is from that record.
+Sidekick is named in plain text only: no Shopify logos or branding.
+-->
+
+<body class="tw-flex tw-min-h-[100vh] tw-flex-col tw-bg-[#ffffff]">
+    <header
+        class="tw-absolute tw-top-0 tw-z-20 tw-flex tw-h-[60px] tw-w-full tw-items-center tw-bg-white tw-px-[10%] tw-text-black max-lg:tw-px-4 lg:tw-justify-around">
+        <a class="tw-flex tw-shrink-0 tw-items-center tw-gap-2" href="/">
+            <img src="./assets/logo/mark.svg" alt="" width="44" height="44" class="tw-h-11 tw-w-11" />
+            <span class="tw-text-lg tw-font-semibold tw-tracking-tight">Stats Compass</span>
+        </a>
+        <div class="tw-ml-auto tw-flex tw-gap-5 tw-text-base lg:tw-mx-auto">
+            <a class="header-links" href="/"> Home </a>
+            <a class="header-links" href="/#commerce"> Commerce </a>
+        </div>
+    </header>
+
+    <main class="tw-mt-[100px] tw-px-[10%] tw-pb-20 max-lg:tw-px-4">
+        <div class="tw-mx-auto tw-max-w-4xl">
+            <h1 class="tw-mb-2 tw-text-4xl tw-font-semibold tw-leading-tight">Shopify Sidekick vs Stats Compass: can Sidekick tell if a promotion made money?</h1>
+            <p class="tw-mb-8 tw-text-gray-500">Tested on 19 October 2026, on a demo store with known answers.</p>
+
+            <section class="tw-mb-10 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-6">
+                <h2 class="tw-mb-3 tw-text-xl tw-font-semibold">The short answer</h2>
+                <ul class="tw-list-disc tw-space-y-2 tw-pl-6 tw-leading-relaxed tw-text-gray-700">
+                    <li>Asked plainly whether a discount made money, Sidekick, Shopify's built-in assistant, judged
+                        each promotion on its own orders and called both of our test promotions "promising",
+                        including one that lost money.</li>
+                    <li>When we asked it to compare with what the store would normally have made, Sidekick gave a
+                        careful before-and-after answer that landed within about £17 of ours.</li>
+                    <li>Stats Compass compares every promotion with what would have happened anyway, adjusted for the
+                        season, and says whether it made money, with a range. It doesn't need the question phrased
+                        the right way, and it checks again every week.</li>
+                    <li>Stats Compass doesn't generate its numbers. The same question on the same data always gives
+                        the same answer, and you can see how each one was worked out.</li>
+                </ul>
+            </section>
+
+            <section class="tw-mb-10">
+                <h2 class="tw-mb-3 tw-text-2xl tw-font-semibold">Same question, same answer</h2>
+                <p class="tw-leading-relaxed tw-text-gray-700">
+                    Stats Compass doesn't generate its numbers: they come from fixed statistical methods, so the same
+                    question on the same data always gives the same answer, and you can see how each one was worked
+                    out. Every figure in the app opens "How this was calculated": its definition, the version of that
+                    definition, and how many orders it was computed from.
+                </p>
+                <p class="tw-mt-3 tw-leading-relaxed tw-text-gray-700">
+                    You can also use Stats Compass through an AI assistant. The assistant then writes the sentences
+                    and chooses what to ask for, but each figure Stats Compass's tools return is worked out the same
+                    way every time.
+                </p>
+            </section>
+
+            <section class="tw-mb-10">
+                <h2 class="tw-mb-3 tw-text-2xl tw-font-semibold">What we tested</h2>
+                <p class="tw-mb-3 tw-leading-relaxed tw-text-gray-700">
+                    We asked Sidekick and Stats Compass the same five questions on a Shopify development store with
+                    generated orders, so the right answers are known. It holds 4,181 orders from April 2025 to
+                    October 2026 and two discount promotions:
+                </p>
+                <ul class="tw-list-disc tw-space-y-2 tw-pl-6 tw-leading-relaxed tw-text-gray-700">
+                    <li><strong>SUMMER40:</strong> 40% off, 14 May to 3 June 2026, 310 orders. It brought more sales
+                        but lost money: the discount cost more margin than the extra sales earned.</li>
+                    <li><strong>FLASH20:</strong> 20% off, 15 to 21 June 2026, 100 orders.</li>
+                </ul>
+                <p class="tw-mt-3 tw-leading-relaxed tw-text-gray-700">
+                    We asked Sidekick in the Shopify admin and only asked questions; we didn't let it take any
+                    action. The Stats Compass answers are from its analysis of the same store.
+                </p>
+            </section>
+
+            <section class="tw-mb-10">
+                <h2 class="tw-mb-4 tw-text-2xl tw-font-semibold">Question by question</h2>
+                <div class="tw-rounded-xl tw-border tw-border-gray-200 max-sm:tw-border-0">
+                    <table class="tw-w-full tw-border-collapse tw-text-left tw-text-sm max-sm:tw-block">
+                        <thead class="tw-bg-gray-50 tw-text-gray-600 max-sm:tw-hidden">
+                            <tr>
+                                <th scope="col" class="tw-w-1/4 tw-p-3 tw-font-semibold">Question</th>
+                                <th scope="col" class="tw-w-[37.5%] tw-p-3 tw-font-semibold">Sidekick</th>
+                                <th scope="col" class="tw-w-[37.5%] tw-p-3 tw-font-semibold">Stats Compass</th>
+                            </tr>
+                        </thead>
+                        <tbody class="tw-align-top tw-leading-relaxed tw-text-gray-700 max-sm:tw-flex max-sm:tw-flex-col max-sm:tw-gap-4">
+                            <tr class="tw-border-t tw-border-gray-200 max-sm:tw-block max-sm:tw-rounded-xl max-sm:tw-border">
+                                <th scope="row" class="tw-p-3 tw-font-medium tw-text-gray-900 max-sm:tw-block max-sm:tw-bg-gray-50">"Did my SUMMER40 promotion make money?"</th>
+                                <td class="tw-p-3 max-sm:tw-block"><span class="tw-font-semibold sm:tw-hidden">Sidekick: </span>£9,243.30 after discounts, leaving £3,217.04 "before missing costs and
+                                    operating expenses". "It looks promising at the product-margin level, but it's not
+                                    yet confirmed net profit." No comparison with a normal period.</td>
+                                <td class="tw-p-3 max-sm:tw-block"><span class="tw-font-semibold sm:tw-hidden">Stats Compass: </span><strong>Lost money.</strong> Contribution margin −£1,377 (−39%), a
+                                    real change. It needed 2.11 times the usual revenue to break even, and got 1.29
+                                    times.</td>
+                            </tr>
+                            <tr class="tw-border-t tw-border-gray-200 max-sm:tw-block max-sm:tw-rounded-xl max-sm:tw-border">
+                                <th scope="row" class="tw-p-3 tw-font-medium tw-text-gray-900 max-sm:tw-block max-sm:tw-bg-gray-50">"Compared with what I'd normally have made without the promotion, how much did SUMMER40 cost me in margin?"
+                                    <span class="tw-block tw-font-normal tw-text-gray-500">Our wording added the comparison.</span></th>
+                                <td class="tw-p-3 max-sm:tw-block"><span class="tw-font-semibold sm:tw-hidden">Sidekick: </span>"Your store made £1,360.59 less in recorded gross profit… a 40.2%
+                                    drop", against the 21 days before. It added that this is "not proof that SUMMER40
+                                    alone caused the shortfall".</td>
+                                <td class="tw-p-3 max-sm:tw-block"><span class="tw-font-semibold sm:tw-hidden">Stats Compass: </span>£1,377 less (−39%), against what the same weeks would have brought,
+                                    adjusted for the season.</td>
+                            </tr>
+                            <tr class="tw-border-t tw-border-gray-200 max-sm:tw-block max-sm:tw-rounded-xl max-sm:tw-border">
+                                <th scope="row" class="tw-p-3 tw-font-medium tw-text-gray-900 max-sm:tw-block max-sm:tw-bg-gray-50">"What would SUMMER40 have needed to break even?"</th>
+                                <td class="tw-p-3 max-sm:tw-block"><span class="tw-font-semibold sm:tw-hidden">Sidekick: </span>"About 67% more sales". By its own figures, that's about 2.3 times
+                                    its normal revenue, against about 1.4 times it got.</td>
+                                <td class="tw-p-3 max-sm:tw-block"><span class="tw-font-semibold sm:tw-hidden">Stats Compass: </span>2.11 times the revenue it would otherwise have had, against 1.29
+                                    times it got.</td>
+                            </tr>
+                            <tr class="tw-border-t tw-border-gray-200 max-sm:tw-block max-sm:tw-rounded-xl max-sm:tw-border">
+                                <th scope="row" class="tw-p-3 tw-font-medium tw-text-gray-900 max-sm:tw-block max-sm:tw-bg-gray-50">"What's the biggest discount SUMMER40 could have offered and still broken even, given the extra sales it actually brought?"</th>
+                                <td class="tw-p-3 max-sm:tw-block"><span class="tw-font-semibold sm:tw-hidden">Sidekick: </span>"About 31% off is the estimated ceiling", assuming every sale used
+                                    the code.</td>
+                                <td class="tw-p-3 max-sm:tw-block"><span class="tw-font-semibold sm:tw-hidden">Stats Compass: </span>About 24% averaged across all of the promotion's sales, against the
+                                    34% it actually gave away: roughly 28% off as a code. Both say 40% was too
+                                    deep.</td>
+                            </tr>
+                            <tr class="tw-border-t tw-border-gray-200 max-sm:tw-block max-sm:tw-rounded-xl max-sm:tw-border">
+                                <th scope="row" class="tw-p-3 tw-font-medium tw-text-gray-900 max-sm:tw-block max-sm:tw-bg-gray-50">"Did my FLASH20 promotion make money?"</th>
+                                <td class="tw-p-3 max-sm:tw-block"><span class="tw-font-semibold sm:tw-hidden">Sidekick: </span>£1,720.94 left after recorded costs. "It looks promising, but I
+                                    wouldn't call it confirmed profit… it doesn't tell us how many sales would have
+                                    happened without the promotion."</td>
+                                <td class="tw-p-3 max-sm:tw-block"><span class="tw-font-semibold sm:tw-hidden">Stats Compass: </span><strong>Made money.</strong> Revenue +82% and margin +£731 (+57%),
+                                    both real changes. It needed 1.16 times the usual revenue, and got 1.82 times.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="tw-mb-8">
+                <h2 class="tw-mb-3 tw-text-2xl tw-font-semibold">Can Shopify Sidekick tell me whether a discount made money?</h2>
+                <p class="tw-leading-relaxed tw-text-gray-700">
+                    It can work out what a promotion's orders brought in after discounts and recorded costs, and it
+                    is careful to say what it doesn't know. Asked plainly, it didn't compare the promotion with what
+                    the store would have sold anyway, and it said so: "it doesn't tell us how many sales would have
+                    happened without the promotion." So it called both promotions "promising", though one lost money.
+                    When we asked for the comparison, it made a sensible one.
+                </p>
+            </section>
+
+            <section class="tw-mb-8">
+                <h2 class="tw-mb-3 tw-text-2xl tw-font-semibold">How does Stats Compass decide whether a discount made money?</h2>
+                <p class="tw-leading-relaxed tw-text-gray-700">
+                    It estimates what the store would have sold without the promotion, from the weeks before it and
+                    the same time of year, and measures the promotion against that. Each result has a range and a
+                    verdict: expected, real change, noise, or not enough data yet. It also works out how much more
+                    revenue the promotion needed to break even, the largest discount the extra sales could afford,
+                    and how many new customers it brought.
+                </p>
+                <figure class="tw-m-0 tw-mt-5 tw-flex tw-max-w-[720px] tw-flex-col tw-gap-3">
+                    <div class="tw-overflow-hidden tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-white tw-p-2">
+                        <img src="./assets/commerce/summer40-daily.webp" width="1440" height="960" loading="lazy"
+                            alt="Stats Compass's promotion chart for SUMMER40, from its full demo data: daily sales against the sales expected without the promotion, with a shaded band for a usual day's range. While the promotion ran, sales averaged £1,795 a day against £1,359 expected, £9,144 of extra sales."
+                            class="tw-block tw-h-auto tw-w-full" />
+                    </div>
+                    <figcaption class="tw-text-sm tw-leading-relaxed tw-text-gray-600">
+                        The promotion chart for SUMMER40, from our full demo data. It has more orders than the test
+                        store, so its figures are larger. Daily sales (dark line) against what was expected without
+                        the promotion (grey, dotted while it ran); the shaded band is a usual day's range.
+                    </figcaption>
+                </figure>
+            </section>
+
+            <section class="tw-mb-8">
+                <h2 class="tw-mb-3 tw-text-2xl tw-font-semibold">Do they agree?</h2>
+                <p class="tw-leading-relaxed tw-text-gray-700">
+                    When the question includes the comparison, closely. On SUMMER40's lost margin, Sidekick said
+                    £1,361 less against the 21 days before, and Stats Compass £1,377 less against a season-adjusted
+                    expectation. On break-even, both counted the discount once. The difference is in what each does
+                    when the comparison isn't in the question.
+                </p>
+            </section>
+
+            <section class="tw-mb-8">
+                <h2 class="tw-mb-3 tw-text-2xl tw-font-semibold">When should I use Sidekick, and when Stats Compass?</h2>
+                <ul class="tw-list-disc tw-space-y-2 tw-pl-6 tw-leading-relaxed tw-text-gray-700">
+                    <li><strong>Sidekick:</strong> questions about your store and tasks in your Shopify admin. If you
+                        ask it to compare a promotion with a normal period, it will.</li>
+                    <li><strong>Stats Compass:</strong> whether a promotion made money compared with what would have
+                        happened anyway, whether this week's numbers are normal for the time of year, and a weekly
+                        verdict without having to ask.</li>
+                </ul>
+                <p class="tw-mt-3 tw-leading-relaxed tw-text-gray-700">
+                    They work side by side. Stats Compass only reads your store, so it doesn't replace Sidekick.
+                </p>
+            </section>
+
+            <section class="tw-mb-8">
+                <h2 class="tw-mb-3 tw-text-2xl tw-font-semibold">How fair was this test?</h2>
+                <ul class="tw-list-disc tw-space-y-2 tw-pl-6 tw-leading-relaxed tw-text-gray-700">
+                    <li><strong>Generated data.</strong> The orders were generated so the answers are known.</li>
+                    <li><strong>One leading question.</strong> We added the comparison to the second question's
+                        wording. The third and fourth followed it in the same conversation, so Sidekick may have
+                        carried that comparison forward.</li>
+                    <li><strong>Each question was asked once.</strong> Stats Compass's answers aren't generated:
+                        they come from fixed, versioned calculations, so the same question on the same data gives the
+                        same answer every time, and every figure can be traced to how it was worked out. Sidekick's
+                        answers are generated, so, like any generated answer, they can differ from one asking to the
+                        next.</li>
+                    <li><strong>Both products change.</strong> This is how they answered on 19 October 2026.</li>
+                </ul>
+            </section>
+
+            <section class="tw-mb-10 tw-flex tw-flex-col tw-items-start tw-gap-3">
+                <a class="btn tw-h-[50px] tw-px-6 tw-text-lg tw-transition-colors tw-duration-[0.3s]"
+                    href="mailto:tunji@statscompass.io?subject=Stats%20Compass%20Commerce%20early%20access">
+                    Get early access
+                </a>
+                <p class="tw-text-sm tw-text-gray-500">Stats Compass Commerce is free during early access.</p>
+            </section>
+
+            <p class="tw-text-sm tw-leading-relaxed tw-text-gray-500">
+                Stats Compass is an independent app, not made or endorsed by Shopify. Shopify and Sidekick are
+                trademarks of Shopify Inc.
+            </p>
+
+            <a href="/" class="tw-mt-6 tw-inline-block tw-text-blue-600 hover:tw-underline">← Back to Home</a>
+        </div>
+    </main>
+
+    <footer
+        class="tw-mt-auto tw-flex tw-w-full tw-place-content-around tw-gap-3 tw-p-[5%] tw-px-[10%] tw-text-black max-md:tw-flex-col">
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-6 max-md:tw-w-full">
+            <img src="./assets/logo/mark.svg" alt="" width="72" height="72" class="tw-h-[72px] tw-w-[72px]" />
+            <div>
+                Stats Compass
+                <br />
+                Know what's real.
+                <br />
+                Act on what matters.
+            </div>
+        </div>
+
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
+            <h2 class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-gray-500">Commerce</h2>
+            <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
+                <a href="/#commerce" class="footer-link">Stats Compass Commerce</a>
+                <a href="/#connect-ai" class="footer-link">Use it with your AI assistant</a>
+                <a href="/commerce-privacy.html" class="footer-link">Privacy policy (Shopify app)</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
