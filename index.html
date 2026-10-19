@@ -31,14 +31,14 @@
 
 <body class="tw-flex tw-min-h-[100vh] tw-flex-col tw-bg-[#ffffff]">
     <header
-        class="tw-absolute tw-top-0 tw-z-20 tw-flex tw-h-[60px] tw-w-full tw-bg-white tw-px-[10%] tw-text-black max-lg:tw-mr-auto max-lg:tw-px-4 lg:tw-justify-around">
+        class="tw-absolute tw-top-0 tw-z-20 tw-flex tw-h-[60px] tw-w-full tw-bg-white tw-px-[4%] tw-text-black max-xl:tw-mr-auto max-xl:tw-px-4 xl:tw-justify-around 2xl:tw-px-[10%]">
         <a class="tw-flex tw-shrink-0 tw-items-center tw-gap-2 tw-self-center" href="/">
             <img src="./assets/logo/mark.svg" alt="" width="44" height="44" class="tw-h-11 tw-w-11" />
             <span class="tw-text-lg tw-font-semibold tw-tracking-tight">Stats Compass</span>
         </a>
-        <div class="collapsible-header animated-collapse max-lg:tw-shadow-md" id="collapsed-header-items">
+        <div class="collapsible-header animated-collapse max-xl:tw-shadow-md" id="collapsed-header-items">
             <div
-                class="tw-flex tw-h-full tw-w-max tw-gap-5 tw-text-base tw-text-black max-lg:tw-mt-[30px] max-lg:tw-flex-col max-lg:tw-place-items-end max-lg:tw-gap-5 lg:tw-mx-auto lg:tw-place-items-center">
+                class="tw-flex tw-h-full tw-w-max tw-gap-5 tw-text-base tw-text-black max-xl:tw-mt-[30px] max-xl:tw-flex-col max-xl:tw-place-items-end max-xl:tw-gap-5 xl:tw-mx-auto xl:tw-place-items-center">
                 <a class="header-links" href="#verdicts"> How it works </a>
                 <a class="header-links" href="#commerce"> Commerce </a>
                 <a class="header-links" href="#data-tools"> Data tools </a>
@@ -48,6 +48,7 @@
                     target="_blank">
                     GitHub
                 </a>
+                <a class="header-links" href="/stats-compass-vs-shopify-sidekick.html"> vs Sidekick </a>
             </div>
             <div
                 class="tw-flex tw-place-items-center tw-gap-[20px] max-md:tw-w-full max-md:tw-flex-col max-md:tw-place-content-center">
@@ -57,7 +58,7 @@
                 </a>
             </div>
         </div>
-        <button class="bi bi-list tw-absolute tw-right-3 tw-top-3 tw-z-50 tw-text-3xl tw-text-black lg:tw-hidden"
+        <button class="bi bi-list tw-absolute tw-right-3 tw-top-3 tw-z-50 tw-text-3xl tw-text-black xl:tw-hidden"
             onclick="toggleHeader()" aria-label="menu" id="collapse-btn"></button>
     </header>
 

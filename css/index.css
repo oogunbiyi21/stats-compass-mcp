@@ -201,7 +201,7 @@ header > .collapsible-header{
     border-left: 4px solid var(--accent-color);
 }
 
-@media not all and (min-width: 1024px) {
+@media not all and (min-width: 1280px) {
     header .collapsible-header {
         position: fixed;
         right: 0px;

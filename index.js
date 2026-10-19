@@ -1,6 +1,6 @@
 // initialization
 
-const RESPONSIVE_WIDTH = 1024
+const RESPONSIVE_WIDTH = 1280
 
 let headerWhiteBg = false
 let isHeaderCollapsed = window.innerWidth < RESPONSIVE_WIDTH
@@ -24,7 +24,7 @@ function toggleHeader() {
         collapseHeaderItems.classList.add("opacity-100",)
         collapseHeaderItems.style.width = "60vw"
         collapseBtn.classList.remove("bi-list")
-        collapseBtn.classList.add("bi-x", "max-lg:tw-fixed")
+        collapseBtn.classList.add("bi-x", "max-xl:tw-fixed")
         isHeaderCollapsed = false
 
         setTimeout(() => window.addEventListener("click", onHeaderClickOutside), 1)
@@ -32,7 +32,7 @@ function toggleHeader() {
     } else {
         collapseHeaderItems.classList.remove("opacity-100")
         collapseHeaderItems.style.width = "0vw"
-        collapseBtn.classList.remove("bi-x", "max-lg:tw-fixed")
+        collapseBtn.classList.remove("bi-x", "max-xl:tw-fixed")
         collapseBtn.classList.add("bi-list")
         isHeaderCollapsed = true
         window.removeEventListener("click", onHeaderClickOutside)
