@@ -8,6 +8,8 @@ on:
       - 'privacy.html'
       - 'commerce-privacy.html'
       - 'stats-compass-vs-shopify-sidekick.html'
+      - 'sitemap.xml'
+      - 'robots.txt'
       - 'terms.html'
       - 'index.js'
       - 'css/**'
