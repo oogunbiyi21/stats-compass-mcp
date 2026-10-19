@@ -7,6 +7,7 @@ on:
       - 'index.html'
       - 'privacy.html'
       - 'commerce-privacy.html'
+      - 'stats-compass-vs-shopify-sidekick.html'
       - 'terms.html'
       - 'index.js'
       - 'css/**'
