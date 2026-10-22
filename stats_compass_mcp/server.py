@@ -21,7 +21,7 @@ from pathlib import Path
 from fastmcp import FastMCP
 from starlette.responses import JSONResponse
 
-from stats_compass_mcp.session import SessionManager
+from stats_compass_mcp.session import SessionManager, idle_expiry_from_env, start_idle_sweeper
 from stats_compass_mcp.tools import register_all_tools
 
 _RESOURCES_DIR = Path(__file__).parent / "resources"
@@ -51,6 +51,7 @@ def create_mcp_server(
     with_storage: bool = False,
     *,
     local: bool = False,
+    idle_sweep: bool = False,
 ) -> FastMCP:
     """
     Create a configured FastMCP server with all tools registered.
@@ -61,6 +62,10 @@ def create_mcp_server(
         local: The stdio server on the user's own machine. Only then are
             sessions unconfined (the paths are the user's own) and the admin
             tool registered. Anything else is treated as shared.
+        idle_sweep: Remove sessions idle for 24 hours (or
+            STATS_COMPASS_SESSION_IDLE_HOURS; 0 turns it off), checking every
+            15 minutes. The HTTP server turns it on; stdio, one local user,
+            leaves it off.
     
     Returns:
         Configured FastMCP server
@@ -103,6 +108,14 @@ def create_mcp_server(
         max_sessions=MAX_SESSIONS,
         confine_files=not local,
     )
+
+    if idle_sweep:
+        max_idle = idle_expiry_from_env()
+        if max_idle is not None:
+            start_idle_sweeper(session_manager, max_idle)
+            logger.info(f"Idle sessions are removed after {max_idle}")
+        else:
+            logger.info("Idle session expiry is off")
 
     # Optional storage backend for remote deployments
     storage = None
@@ -284,7 +297,7 @@ def create_http_app(auth_token: str | None = None, host: str = "127.0.0.1"):
 
     set_inline_images(False)  # Default: strip images in HTTP mode
 
-    mcp = create_mcp_server(with_storage=True)
+    mcp = create_mcp_server(with_storage=True, idle_sweep=True)
 
     # Create combined app with MCP + upload routes
     mcp_app = mcp.http_app()

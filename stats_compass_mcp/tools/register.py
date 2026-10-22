@@ -6,7 +6,7 @@ This is the single entry point for registering all tools with a FastMCP server.
 
 from fastmcp import FastMCP
 
-from stats_compass_mcp.session import SessionManager
+from stats_compass_mcp.session import SessionActivityMiddleware, SessionManager
 from stats_compass_mcp.tools.data import register_data_tools
 from stats_compass_mcp.tools.parent import register_parent_tools
 from stats_compass_mcp.tools.workflows import register_workflow_tools
@@ -40,3 +40,7 @@ def register_all_tools(
 
     # Workflow tools
     register_workflow_tools(mcp, session_manager)
+
+    # Every tool call marks its session in use, so idle expiry never removes a
+    # session mid-call; server-wide, so it covers an embedding server's tools too.
+    mcp.add_middleware(SessionActivityMiddleware(session_manager))

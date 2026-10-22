@@ -106,6 +106,11 @@ trust. Each session reads only its own uploads and writes only its own exports.
 Upload and download links carry an encrypted token that expires (downloads after
 24 hours, `STATS_COMPASS_DOWNLOAD_TTL_SECONDS`), never the session id.
 
+A session idle for 24 hours is removed, with its data, models and exported files
+(`STATS_COMPASS_SESSION_IDLE_HOURS`; `0` turns it off). A session in the middle of
+a tool call is never removed. A server that embeds the tools runs its own sweep
+with `SessionManager.evict_idle(max_idle)`.
+
 ### File Uploads
 
 When running remotely, users can upload files via browser:
