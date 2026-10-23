@@ -10,11 +10,22 @@ For remote/HTTP transport: Multiple sessions, one per MCP session ID.
 NOTE: This is single-instance only (in-memory sessions).
 For production with multiple workers/containers, sessions would
 need Redis or external storage for session metadata + state pointers.
+
+Idle sessions are removed by ``SessionManager.evict_idle``: the HTTP server
+runs it on a timer (``start_idle_sweeper``), and a server embedding the tools
+(hosted) calls it from its own sweeper. A session in the middle of a tool
+call is never removed (``SessionActivityMiddleware``).
 """
 
 import logging
-from datetime import datetime
-from typing import TYPE_CHECKING, Dict
+import os
+import threading
+from collections import Counter
+from contextlib import contextmanager
+from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Any, Dict, Iterator
+
+from fastmcp.server.middleware import Middleware
 
 from stats_compass_core import DataFrameState
 from stats_compass_core.utils.file_safety import FilePolicy
@@ -140,12 +151,12 @@ class SessionManager:
     Features:
     - Create/retrieve sessions by ID
     - Capacity management (evict oldest when full)
+    - Idle expiry (``evict_idle``), never of a session in the middle of a call
     - Statistics for monitoring
     - Optional session_id_resolver for custom session identity (e.g. JWT sub claim)
 
-    Note: Sessions are evicted when capacity is reached (oldest first).
-    There is no TTL-based expiry - for that, add a background scheduler
-    or use Redis with built-in TTL.
+    Thread-safe: tool calls may run in worker threads, and an embedding
+    server's sweeper calls ``evict_idle`` from another.
     """
 
     def __init__(
@@ -157,6 +168,10 @@ class SessionManager:
         confine_files: bool = True,
     ):
         self._sessions: Dict[str, Session] = {}
+        # Re-entrant: get_or_create evicts under the same lock.
+        self._lock = threading.RLock()
+        # Tool calls under way, per session id (SessionActivityMiddleware).
+        self._in_use: Counter[str] = Counter()
         self.memory_limit_mb = memory_limit_mb
         self.max_sessions = max_sessions
         self._session_id_resolver = session_id_resolver
@@ -183,56 +198,116 @@ class SessionManager:
         if not session_id:
             raise ValueError("session_id is required")
 
-        if session_id in self._sessions:
-            session = self._sessions[session_id]
-            session.touch()
-            return session
+        with self._lock:
+            if session_id in self._sessions:
+                session = self._sessions[session_id]
+                session.touch()
+                return session
 
-        # Check capacity and evict if needed
-        if len(self._sessions) >= self.max_sessions:
-            self._evict_oldest()
+            # Check capacity and evict if needed
+            if len(self._sessions) >= self.max_sessions:
+                self._evict_oldest()
 
-        # Create new session
-        session = Session(session_id, self.memory_limit_mb, confine_files=self.confine_files)
-        self._sessions[session_id] = session
+            # Create new session
+            session = Session(session_id, self.memory_limit_mb, confine_files=self.confine_files)
+            self._sessions[session_id] = session
         logger.info(f"Created new session: {short_id(session_id)}")
         return session
 
     def get(self, session_id: str) -> Session | None:
         """Get session by ID (returns None if not found)."""
-        session = self._sessions.get(session_id)
-        if session:
-            session.touch()
-        return session
+        with self._lock:
+            session = self._sessions.get(session_id)
+            if session:
+                session.touch()
+            return session
 
     def delete(self, session_id: str) -> bool:
         """Delete a session and cleanup its exports. Returns True if deleted."""
-        if session_id in self._sessions:
-            # Cleanup exports first
-            self._sessions[session_id].cleanup_exports()
-            del self._sessions[session_id]
-            logger.info(f"Deleted session: {short_id(session_id)}")
-            return True
-        return False
+        with self._lock:
+            session = self._sessions.pop(session_id, None)
+        if session is None:
+            return False
+        session.cleanup_exports()
+        logger.info(f"Deleted session: {short_id(session_id)}")
+        return True
+
+    @contextmanager
+    def in_use(self, session_id: str) -> Iterator[None]:
+        """Mark a session as in a call: neither idle expiry nor capacity eviction removes it.
+
+        Counts, so overlapping calls on one session nest. On the way out the
+        session (if it exists) is touched, so its idle time runs from the end
+        of the call, not the start. Creates nothing.
+        """
+        with self._lock:
+            self._in_use[session_id] += 1
+        try:
+            yield
+        finally:
+            with self._lock:
+                self._in_use[session_id] -= 1
+                if self._in_use[session_id] <= 0:
+                    del self._in_use[session_id]
+                session = self._sessions.get(session_id)
+                if session:
+                    session.touch()
+
+    def evict_idle(self, max_idle: timedelta | float, *, now: datetime | None = None) -> int:
+        """Remove every session idle for longer than ``max_idle``, unless it is in a call.
+
+        Its dataframes and models go with it, and its exports folder is
+        deleted, as ``delete`` does. ``max_idle`` is a timedelta, or seconds.
+        Returns how many were removed. Safe to call from another thread while
+        tool calls run.
+
+        Raises ValueError when ``max_idle`` is zero or less: a mis-set setting
+        must not empty every session on each sweep.
+        """
+        if not isinstance(max_idle, timedelta):
+            max_idle = timedelta(seconds=float(max_idle))
+        if max_idle <= timedelta(0):
+            raise ValueError(f"max_idle must be positive, got {max_idle}")
+        cutoff = (now or datetime.now()) - max_idle
+        with self._lock:
+            idle = [
+                sid for sid, s in self._sessions.items()
+                if s.last_active < cutoff and self._in_use.get(sid, 0) == 0
+            ]
+            removed = [self._sessions.pop(sid) for sid in idle]
+        # Files outside the lock: deleting them can be slow, and the sessions
+        # are already out of the table, so no call can reach them.
+        for session in removed:
+            try:
+                session.cleanup_exports()
+            except Exception as e:
+                logger.warning(f"Could not clean up an idle session's exports: {e}")
+        if removed:
+            # A count only: session ids are credentials in some deployments.
+            logger.info(f"Removed {len(removed)} idle session(s) (idle over {max_idle})")
+        return len(removed)
 
     def _evict_oldest(self) -> None:
-        """Evict the oldest session by last_active timestamp."""
-        if not self._sessions:
-            return
+        """Evict the oldest session by last_active timestamp, skipping any in a call.
 
-        oldest_id = min(
-            self._sessions.keys(),
-            key=lambda k: self._sessions[k].last_active
-        )
-        # Cleanup exports before evicting
-        self._sessions[oldest_id].cleanup_exports()
-        del self._sessions[oldest_id]
+        With every session in a call, nothing is evicted and the new session is
+        admitted over capacity: refusing it would fail a user's call outright.
+        """
+        with self._lock:
+            candidates = [k for k in self._sessions if self._in_use.get(k, 0) == 0]
+            if not candidates:
+                return
+            oldest_id = min(candidates, key=lambda k: self._sessions[k].last_active)
+            session = self._sessions.pop(oldest_id)
+        session.cleanup_exports()
         logger.info(f"Evicted oldest session: {short_id(oldest_id)}")
 
     def get_stats(self) -> dict:
         """Get statistics for monitoring."""
+        with self._lock:
+            sessions = list(self._sessions.values())
         return {
-            "active_sessions": len(self._sessions),
+            "active_sessions": len(sessions),
             "max_sessions": self.max_sessions,
             "memory_limit_per_session_mb": self.memory_limit_mb,
             "sessions": [
@@ -243,9 +318,70 @@ class SessionManager:
                     "dataframe_count": len(s.state.list_dataframes()),
                     "model_count": len(s.state._models),
                 }
-                for s in self._sessions.values()
+                for s in sessions
             ]
         }
+
+
+class SessionActivityMiddleware(Middleware):
+    """Marks a tool call's session as in use for the length of the call.
+
+    Added by ``register_all_tools``. Middleware is server-wide, so it covers an
+    embedding server's own tools too. The session id is resolved the way
+    ``get_session`` resolves it; if that fails here, the call runs unmarked and
+    the tool reports the problem itself.
+    """
+
+    def __init__(self, session_manager: SessionManager):
+        self.session_manager = session_manager
+
+    async def on_call_tool(self, context, call_next):
+        ctx = context.fastmcp_context
+        try:
+            session_id = resolve_session_id(ctx, self.session_manager) if ctx is not None else None
+        except Exception:
+            session_id = None
+        if not session_id:
+            return await call_next(context)
+        with self.session_manager.in_use(session_id):
+            return await call_next(context)
+
+
+IDLE_HOURS_ENV = "STATS_COMPASS_SESSION_IDLE_HOURS"
+DEFAULT_IDLE_HOURS = 24.0
+SWEEP_EVERY_SECONDS = 15 * 60
+
+
+def idle_expiry_from_env() -> timedelta | None:
+    """The served server's idle expiry: 24 hours, or ``STATS_COMPASS_SESSION_IDLE_HOURS``; 0 turns it off."""
+    raw = os.getenv(IDLE_HOURS_ENV, "").strip()
+    try:
+        hours = float(raw) if raw else DEFAULT_IDLE_HOURS
+    except ValueError:
+        logger.warning(f"{IDLE_HOURS_ENV}={raw!r} is not a number; using {DEFAULT_IDLE_HOURS} hours")
+        hours = DEFAULT_IDLE_HOURS
+    return timedelta(hours=hours) if hours > 0 else None
+
+
+def start_idle_sweeper(
+    session_manager: SessionManager, max_idle: timedelta, every: float = SWEEP_EVERY_SECONDS
+) -> threading.Event:
+    """Run ``evict_idle(max_idle)`` every ``every`` seconds on a daemon thread.
+
+    Returns an event that stops it when set. A failed sweep is logged and the
+    next one runs as usual.
+    """
+    stop = threading.Event()
+
+    def sweep() -> None:
+        while not stop.wait(every):
+            try:
+                session_manager.evict_idle(max_idle)
+            except Exception as e:
+                logger.warning(f"Idle session sweep failed: {e}")
+
+    threading.Thread(target=sweep, name="stats-compass-idle-sweeper", daemon=True).start()
+    return stop
 
 
 def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
@@ -263,12 +399,17 @@ def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
     Returns:
         Session instance
     """
+    return session_manager.get_or_create(resolve_session_id(ctx, session_manager))
+
+
+def resolve_session_id(ctx: Any, session_manager: SessionManager) -> str:
+    """The session id a tool call belongs to: the resolver's, else the MCP session's."""
     # Use custom resolver if provided (e.g. JWT sub claim in hosted mode).
     # Session ids identify a user, so they are logged at debug, never info.
     if session_manager._session_id_resolver:
         session_id = session_manager._session_id_resolver(ctx)
         logger.debug("Resolved session_id via custom resolver")
-        return session_manager.get_or_create(session_id)
+        return session_id
 
     # FastMCP provides session_id as a property that reads from mcp-session-id header
     try:
@@ -289,4 +430,4 @@ def get_session(ctx: "Context", session_manager: SessionManager) -> Session:
             session_id = "default"
             logger.debug("Using default session")
 
-    return session_manager.get_or_create(session_id)
+    return session_id
