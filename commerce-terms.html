@@ -16,7 +16,7 @@
 
 <!--
 The Stats Compass Commerce terms, with the data processing agreement (Part 2).
-Its source is stats-compass-commerce/docs/listing/commerce-terms.md (77c5380,
+Its source is stats-compass-commerce/docs/listing/commerce-terms.md (2688b80,
 22 Oct 2026), which cites the code behind each statement; the notes on how
 merchants agree and on legal review are in commerce-terms-notes.md beside it.
 DRAFT: awaiting the founder's approval. Before merging, resolve the items
@@ -249,11 +249,14 @@ not our subprocessor: you choose it, under your own agreement with them.</p>
 <p class="tw-mb-3 tw-leading-relaxed tw-text-gray-700"><strong>Your customers' requests.</strong> When one of your customers asks Shopify for
 their data, or for it to be deleted, Shopify passes the request to us.</p>
 <ul class="tw-mb-3 tw-list-disc tw-space-y-2 tw-pl-6 tw-leading-relaxed tw-text-gray-700">
-<li><strong>A data request:</strong> we hold only that customer's Shopify identifier, order
-  count and record date, and their orders, all of which you can see in your
-  Shopify admin.</li>
-<li><strong>A deletion request:</strong> <span class="tw-rounded tw-bg-amber-200 tw-px-1">[to confirm: dev-75's sentence on what
-  <code class="tw-rounded tw-bg-gray-100 tw-px-1">customers/redact</code> does.]</span></li>
+<li><strong>A data request:</strong> we hold that customer's Shopify identifier, the date of
+  their first order, how many orders they have placed, and their orders, all
+  of which you can also see in Shopify. Ask us and we will send you what we
+  hold.</li>
+<li><strong>A deletion request:</strong> we replace their Shopify identifier with a random
+  one everywhere we keep it. Their orders stay, so your store's figures don't
+  change, but we no longer hold Shopify's identifier for them. Our backups
+  still hold it for up to 30 days.</li>
 </ul>
 <p class="tw-mb-3 tw-leading-relaxed tw-text-gray-700">We will also give you reasonable help with data protection impact assessments,
 and with questions from a data protection authority, about the app's
