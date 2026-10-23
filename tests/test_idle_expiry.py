@@ -8,13 +8,15 @@ delete_session or a restart. hosted's sweeper now calls evict_idle(24 hours);
 `serve` runs its own sweep.
 """
 
+import asyncio
 import threading
 import time
 from datetime import datetime, timedelta
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
-from fastmcp import Client, Context, FastMCP
+from fastmcp import FastMCP
 
 from stats_compass_mcp import exports, safety
 from stats_compass_mcp.session import (
@@ -120,54 +122,84 @@ class TestInUse:
         assert manager.get("busy") is not None and manager.get("new") is not None
 
 
-def _server(manager: SessionManager, *, middleware: bool) -> FastMCP:
-    """A tool that, mid-call, ages its own session and runs the sweep."""
-    mcp = FastMCP("test")
-    if middleware:
-        mcp.add_middleware(SessionActivityMiddleware(manager))
+def _through_middleware(manager: SessionManager, call_next, fastmcp_context=object()):
+    """Run a tool call through SessionActivityMiddleware, as FastMCP would.
 
-    @mcp.tool
-    def probe(ctx: Context) -> dict:
-        session = get_session(ctx, manager)
+    Called directly, without a FastMCP server: on the locked fastmcp 2.14.2 an
+    in-memory client leaves its task worker on a closed event loop, which broke
+    later tests that start the HTTP app.
+    """
+    middleware = SessionActivityMiddleware(manager)
+    return asyncio.run(middleware.on_call_tool(SimpleNamespace(fastmcp_context=fastmcp_context), call_next))
+
+
+def _probe(manager: SessionManager):
+    """A tool that, mid-call, ages its own session and runs the sweep."""
+
+    async def call_next(context):
+        session = get_session(object(), manager)  # the resolver names the session
         session.last_active = datetime.now() - DAY * 2
         removed = manager.evict_idle(DAY)
         return {"removed": removed, "still_there": manager.get("user-1") is not None}
 
-    return mcp
+    return call_next
 
 
 class TestMiddleware:
-    async def test_a_tool_call_holds_its_session_until_it_ends(self, dirs):
+    def test_a_tool_call_holds_its_session_until_it_ends(self, dirs):
         manager = SessionManager(session_id_resolver=lambda ctx: "user-1")
-        async with Client(_server(manager, middleware=True)) as client:
-            result = await client.call_tool("probe", {})
-        assert result.data == {"removed": 0, "still_there": True}
+        assert _through_middleware(manager, _probe(manager)) == {"removed": 0, "still_there": True}
         # Touched as the call ended, so it is not idle now either.
         assert manager.evict_idle(DAY) == 0
 
-    async def test_without_it_the_same_call_loses_its_session(self, dirs):
+    def test_without_it_the_same_call_loses_its_session(self, dirs):
         """The control: the probe really does age its session past the limit."""
         manager = SessionManager(session_id_resolver=lambda ctx: "user-1")
-        async with Client(_server(manager, middleware=False)) as client:
-            result = await client.call_tool("probe", {})
-        assert result.data == {"removed": 1, "still_there": False}
+        assert asyncio.run(_probe(manager)(None)) == {"removed": 1, "still_there": False}
 
-    async def test_a_resolver_that_fails_lets_the_call_run(self, dirs):
+    def test_a_call_running_in_a_worker_thread_is_held_against_a_sweep_from_another(self, dirs):
+        manager = SessionManager(session_id_resolver=lambda ctx: "user-1")
+        swept = threading.Event()
+        removed: list[int] = []
+
+        def sweeper() -> None:
+            removed.append(manager.evict_idle(DAY))
+            swept.set()
+
+        async def call_next(context):
+            def tool() -> bool:
+                session = get_session(object(), manager)
+                session.last_active = datetime.now() - DAY * 2
+                threading.Thread(target=sweeper).start()
+                assert swept.wait(5)
+                return manager.get("user-1") is not None
+
+            return await asyncio.to_thread(tool)
+
+        assert _through_middleware(manager, call_next) is True
+        assert removed == [0]
+
+    def test_a_resolver_that_fails_lets_the_call_run(self, dirs):
         def resolver(ctx):
             raise RuntimeError("no token")
 
         manager = SessionManager(session_id_resolver=resolver)
-        mcp = FastMCP("test")
-        mcp.add_middleware(SessionActivityMiddleware(manager))
 
-        @mcp.tool
-        def ping() -> str:
+        async def call_next(context):
             return "pong"
 
-        async with Client(mcp) as client:
-            assert (await client.call_tool("ping", {})).data == "pong"
+        assert _through_middleware(manager, call_next) == "pong"
+        assert manager._in_use == {}
 
-    async def test_register_all_tools_adds_it(self, dirs):
+    def test_no_context_lets_the_call_run(self, dirs):
+        manager = SessionManager()
+
+        async def call_next(context):
+            return "pong"
+
+        assert _through_middleware(manager, call_next, fastmcp_context=None) == "pong"
+
+    def test_register_all_tools_adds_it(self, dirs):
         from stats_compass_mcp.tools import register_all_tools
 
         manager = SessionManager()
