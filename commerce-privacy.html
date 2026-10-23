@@ -18,6 +18,9 @@
 The Stats Compass for Shopify privacy policy. Its source is
 stats-compass-commerce/docs/listing/privacy-policy.md (f32d0bc, 19 Oct 2026),
 which cites the code behind each statement. Change the two together.
+Updated 23 Oct 2026 (e8c04af): the link to the data processing terms, and the
+Orders bullet and "Requests from your customers" in the words of #47 (LR.39, merged as 4614f9f),
+with the customer record's creation date added to "Their data".
 Approved by the founder on 19 Oct 2026. Its three open items were resolved that day:
 the operator is Inference Labs, as /privacy.html says; the contact is
 tunji@statscompass.io, as /privacy.html gives; report charts are deleted with
@@ -41,7 +44,7 @@ retention period stated, since the bucket's lifecycle rule is unconfirmed.
     <main class="tw-mt-[100px] tw-px-[10%] tw-pb-20 max-lg:tw-px-4">
         <div class="tw-mx-auto tw-max-w-3xl">
             <h1 class="tw-mb-2 tw-text-4xl tw-font-semibold tw-leading-tight">Stats Compass for Shopify: privacy policy</h1>
-            <p class="tw-mb-8 tw-text-gray-500">Last updated: 19 October 2026</p>
+            <p class="tw-mb-8 tw-text-gray-500">Last updated: 23 October 2026</p>
 
             <section class="tw-mb-8">
                 <p class="tw-leading-relaxed tw-text-gray-700">
@@ -49,6 +52,11 @@ retention period stated, since the bucket's lifecycle rule is unconfirmed.
                     from your store, and with the weekly report email it sends. "We" means Stats Compass, operated
                     by Inference Labs in the United Kingdom. Questions:
                     <a href="mailto:tunji@statscompass.io" class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a>.
+                </p>
+                <p class="tw-mt-3 tw-leading-relaxed tw-text-gray-700">
+                    Our data processing terms, part of the
+                    <a href="https://statscompass.io/commerce-terms.html" class="tw-text-blue-600 hover:tw-underline">Stats Compass Commerce terms</a>, set
+                    out how we handle your store's information on your behalf.
                 </p>
             </section>
 
@@ -62,8 +70,9 @@ retention period stated, since the bucket's lifecycle rule is unconfirmed.
                 <ul class="tw-list-disc tw-space-y-2 tw-pl-6 tw-leading-relaxed tw-text-gray-700">
                     <li><strong>Orders:</strong> dates, amounts and currency, line items and quantities, discounts,
                         discount codes and the names of automatic discounts, refunds, the payment gateway, order tags
-                        and sales channel, and whether an order was a test. We also keep the order data exactly as
-                        Shopify sent it, so that every figure can be recalculated and checked.</li>
+                        and sales channel, and whether an order was a test. We keep each order as Shopify's API
+                        returned it, so that every figure can be recalculated and checked. Of the notice Shopify sends
+                        us when an order changes, we keep only the order's identifier and times.</li>
                     <li><strong>Products:</strong> products and their variants, and the costs recorded in Shopify.</li>
                     <li><strong>Customers:</strong> only Shopify's identifier for each customer, how many orders they
                         have placed, and when their customer record was created. <strong>We do not request or store
@@ -140,11 +149,19 @@ retention period stated, since the bucket's lifecycle rule is unconfirmed.
 
             <section class="tw-mb-8">
                 <h2 class="tw-mb-3 tw-text-2xl tw-font-semibold">Requests from your customers</h2>
-                <p class="tw-leading-relaxed tw-text-gray-700">
+                <p class="tw-mb-3 tw-leading-relaxed tw-text-gray-700">
                     We process your store's information on your behalf. When one of your customers asks Shopify for
-                    their data, or for it to be deleted, Shopify passes the request to us. We hold only that
-                    customer's Shopify identifier and order counts.
+                    their data, or for it to be deleted, Shopify passes the request to us.
                 </p>
+                <ul class="tw-list-disc tw-space-y-2 tw-pl-6 tw-leading-relaxed tw-text-gray-700">
+                    <li><strong>Their data:</strong> we hold that customer's Shopify identifier, the date of their
+                        first order, when their Shopify customer record was created, how many orders they have placed,
+                        and their orders, all of which you can also see in Shopify. Ask us and we will send you what
+                        we hold.</li>
+                    <li><strong>Deletion:</strong> we replace their Shopify identifier with a random one everywhere we
+                        keep it. Their orders stay, so your store's figures don't change, but we no longer hold
+                        Shopify's identifier for them. Our backups still hold it for up to 30 days.</li>
+                </ul>
             </section>
 
             <section class="tw-mb-8">
@@ -190,6 +207,7 @@ retention period stated, since the bucket's lifecycle rule is unconfirmed.
         <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
             <h2 class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-gray-500">Legal</h2>
             <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
+                <a href="/commerce-terms.html" class="footer-link">Terms (Shopify app)</a>
                 <a href="/commerce-privacy.html" class="footer-link">Privacy policy (Shopify app)</a>
                 <a href="/privacy.html" class="footer-link">Privacy policy (data tools)</a>
                 <a href="/terms.html" class="footer-link">Terms of Service</a>
