@@ -54,7 +54,7 @@ Restart your client and start asking questions about your data.
 | **EDA** | Describe, correlations, hypothesis tests, data quality |
 | **Visualization** | Histograms, scatter, bar, ROC curves, confusion matrix |
 | **ML Workflows** | Classification, regression, time series forecasting |
-| **Sales** | Is this week expected, a real change or noise? What does each month usually bring? What did a promotion add? Daily or weekly sales, per retailer or product |
+| **Sales** | Is this week expected, a real change or noise? What does each month usually bring? What did a promotion add, and did sales dip after it? Daily or weekly sales, per retailer or product, with a promotion calendar |
 
 Run `stats-compass-mcp list-tools` to see all available tools.
 
@@ -69,7 +69,7 @@ Use stats compass to clean the dataset and handle missing values
 Use stats compass to create a histogram of the price column
 Use stats compass to test if there's a significant difference in scores between group A and B
 Use stats compass to train a classification model to predict churn
-Use stats compass to load sell_out.xlsx and tell me if last week's sales at each retailer were unusual
+Use stats compass to load sell_out.xlsx and tell me if last week's sales at each retailer were unusual, leaving out the promotions in promo_calendar.csv
 Use stats compass to measure what the June promotion added at Tesco, using promo_calendar.csv
 ```
 

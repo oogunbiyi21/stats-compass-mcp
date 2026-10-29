@@ -97,3 +97,22 @@ def test_a_wide_export_is_melted_through_the_transform_tools(served):
     )
     result = tools["sales_verdict"].fn(ctx=CTX, dataframe_name="long", date_column="week_ending", value_column="units", kind="units")
     assert result["frequency"] == "weekly"
+
+
+def test_promotions_left_out_of_the_verdict_and_seasonality(served):
+    """0.3.37: the verdict and seasonality take the promotions, as the lift does."""
+    tools, session = served
+    session.state.set_dataframe(sell_out(), name="sales", operation="test")
+    calendar = pd.DataFrame([{"retailer": "all", "start": "2026-05-31", "end": "2026-06-27", "event": "Summer offer"}])
+    session.state.set_dataframe(calendar, name="promos", operation="test")
+    # Loading the calendar made it the active DataFrame: name the sales table.
+    promos = {"dataframe_name": "sales", "calendar_dataframe": "promos", "calendar_name_column": "event"}
+    verdict = tools["sales_verdict"].fn(ctx=CTX, date_column="week_ending", value_column="units", kind="units",
+                                        group_by=["retailer"], **promos)
+    assert any("left out of what's expected" in n for n in verdict["notes"])
+    seasons = tools["sales_seasonality"].fn(ctx=CTX, date_column="week_ending", value_column="units", **promos)
+    assert "were left out" in seasons["rows"][0]["basis"]
+    lift = tools["promotion_lift"].fn(ctx=CTX, date_column="week_ending", value_column="units", kind="units",
+                                      group_by=["retailer"], **promos)
+    assert {r["group"] for r in lift["rows"]} == {"Tesco", "Sainsbury's"}  # "all" reaches both
+    assert all(r["after_summary"] for r in lift["rows"] if r["verdict"] != "insufficient")

@@ -327,7 +327,7 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
                 except ValueError:
                     pass  # Already gone
 
-    # -- Sales data (core 0.1.42): the Stats Compass app's statistics on any sales table.
+    # -- Sales data (core 0.1.42+): the Stats Compass app's statistics on any sales table.
 
     @mcp.tool(name="sales_verdict", annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
     def sales_verdict_tool(
@@ -341,11 +341,19 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         period_end: Optional[str] = None,
         week_label: str = "end",
         currency: Optional[str] = None,
+        windows: Optional[List[dict]] = None,
+        promo_column: Optional[str] = None,
+        calendar_dataframe: Optional[str] = None,
+        calendar_start_column: str = "start",
+        calendar_end_column: str = "end",
+        calendar_name_column: Optional[str] = None,
     ) -> Any:
         """
         Judge a period's sales against the history before it, as the Stats Compass
         app does: Expected, Real change, Noise, or Not enough data, with a sentence
-        and the expected figure and range.
+        and the expected figure and range. Give the promotions (a list, a flag column
+        or a promotion calendar) so that Black Friday and the like don't inflate what's
+        expected.
 
         For sales tables loaded from CSV or Excel: one row per date (daily or
         weekly, detected from the dates; rows with the same date are summed),
@@ -362,12 +370,18 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
             period_start, period_end: The period to judge, as YYYY-MM-DD (default: the latest week).
             week_label: For weekly data, whether a date is the week 'end' (usual for retailer data) or 'start'.
             currency: Symbol for the wording, e.g. '£' (a CSV carries none).
+            windows, promo_column, calendar_dataframe, calendar_*_column: The promotions, given
+                as for promotion_lift (optional). Their weeks, and the 3 after each, are left
+                out of what's expected, as the Stats Compass app does.
         """
         session = get_session(ctx, session_manager)
         params = SalesVerdictInput(
             dataframe_name=dataframe_name, date_column=date_column, value_column=value_column,
             kind=kind, group_by=group_by, period_start=period_start, period_end=period_end,
             week_label=week_label, currency=currency,
+            windows=windows, promo_column=promo_column, calendar_dataframe=calendar_dataframe,
+            calendar_start_column=calendar_start_column, calendar_end_column=calendar_end_column,
+            calendar_name_column=calendar_name_column,
         )
         return sales_verdict(state=session.state, params=params).model_dump(mode="json")
 
@@ -380,11 +394,19 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         kind: str = "money",
         group_by: Optional[List[str]] = None,
         week_label: str = "end",
+        windows: Optional[List[dict]] = None,
+        promo_column: Optional[str] = None,
+        calendar_dataframe: Optional[str] = None,
+        calendar_start_column: str = "start",
+        calendar_end_column: str = "end",
+        calendar_name_column: Optional[str] = None,
     ) -> Any:
         """
         Find what each month usually brings: how far it runs above or below the
         year's average, with a likely range, as the Stats Compass app does. Daily
-        or weekly rows (detected from the dates), optionally per group.
+        or weekly rows (detected from the dates), optionally per group. Give the
+        promotions and they're left out, so the months show the season rather than
+        this year's Black Friday.
 
         Args:
             date_column: The row's date; for weekly data, the week's date.
@@ -393,11 +415,17 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
             kind: 'money' or 'units'.
             group_by: Columns to analyse separately, e.g. ['retailer'] (up to 50 groups).
             week_label: For weekly data, whether a date is the week 'end' or 'start'.
+            windows, promo_column, calendar_dataframe, calendar_*_column: The promotions, given
+                as for promotion_lift (optional). Their weeks, and the 3 after each, are left
+                out of what's expected, as the Stats Compass app does.
         """
         session = get_session(ctx, session_manager)
         params = SalesSeasonalityInput(
             dataframe_name=dataframe_name, date_column=date_column, value_column=value_column,
             kind=kind, group_by=group_by, week_label=week_label,
+            windows=windows, promo_column=promo_column, calendar_dataframe=calendar_dataframe,
+            calendar_start_column=calendar_start_column, calendar_end_column=calendar_end_column,
+            calendar_name_column=calendar_name_column,
         )
         return sales_seasonality(state=session.state, params=params).model_dump(mode="json")
 
@@ -427,7 +455,9 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
         Give the promotions one way: windows (a list of {name, start, end, group}),
         promo_column (a column flagging promotion rows with 1, true or yes), or
         calendar_dataframe (one row per promotion, with start and end columns, and
-        group columns named as in group_by). Daily or weekly rows, optionally per group.
+        group columns named as in group_by; "all", "*" or blank means every group).
+        Each lift also says how the 3 weeks after went: a dip if customers stocked up.
+        Daily or weekly rows, optionally per group.
 
         Args:
             date_column: The row's date; for weekly data, the week's date.
