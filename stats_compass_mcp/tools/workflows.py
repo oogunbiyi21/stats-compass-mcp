@@ -26,6 +26,14 @@ from stats_compass_core.workflows.classification import RunClassificationInput
 from stats_compass_core.workflows.eda_report import RunEDAReportInput
 from stats_compass_core.workflows.preprocessing import RunPreprocessingInput
 from stats_compass_core.workflows.regression import RunRegressionInput
+from stats_compass_core.workflows.sales import (
+    PromotionLiftInput,
+    SalesSeasonalityInput,
+    SalesVerdictInput,
+    promotion_lift,
+    sales_seasonality,
+    sales_verdict,
+)
 from stats_compass_core.workflows.timeseries import RunTimeseriesForecastInput
 
 from stats_compass_mcp.exports import save_plot_export
@@ -318,3 +326,129 @@ def register_workflow_tools(mcp: FastMCP, session_manager: SessionManager):
                     session.state.remove_dataframe(temp_name)
                 except ValueError:
                     pass  # Already gone
+
+    # -- Sales data (core 0.1.42): the Stats Compass app's statistics on any sales table.
+
+    @mcp.tool(name="sales_verdict", annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
+    def sales_verdict_tool(
+        ctx: Context,
+        date_column: str,
+        value_column: str,
+        dataframe_name: Optional[str] = None,
+        kind: str = "money",
+        group_by: Optional[List[str]] = None,
+        period_start: Optional[str] = None,
+        period_end: Optional[str] = None,
+        week_label: str = "end",
+        currency: Optional[str] = None,
+    ) -> Any:
+        """
+        Judge a period's sales against the history before it, as the Stats Compass
+        app does: Expected, Real change, Noise, or Not enough data, with a sentence
+        and the expected figure and range.
+
+        For sales tables loaded from CSV or Excel: one row per date (daily or
+        weekly, detected from the dates; rows with the same date are summed),
+        optionally split by group_by such as ['retailer', 'product']. Weekly data
+        needs about 18 months of history. A wide export (one column per week)
+        must be melted first: execute_transform_tool('melt', ...).
+
+        Args:
+            date_column: The row's date; for weekly data, the week's date.
+            value_column: Sales value (kind='money') or units sold (kind='units').
+            dataframe_name: DataFrame to read (default: active).
+            kind: 'money' or 'units'.
+            group_by: Columns to judge separately, e.g. ['retailer', 'product'] (up to 50 groups).
+            period_start, period_end: The period to judge, as YYYY-MM-DD (default: the latest week).
+            week_label: For weekly data, whether a date is the week 'end' (usual for retailer data) or 'start'.
+            currency: Symbol for the wording, e.g. '£' (a CSV carries none).
+        """
+        session = get_session(ctx, session_manager)
+        params = SalesVerdictInput(
+            dataframe_name=dataframe_name, date_column=date_column, value_column=value_column,
+            kind=kind, group_by=group_by, period_start=period_start, period_end=period_end,
+            week_label=week_label, currency=currency,
+        )
+        return sales_verdict(state=session.state, params=params).model_dump(mode="json")
+
+    @mcp.tool(name="sales_seasonality", annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
+    def sales_seasonality_tool(
+        ctx: Context,
+        date_column: str,
+        value_column: str,
+        dataframe_name: Optional[str] = None,
+        kind: str = "money",
+        group_by: Optional[List[str]] = None,
+        week_label: str = "end",
+    ) -> Any:
+        """
+        Find what each month usually brings: how far it runs above or below the
+        year's average, with a likely range, as the Stats Compass app does. Daily
+        or weekly rows (detected from the dates), optionally per group.
+
+        Args:
+            date_column: The row's date; for weekly data, the week's date.
+            value_column: Sales value (kind='money') or units sold (kind='units').
+            dataframe_name: DataFrame to read (default: active).
+            kind: 'money' or 'units'.
+            group_by: Columns to analyse separately, e.g. ['retailer'] (up to 50 groups).
+            week_label: For weekly data, whether a date is the week 'end' or 'start'.
+        """
+        session = get_session(ctx, session_manager)
+        params = SalesSeasonalityInput(
+            dataframe_name=dataframe_name, date_column=date_column, value_column=value_column,
+            kind=kind, group_by=group_by, week_label=week_label,
+        )
+        return sales_seasonality(state=session.state, params=params).model_dump(mode="json")
+
+    @mcp.tool(name="promotion_lift", annotations={"readOnlyHint": True, "openWorldHint": False, "destructiveHint": False})
+    def promotion_lift_tool(
+        ctx: Context,
+        date_column: str,
+        value_column: str,
+        dataframe_name: Optional[str] = None,
+        kind: str = "money",
+        group_by: Optional[List[str]] = None,
+        windows: Optional[List[dict]] = None,
+        promo_column: Optional[str] = None,
+        calendar_dataframe: Optional[str] = None,
+        calendar_start_column: str = "start",
+        calendar_end_column: str = "end",
+        calendar_name_column: Optional[str] = None,
+        include_series: bool = False,
+        week_label: str = "end",
+        currency: Optional[str] = None,
+    ) -> Any:
+        """
+        Measure what each promotion added: sales during it against what would have
+        sold without it, with a likely range and a verdict, as the Stats Compass app
+        does ("+32%, £9,144 more than expected; likely between +13% and +51%. Real change.").
+
+        Give the promotions one way: windows (a list of {name, start, end, group}),
+        promo_column (a column flagging promotion rows with 1, true or yes), or
+        calendar_dataframe (one row per promotion, with start and end columns, and
+        group columns named as in group_by). Daily or weekly rows, optionally per group.
+
+        Args:
+            date_column: The row's date; for weekly data, the week's date.
+            value_column: Sales value (kind='money') or units sold (kind='units').
+            dataframe_name: DataFrame to read (default: active).
+            kind: 'money' or 'units'.
+            group_by: Columns to measure separately, e.g. ['retailer', 'product'].
+            windows: Promotions as [{"name": "Summer 2 for 1", "start": "2026-05-14", "end": "2026-06-03", "group": {"retailer": "Tesco"}}].
+            promo_column: A column flagging promotion rows.
+            calendar_dataframe: A DataFrame listing promotions.
+            calendar_start_column, calendar_end_column, calendar_name_column: Its columns.
+            include_series: Also return actual against expected around each promotion, for a chart.
+            week_label: For weekly data, whether a date is the week 'end' or 'start'.
+            currency: Symbol for the wording, e.g. '£'.
+        """
+        session = get_session(ctx, session_manager)
+        params = PromotionLiftInput(
+            dataframe_name=dataframe_name, date_column=date_column, value_column=value_column,
+            kind=kind, group_by=group_by, windows=windows, promo_column=promo_column,
+            calendar_dataframe=calendar_dataframe, calendar_start_column=calendar_start_column,
+            calendar_end_column=calendar_end_column, calendar_name_column=calendar_name_column,
+            include_series=include_series, week_label=week_label, currency=currency,
+        )
+        return promotion_lift(state=session.state, params=params).model_dump(mode="json")
