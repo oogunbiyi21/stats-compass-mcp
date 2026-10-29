@@ -1,0 +1,758 @@
+{
+ "seed": 20261029,
+ "weeks": [
+  "2023-11-04",
+  "2026-10-24"
+ ],
+ "promotions": [
+  {
+   "asin": "all",
+   "event": "Black Friday & Cyber Monday 2023",
+   "start": "2023-11-17",
+   "end": "2023-11-27",
+   "effects": "per product: units \u00d7(1.25\u20132.2), heroes highest; Bakeware and Cookware strongest in Black Friday",
+   "note": "real lift for most lines"
+  },
+  {
+   "asin": "all",
+   "event": "Prime Day 2024",
+   "start": "2024-07-16",
+   "end": "2024-07-17",
+   "effects": "per product: units \u00d7(1.25\u20132.2), heroes highest; Bakeware and Cookware strongest in Black Friday",
+   "note": "real lift for most lines"
+  },
+  {
+   "asin": "all",
+   "event": "Black Friday & Cyber Monday 2024",
+   "start": "2024-11-21",
+   "end": "2024-12-02",
+   "effects": "per product: units \u00d7(1.25\u20132.2), heroes highest; Bakeware and Cookware strongest in Black Friday",
+   "note": "real lift for most lines"
+  },
+  {
+   "asin": "all",
+   "event": "Prime Day 2025",
+   "start": "2025-07-08",
+   "end": "2025-07-11",
+   "effects": "per product: units \u00d7(1.25\u20132.2), heroes highest; Bakeware and Cookware strongest in Black Friday",
+   "note": "real lift for most lines"
+  },
+  {
+   "asin": "all",
+   "event": "Black Friday & Cyber Monday 2025",
+   "start": "2025-11-20",
+   "end": "2025-12-01",
+   "effects": "per product: units \u00d7(1.25\u20132.2), heroes highest; Bakeware and Cookware strongest in Black Friday",
+   "note": "real lift for most lines"
+  },
+  {
+   "asin": "all",
+   "event": "Prime Day 2026",
+   "start": "2026-07-07",
+   "end": "2026-07-10",
+   "effects": "per product: units \u00d7(1.25\u20132.2), heroes highest; Bakeware and Cookware strongest in Black Friday",
+   "note": "real lift for most lines"
+  },
+  {
+   "asin": "B0SIM00001",
+   "event": "Best Deal: frying pan",
+   "start": "2025-09-14",
+   "end": "2025-09-27",
+   "effects": {
+    "weeks": [
+     "2025-09-20",
+     "2025-09-27"
+    ],
+    "units_multiplier": 1.7
+   },
+   "note": "REAL and profitable: +70% units for two weeks, small discount"
+  },
+  {
+   "asin": "B0SIM00020",
+   "event": "Lightning deal: bento box",
+   "start": "2026-03-01",
+   "end": "2026-03-07",
+   "effects": {
+    "weeks": [
+     "2026-03-07"
+    ],
+    "units_multiplier": 1.04
+   },
+   "note": "JUST DISCOUNTING: +4% units, a deep discount and funding for nothing"
+  },
+  {
+   "asin": "B0SIM00039",
+   "event": "Lightning deal: microfibre cloths",
+   "start": "2026-04-05",
+   "end": "2026-04-18",
+   "effects": {
+    "weeks": [
+     "2026-04-11",
+     "2026-04-18"
+    ],
+    "units_multiplier": 1.9,
+    "after": {
+     "2026-04-25": 0.55,
+     "2026-05-02": 0.7,
+     "2026-05-09": 0.85
+    }
+   },
+   "note": "PULL-FORWARD: +90% for two weeks, then a dip of 45%, 30%, 15% as customers had stocked up"
+  }
+ ],
+ "tentpole_lifts_for_heroes": [
+  {
+   "asin": "B0SIM00001",
+   "event": "Black Friday & Cyber Monday 2023",
+   "deal_day_multiplier": 5.5,
+   "week_multipliers": {
+    "2023-11-18": 2.29,
+    "2023-11-25": 5.5,
+    "2023-12-02": 2.29
+   }
+  },
+  {
+   "asin": "B0SIM00001",
+   "event": "Prime Day 2024",
+   "deal_day_multiplier": 5.0,
+   "week_multipliers": {
+    "2024-07-20": 2.14
+   }
+  },
+  {
+   "asin": "B0SIM00001",
+   "event": "Black Friday & Cyber Monday 2024",
+   "deal_day_multiplier": 5.5,
+   "week_multipliers": {
+    "2024-11-23": 2.93,
+    "2024-11-30": 5.5,
+    "2024-12-07": 2.29
+   }
+  },
+  {
+   "asin": "B0SIM00001",
+   "event": "Prime Day 2025",
+   "deal_day_multiplier": 5.0,
+   "week_multipliers": {
+    "2025-07-12": 3.29
+   }
+  },
+  {
+   "asin": "B0SIM00001",
+   "event": "Black Friday & Cyber Monday 2025",
+   "deal_day_multiplier": 5.5,
+   "week_multipliers": {
+    "2025-11-22": 2.93,
+    "2025-11-29": 5.5,
+    "2025-12-06": 2.29
+   }
+  },
+  {
+   "asin": "B0SIM00001",
+   "event": "Prime Day 2026",
+   "deal_day_multiplier": 5.0,
+   "week_multipliers": {
+    "2026-07-11": 3.29
+   }
+  },
+  {
+   "asin": "B0SIM00019",
+   "event": "Black Friday & Cyber Monday 2023",
+   "deal_day_multiplier": 4.65,
+   "week_multipliers": {
+    "2023-11-18": 2.04,
+    "2023-11-25": 4.65,
+    "2023-12-02": 2.04
+   }
+  },
+  {
+   "asin": "B0SIM00019",
+   "event": "Prime Day 2024",
+   "deal_day_multiplier": 4.65,
+   "week_multipliers": {
+    "2024-07-20": 2.04
+   }
+  },
+  {
+   "asin": "B0SIM00019",
+   "event": "Black Friday & Cyber Monday 2024",
+   "deal_day_multiplier": 4.65,
+   "week_multipliers": {
+    "2024-11-23": 2.56,
+    "2024-11-30": 4.65,
+    "2024-12-07": 2.04
+   }
+  },
+  {
+   "asin": "B0SIM00019",
+   "event": "Prime Day 2025",
+   "deal_day_multiplier": 4.65,
+   "week_multipliers": {
+    "2025-07-12": 3.08
+   }
+  },
+  {
+   "asin": "B0SIM00019",
+   "event": "Black Friday & Cyber Monday 2025",
+   "deal_day_multiplier": 4.65,
+   "week_multipliers": {
+    "2025-11-22": 2.56,
+    "2025-11-29": 4.65,
+    "2025-12-06": 2.04
+   }
+  },
+  {
+   "asin": "B0SIM00019",
+   "event": "Prime Day 2026",
+   "deal_day_multiplier": 4.65,
+   "week_multipliers": {
+    "2026-07-11": 3.08
+   }
+  },
+  {
+   "asin": "B0SIM00028",
+   "event": "Black Friday & Cyber Monday 2023",
+   "deal_day_multiplier": 4.34,
+   "week_multipliers": {
+    "2023-11-18": 1.95,
+    "2023-11-25": 4.34,
+    "2023-12-02": 1.95
+   }
+  },
+  {
+   "asin": "B0SIM00028",
+   "event": "Prime Day 2024",
+   "deal_day_multiplier": 4.34,
+   "week_multipliers": {
+    "2024-07-20": 1.95
+   }
+  },
+  {
+   "asin": "B0SIM00028",
+   "event": "Black Friday & Cyber Monday 2024",
+   "deal_day_multiplier": 4.34,
+   "week_multipliers": {
+    "2024-11-23": 2.43,
+    "2024-11-30": 4.34,
+    "2024-12-07": 1.95
+   }
+  },
+  {
+   "asin": "B0SIM00028",
+   "event": "Prime Day 2025",
+   "deal_day_multiplier": 4.34,
+   "week_multipliers": {
+    "2025-07-12": 2.91
+   }
+  },
+  {
+   "asin": "B0SIM00028",
+   "event": "Black Friday & Cyber Monday 2025",
+   "deal_day_multiplier": 4.34,
+   "week_multipliers": {
+    "2025-11-22": 2.43,
+    "2025-11-29": 4.34,
+    "2025-12-06": 1.95
+   }
+  },
+  {
+   "asin": "B0SIM00028",
+   "event": "Prime Day 2026",
+   "deal_day_multiplier": 4.34,
+   "week_multipliers": {
+    "2026-07-11": 2.91
+   }
+  }
+ ],
+ "launch": {
+  "range": "Air Fryer Accessories",
+  "first_week": "2026-01-31",
+  "asins": [
+   "B0SIM00044",
+   "B0SIM00045",
+   "B0SIM00046",
+   "B0SIM00047",
+   "B0SIM00048",
+   "B0SIM00049"
+  ]
+ },
+ "delisted": {
+  "asin": "B0SIM00010",
+  "last_week": "2025-05-17",
+  "note": "sales run down over the 8 weeks before"
+ },
+ "gap": {
+  "asin": "B0SIM00024",
+  "missing_weeks": [
+   "2025-06-14",
+   "2025-06-21"
+  ]
+ },
+ "sell_in_flops": [
+  {
+   "asin": "B0SIM00047",
+   "title": "Air fryer cake barrel"
+  },
+  {
+   "asin": "B0SIM00027",
+   "title": "Vacuum food containers (5)"
+  }
+ ],
+ "heroes": [
+  "B0SIM00001",
+  "B0SIM00019",
+  "B0SIM00028"
+ ],
+ "products": [
+  {
+   "asin": "B0SIM00000",
+   "title": "Kestrelmoor Home Non-stick frying pan 24cm",
+   "category": "Cookware",
+   "base_units": 233.9,
+   "growth": 0.062,
+   "cogs_ratio": 0.641,
+   "return_rate": 0.028
+  },
+  {
+   "asin": "B0SIM00001",
+   "title": "Kestrelmoor Home Non-stick frying pan 28cm",
+   "category": "Cookware",
+   "base_units": 900.0,
+   "growth": 0.096,
+   "cogs_ratio": 0.61,
+   "return_rate": 0.025
+  },
+  {
+   "asin": "B0SIM00002",
+   "title": "Kestrelmoor Home Stainless saucepan set (3)",
+   "category": "Cookware",
+   "base_units": 66.1,
+   "growth": 0.185,
+   "cogs_ratio": 0.599,
+   "return_rate": 0.043
+  },
+  {
+   "asin": "B0SIM00003",
+   "title": "Kestrelmoor Home Cast iron casserole 4.5L",
+   "category": "Cookware",
+   "base_units": 55.6,
+   "growth": 0.172,
+   "cogs_ratio": 0.571,
+   "return_rate": 0.023
+  },
+  {
+   "asin": "B0SIM00004",
+   "title": "Kestrelmoor Home Wok 30cm",
+   "category": "Cookware",
+   "base_units": 14.4,
+   "growth": 0.055,
+   "cogs_ratio": 0.57,
+   "return_rate": 0.02
+  },
+  {
+   "asin": "B0SIM00005",
+   "title": "Kestrelmoor Home Griddle pan",
+   "category": "Cookware",
+   "base_units": 130.5,
+   "growth": 0.054,
+   "cogs_ratio": 0.626,
+   "return_rate": 0.031
+  },
+  {
+   "asin": "B0SIM00006",
+   "title": "Kestrelmoor Home Milk pan 14cm",
+   "category": "Cookware",
+   "base_units": 25.7,
+   "growth": 0.143,
+   "cogs_ratio": 0.63,
+   "return_rate": 0.022
+  },
+  {
+   "asin": "B0SIM00007",
+   "title": "Kestrelmoor Home Stock pot 8L",
+   "category": "Cookware",
+   "base_units": 136.2,
+   "growth": 0.027,
+   "cogs_ratio": 0.574,
+   "return_rate": 0.041
+  },
+  {
+   "asin": "B0SIM00008",
+   "title": "Kestrelmoor Home Saut\u00e9 pan with lid",
+   "category": "Cookware",
+   "base_units": 45.5,
+   "growth": 0.112,
+   "cogs_ratio": 0.585,
+   "return_rate": 0.031
+  },
+  {
+   "asin": "B0SIM00009",
+   "title": "Kestrelmoor Home Pan protectors (6)",
+   "category": "Cookware",
+   "base_units": 8.5,
+   "growth": 0.125,
+   "cogs_ratio": 0.586,
+   "return_rate": 0.029
+  },
+  {
+   "asin": "B0SIM00010",
+   "title": "Kestrelmoor Home Egg poacher pan",
+   "category": "Cookware",
+   "base_units": 27.6,
+   "growth": 0.048,
+   "cogs_ratio": 0.592,
+   "return_rate": 0.048
+  },
+  {
+   "asin": "B0SIM00011",
+   "title": "Kestrelmoor Home Loaf tin 2lb",
+   "category": "Bakeware",
+   "base_units": 84.2,
+   "growth": 0.001,
+   "cogs_ratio": 0.573,
+   "return_rate": 0.047
+  },
+  {
+   "asin": "B0SIM00012",
+   "title": "Kestrelmoor Home Springform cake tin 23cm",
+   "category": "Bakeware",
+   "base_units": 20.8,
+   "growth": 0.116,
+   "cogs_ratio": 0.557,
+   "return_rate": 0.031
+  },
+  {
+   "asin": "B0SIM00013",
+   "title": "Kestrelmoor Home Muffin tray 12-cup",
+   "category": "Bakeware",
+   "base_units": 54.5,
+   "growth": -0.05,
+   "cogs_ratio": 0.59,
+   "return_rate": 0.038
+  },
+  {
+   "asin": "B0SIM00014",
+   "title": "Kestrelmoor Home Baking sheet set (2)",
+   "category": "Bakeware",
+   "base_units": 92.0,
+   "growth": 0.141,
+   "cogs_ratio": 0.63,
+   "return_rate": 0.023
+  },
+  {
+   "asin": "B0SIM00015",
+   "title": "Kestrelmoor Home Silicone baking mat",
+   "category": "Bakeware",
+   "base_units": 37.3,
+   "growth": 0.114,
+   "cogs_ratio": 0.556,
+   "return_rate": 0.034
+  },
+  {
+   "asin": "B0SIM00016",
+   "title": "Kestrelmoor Home Roasting tin with rack",
+   "category": "Bakeware",
+   "base_units": 152.6,
+   "growth": 0.271,
+   "cogs_ratio": 0.622,
+   "return_rate": 0.038
+  },
+  {
+   "asin": "B0SIM00017",
+   "title": "Kestrelmoor Home Cooling rack",
+   "category": "Bakeware",
+   "base_units": 3.0,
+   "growth": 0.094,
+   "cogs_ratio": 0.645,
+   "return_rate": 0.03
+  },
+  {
+   "asin": "B0SIM00018",
+   "title": "Kestrelmoor Home Pie dish ceramic",
+   "category": "Bakeware",
+   "base_units": 45.2,
+   "growth": 0.051,
+   "cogs_ratio": 0.614,
+   "return_rate": 0.045
+  },
+  {
+   "asin": "B0SIM00019",
+   "title": "Kestrelmoor Home Glass storage set (10)",
+   "category": "Food Storage",
+   "base_units": 650.0,
+   "growth": 0.255,
+   "cogs_ratio": 0.603,
+   "return_rate": 0.021
+  },
+  {
+   "asin": "B0SIM00020",
+   "title": "Kestrelmoor Home Lunch box bento",
+   "category": "Food Storage",
+   "base_units": 35.1,
+   "growth": 0.053,
+   "cogs_ratio": 0.571,
+   "return_rate": 0.035
+  },
+  {
+   "asin": "B0SIM00021",
+   "title": "Kestrelmoor Home Freezer bags 50",
+   "category": "Food Storage",
+   "base_units": 21.8,
+   "growth": 0.04,
+   "cogs_ratio": 0.589,
+   "return_rate": 0.049
+  },
+  {
+   "asin": "B0SIM00022",
+   "title": "Kestrelmoor Home Airtight canisters (3)",
+   "category": "Food Storage",
+   "base_units": 84.1,
+   "growth": 0.045,
+   "cogs_ratio": 0.589,
+   "return_rate": 0.023
+  },
+  {
+   "asin": "B0SIM00023",
+   "title": "Kestrelmoor Home Spice jars (12)",
+   "category": "Food Storage",
+   "base_units": 21.1,
+   "growth": -0.081,
+   "cogs_ratio": 0.582,
+   "return_rate": 0.021
+  },
+  {
+   "asin": "B0SIM00024",
+   "title": "Kestrelmoor Home Cereal dispenser",
+   "category": "Food Storage",
+   "base_units": 11.1,
+   "growth": 0.056,
+   "cogs_ratio": 0.649,
+   "return_rate": 0.025
+  },
+  {
+   "asin": "B0SIM00025",
+   "title": "Kestrelmoor Home Bread bin",
+   "category": "Food Storage",
+   "base_units": 35.8,
+   "growth": 0.143,
+   "cogs_ratio": 0.641,
+   "return_rate": 0.038
+  },
+  {
+   "asin": "B0SIM00026",
+   "title": "Kestrelmoor Home Produce saver set (4)",
+   "category": "Food Storage",
+   "base_units": 8.3,
+   "growth": 0.093,
+   "cogs_ratio": 0.558,
+   "return_rate": 0.026
+  },
+  {
+   "asin": "B0SIM00027",
+   "title": "Kestrelmoor Home Vacuum food containers (5)",
+   "category": "Food Storage",
+   "base_units": 215.4,
+   "growth": 0.003,
+   "cogs_ratio": 0.568,
+   "return_rate": 0.049
+  },
+  {
+   "asin": "B0SIM00028",
+   "title": "Kestrelmoor Home Silicone utensil set (6)",
+   "category": "Kitchen Utensils",
+   "base_units": 520.0,
+   "growth": 0.021,
+   "cogs_ratio": 0.565,
+   "return_rate": 0.026
+  },
+  {
+   "asin": "B0SIM00029",
+   "title": "Kestrelmoor Home Chef's knife 20cm",
+   "category": "Kitchen Utensils",
+   "base_units": 38.6,
+   "growth": 0.1,
+   "cogs_ratio": 0.582,
+   "return_rate": 0.043
+  },
+  {
+   "asin": "B0SIM00030",
+   "title": "Kestrelmoor Home Knife block set",
+   "category": "Kitchen Utensils",
+   "base_units": 82.6,
+   "growth": 0.077,
+   "cogs_ratio": 0.634,
+   "return_rate": 0.039
+  },
+  {
+   "asin": "B0SIM00031",
+   "title": "Kestrelmoor Home Garlic press",
+   "category": "Kitchen Utensils",
+   "base_units": 39.6,
+   "growth": 0.036,
+   "cogs_ratio": 0.598,
+   "return_rate": 0.021
+  },
+  {
+   "asin": "B0SIM00032",
+   "title": "Kestrelmoor Home Digital kitchen scale",
+   "category": "Kitchen Utensils",
+   "base_units": 26.3,
+   "growth": 0.013,
+   "cogs_ratio": 0.627,
+   "return_rate": 0.023
+  },
+  {
+   "asin": "B0SIM00033",
+   "title": "Kestrelmoor Home Measuring cups & spoons",
+   "category": "Kitchen Utensils",
+   "base_units": 19.1,
+   "growth": 0.068,
+   "cogs_ratio": 0.631,
+   "return_rate": 0.028
+  },
+  {
+   "asin": "B0SIM00034",
+   "title": "Kestrelmoor Home Tongs set (2)",
+   "category": "Kitchen Utensils",
+   "base_units": 236.5,
+   "growth": 0.086,
+   "cogs_ratio": 0.583,
+   "return_rate": 0.049
+  },
+  {
+   "asin": "B0SIM00035",
+   "title": "Kestrelmoor Home Peeler set (3)",
+   "category": "Kitchen Utensils",
+   "base_units": 12.4,
+   "growth": 0.252,
+   "cogs_ratio": 0.551,
+   "return_rate": 0.032
+  },
+  {
+   "asin": "B0SIM00036",
+   "title": "Kestrelmoor Home Grater box",
+   "category": "Kitchen Utensils",
+   "base_units": 68.5,
+   "growth": 0.189,
+   "cogs_ratio": 0.644,
+   "return_rate": 0.043
+  },
+  {
+   "asin": "B0SIM00037",
+   "title": "Kestrelmoor Home Rolling pin beech",
+   "category": "Kitchen Utensils",
+   "base_units": 72.3,
+   "growth": -0.009,
+   "cogs_ratio": 0.551,
+   "return_rate": 0.043
+  },
+  {
+   "asin": "B0SIM00038",
+   "title": "Kestrelmoor Home Dish brush set",
+   "category": "Cleaning",
+   "base_units": 28.1,
+   "growth": -0.01,
+   "cogs_ratio": 0.624,
+   "return_rate": 0.039
+  },
+  {
+   "asin": "B0SIM00039",
+   "title": "Kestrelmoor Home Microfibre cloths (12)",
+   "category": "Cleaning",
+   "base_units": 208.3,
+   "growth": 0.11,
+   "cogs_ratio": 0.606,
+   "return_rate": 0.022
+  },
+  {
+   "asin": "B0SIM00040",
+   "title": "Kestrelmoor Home Washing-up bowl",
+   "category": "Cleaning",
+   "base_units": 5.0,
+   "growth": 0.096,
+   "cogs_ratio": 0.584,
+   "return_rate": 0.049
+  },
+  {
+   "asin": "B0SIM00041",
+   "title": "Kestrelmoor Home Drying rack 2-tier",
+   "category": "Cleaning",
+   "base_units": 8.2,
+   "growth": -0.161,
+   "cogs_ratio": 0.603,
+   "return_rate": 0.026
+  },
+  {
+   "asin": "B0SIM00042",
+   "title": "Kestrelmoor Home Sink caddy",
+   "category": "Cleaning",
+   "base_units": 10.9,
+   "growth": 0.069,
+   "cogs_ratio": 0.556,
+   "return_rate": 0.033
+  },
+  {
+   "asin": "B0SIM00043",
+   "title": "Kestrelmoor Home Bottle brush set",
+   "category": "Cleaning",
+   "base_units": 28.8,
+   "growth": 0.047,
+   "cogs_ratio": 0.572,
+   "return_rate": 0.048
+  },
+  {
+   "asin": "B0SIM00044",
+   "title": "Kestrelmoor Home Air fryer silicone liners (2)",
+   "category": "Air Fryer Accessories",
+   "base_units": 6.4,
+   "growth": -0.054,
+   "cogs_ratio": 0.583,
+   "return_rate": 0.028
+  },
+  {
+   "asin": "B0SIM00045",
+   "title": "Kestrelmoor Home Air fryer paper liners 100",
+   "category": "Air Fryer Accessories",
+   "base_units": 8.1,
+   "growth": 0.098,
+   "cogs_ratio": 0.595,
+   "return_rate": 0.028
+  },
+  {
+   "asin": "B0SIM00046",
+   "title": "Kestrelmoor Home Air fryer rack set",
+   "category": "Air Fryer Accessories",
+   "base_units": 4.3,
+   "growth": 0.035,
+   "cogs_ratio": 0.64,
+   "return_rate": 0.02
+  },
+  {
+   "asin": "B0SIM00047",
+   "title": "Kestrelmoor Home Air fryer cake barrel",
+   "category": "Air Fryer Accessories",
+   "base_units": 20.5,
+   "growth": -0.007,
+   "cogs_ratio": 0.557,
+   "return_rate": 0.027
+  },
+  {
+   "asin": "B0SIM00048",
+   "title": "Kestrelmoor Home Air fryer oil sprayer",
+   "category": "Air Fryer Accessories",
+   "base_units": 9.0,
+   "growth": 0.127,
+   "cogs_ratio": 0.557,
+   "return_rate": 0.027
+  },
+  {
+   "asin": "B0SIM00049",
+   "title": "Kestrelmoor Home Air fryer tongs",
+   "category": "Air Fryer Accessories",
+   "base_units": 151.7,
+   "growth": -0.048,
+   "cogs_ratio": 0.596,
+   "return_rate": 0.045
+  }
+ ]
+}
