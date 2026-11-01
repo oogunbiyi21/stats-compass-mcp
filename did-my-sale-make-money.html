@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Did my sale make money? A free Shopify sale checker | Stats Compass</title>
+    <meta name="description"
+        content="Check a Black Friday or any Shopify sale: what it added against the sales you'd have had anyway, and whether the discount paid for itself. Free. Your file never leaves your computer." />
+    <link rel="canonical" href="https://statscompass.io/did-my-sale-make-money.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Did my sale make money?" />
+    <meta property="og:description" content="Check a Shopify sale against the sales you'd have had anyway, and whether the discount paid for itself. Free, and your file never leaves your computer." />
+    <meta property="og:url" content="https://statscompass.io/did-my-sale-make-money.html" />
+    <meta property="og:image" content="https://statscompass.io/assets/commerce/promotions-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="shortcut icon" href="./assets/logo/logo1.png" type="image/x-icon" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { prefix: 'tw-' }</script>
+    <link rel="stylesheet" href="./css/index.css" />
+    <!-- The app's chart library, pinned to the version the app uses. -->
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.17/dist/plot.umd.min.js"></script>
+    <script type="module" src="./assets/checker/page.js"></script>
+    <!-- Cloudflare Web Analytics: Tunji's snippet goes here (cookieless). -->
+</head>
+<!--
+The "Did my sale make money?" checker. It runs stats-compass-core's
+promotion_lift in the visitor's browser (Pyodide, in a Web Worker:
+assets/checker/worker.js), with the app's break-even formula ported in
+assets/checker/checker.py (tests/test_sale_checker.py holds it to the app's
+figures). The chosen file is read in the browser and never uploaded.
+-->
+<body class="tw-flex tw-min-h-[100vh] tw-flex-col tw-bg-[#ffffff]">
+    <header
+        class="tw-absolute tw-top-0 tw-z-20 tw-flex tw-h-[60px] tw-w-full tw-items-center tw-bg-white tw-px-[10%] tw-text-black max-lg:tw-px-4 lg:tw-justify-around">
+        <a class="tw-flex tw-shrink-0 tw-items-center tw-gap-2" href="/">
+            <img src="./assets/logo/mark.svg" alt="" width="44" height="44" class="tw-h-11 tw-w-11" />
+            <span class="tw-text-lg tw-font-semibold tw-tracking-tight">Stats Compass</span>
+        </a>
+        <div class="tw-ml-auto tw-flex tw-gap-5 tw-text-base lg:tw-mx-auto">
+            <a class="header-links" href="/"> Home </a>
+            <a class="header-links" href="/#commerce"> Commerce </a>
+            <a class="header-links max-sm:tw-hidden" href="/blog/"> Blog </a>
+        </div>
+    </header>
+    <main class="tw-mt-[100px] tw-px-[10%] tw-pb-20 max-lg:tw-px-4">
+        <div class="tw-mx-auto tw-max-w-3xl">
+            <h1 class="tw-mb-3 tw-text-4xl tw-font-semibold tw-leading-tight">Did my sale make money?</h1>
+            <p class="tw-mb-6 tw-text-lg tw-leading-relaxed tw-text-gray-700">
+                Check a Black Friday, or any sale, against the sales you'd have had anyway, and see whether the
+                discount paid for itself. It's free, and it uses the same calculations as the Stats Compass app.
+            </p>
+
+            <section class="tw-mb-8 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-5">
+                <p class="tw-font-semibold">Your file never leaves your computer.</p>
+                <p class="tw-mt-1 tw-text-gray-700">
+                    The calculator runs in this page. Once it says it's ready, you can disconnect from the internet
+                    and it still works. It loads its statistics libraries from jsdelivr; your file is read here and
+                    isn't sent anywhere.
+                </p>
+                <p id="status" class="tw-mt-3 tw-text-sm tw-text-gray-600" role="status" aria-live="polite">Getting the calculator ready…</p>
+                <p class="tw-mt-1 tw-text-xs tw-text-gray-500">First visit downloads about 30 MB; on a slow connection this can take a few minutes.</p>
+            </section>
+
+            <form id="form" class="tw-space-y-6">
+                <div>
+                    <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">1. Export your daily sales from Shopify</h2>
+                    <p class="tw-leading-relaxed tw-text-gray-700">
+                        In Shopify, go to <strong>Analytics → Reports → Sales over time</strong>. Show it
+                        <strong>by day</strong>, from at least 13 months before your sale to 3 weeks after it, then
+                        <strong>Export</strong> it as a CSV.
+                    </p>
+                </div>
+                <div>
+                    <label for="file" class="tw-mb-2 tw-block tw-text-xl tw-font-semibold">2. Choose the file</label>
+                    <input id="file" type="file" accept=".csv,text/csv" class="tw-block tw-w-full tw-text-sm" />
+                </div>
+                <div>
+                    <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">3. The sale</h2>
+                    <div class="tw-grid tw-gap-4 sm:tw-grid-cols-3">
+                        <label class="tw-block tw-text-sm tw-text-gray-700">First day
+                            <input id="start" type="date" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                        </label>
+                        <label class="tw-block tw-text-sm tw-text-gray-700">Last day
+                            <input id="end" type="date" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                        </label>
+                        <label class="tw-block tw-text-sm tw-text-gray-700">Name (optional)
+                            <input id="name" type="text" placeholder="Black Friday" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                        </label>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">4. Your usual margin</h2>
+                    <div class="tw-grid tw-gap-4 sm:tw-grid-cols-3">
+                        <label class="tw-block tw-text-sm tw-text-gray-700 sm:tw-col-span-2">Margin, %: what's left from sales after product costs and payment fees, roughly
+                            <input id="margin" type="number" min="1" max="99" step="1" placeholder="40" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                        </label>
+                        <label class="tw-block tw-text-sm tw-text-gray-700">Currency
+                            <select id="currency" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2">
+                                <option value="£">£</option>
+                                <option value="$">$</option>
+                                <option value="€">€</option>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+                <button id="check" type="submit" disabled
+                    class="tw-rounded-lg tw-bg-black tw-px-5 tw-py-3 tw-font-semibold tw-text-white disabled:tw-cursor-not-allowed disabled:tw-opacity-40">Check my sale</button>
+                <p id="error" hidden class="tw-rounded-lg tw-bg-red-50 tw-p-3 tw-text-red-800" role="alert"></p>
+            </form>
+
+            <section id="result" hidden class="tw-mt-10 tw-space-y-4" aria-live="polite">
+                <h2 class="tw-text-2xl tw-font-semibold">The result</h2>
+                <span id="verdict"></span>
+                <p id="summary" class="tw-text-lg tw-leading-relaxed"></p>
+                <p id="needed" class="tw-text-xl tw-font-semibold"></p>
+                <p id="be-sentence" class="tw-leading-relaxed tw-text-gray-700"></p>
+                <p id="be-discount" class="tw-leading-relaxed tw-text-gray-700"></p>
+                <p id="no-margin" hidden class="tw-text-gray-600">Add your usual margin to see what it needed to break even.</p>
+                <figure>
+                    <div id="chart" class="tw-max-w-xl"></div>
+                    <figcaption id="caption" hidden class="tw-mt-2 tw-max-w-xl tw-text-sm tw-text-gray-600"></figcaption>
+                </figure>
+                <div id="notes-box" hidden class="tw-text-sm tw-text-gray-600">
+                    <p class="tw-font-semibold">Notes</p>
+                    <ul id="notes" class="tw-list-disc tw-space-y-1 tw-pl-5"></ul>
+                </div>
+                <div class="tw-rounded-2xl tw-border tw-border-gray-200 tw-p-5">
+                    <p class="tw-font-semibold">Stats Compass does this for every promotion, every week.</p>
+                    <p class="tw-mt-1 tw-text-gray-700">
+                        The Stats Compass app for Shopify judges each week's sales and every discount against what you'd
+                        have had anyway, with margins from your own costs.
+                        <a href="/#commerce" class="tw-text-blue-600 hover:tw-underline">See the app</a>.
+                    </p>
+                </div>
+            </section>
+
+            <section id="signup" hidden class="tw-mt-10 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-5">
+                <h2 class="tw-text-xl tw-font-semibold">Get this every week automatically</h2>
+                <p class="tw-mt-1 tw-text-gray-700">Join the early-access list, and we'll tell you when you can try Stats Compass on your store.</p>
+                <!-- Email capture: Tunji's hosted form (Tally or Buttondown) embed goes here. -->
+                <p class="tw-mt-3 tw-text-xs tw-text-gray-500">
+                    By joining you agree to get emails from Stats Compass about early access. You can unsubscribe
+                    at any time. See our <a href="/privacy.html" class="tw-underline">privacy policy</a>.
+                </p>
+            </section>
+        </div>
+    </main>
+    <footer
+        class="tw-mt-auto tw-flex tw-w-full tw-place-content-around tw-gap-3 tw-p-[5%] tw-px-[10%] tw-text-black max-md:tw-flex-col">
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-6 max-md:tw-w-full">
+            <img src="./assets/logo/mark.svg" alt="" width="72" height="72" class="tw-h-[72px] tw-w-[72px]" />
+            <div>
+                Stats Compass
+                <br />
+                Know what's real.
+                <br />
+                Act on what matters.
+            </div>
+        </div>
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
+            <h2 class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-gray-500">Commerce</h2>
+            <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
+                <a href="/#commerce" class="footer-link">Stats Compass Commerce</a>
+                <a href="/did-my-sale-make-money.html" class="footer-link">Did my sale make money?</a>
+                <a href="/blog/" class="footer-link">Blog</a>
+                <a href="/privacy.html" class="footer-link">Privacy policy</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
