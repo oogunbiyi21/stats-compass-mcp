@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ARTICLE TITLE | Stats Compass</title>
+    <meta name="description" content="ONE-SENTENCE SUMMARY." />
+    <link rel="canonical" href="https://statscompass.io/blog/ARTICLE.html" />
+    <!-- A template: not for indexing until it's an article. Remove this line when publishing. -->
+    <meta name="robots" content="noindex" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="ARTICLE TITLE" />
+    <meta property="og:description" content="ONE-SENTENCE SUMMARY." />
+    <meta property="og:url" content="https://statscompass.io/blog/ARTICLE.html" />
+    <meta property="og:image" content="https://statscompass.io/assets/commerce/promotions-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "ARTICLE TITLE",
+  "description": "ONE-SENTENCE SUMMARY.",
+  "datePublished": "YYYY-MM-DD",
+  "dateModified": "YYYY-MM-DD",
+  "author": {"@type": "Organization", "name": "Stats Compass", "url": "https://statscompass.io/"},
+  "publisher": {"@type": "Organization", "name": "Stats Compass", "url": "https://statscompass.io/"},
+  "mainEntityOfPage": "https://statscompass.io/blog/ARTICLE.html"
+}
+    </script>
+    <link rel="shortcut icon" href="/assets/logo/logo1.png" type="image/x-icon" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { prefix: 'tw-' }</script>
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- Cloudflare Web Analytics: Tunji's snippet goes here (cookieless). -->
+</head>
+<!--
+The article template. To publish an article:
+1. Copy this file to blog/<short-name>.html.
+2. Replace ARTICLE TITLE, ONE-SENTENCE SUMMARY, ARTICLE and the dates, here and
+   in the head (title, description, canonical, og:*, the JSON-LD).
+3. Remove the robots noindex line.
+4. List it in blog/index.html (newest first) and add it to sitemap.xml.
+Copy rules: "expected" for the baseline, contractions, a true minus (−), no em
+dashes. Every article ends by linking to the checker.
+-->
+<body class="tw-flex tw-min-h-[100vh] tw-flex-col tw-bg-[#ffffff]">
+    <header
+        class="tw-absolute tw-top-0 tw-z-20 tw-flex tw-h-[60px] tw-w-full tw-items-center tw-bg-white tw-px-[10%] tw-text-black max-lg:tw-px-4 lg:tw-justify-around">
+        <a class="tw-flex tw-shrink-0 tw-items-center tw-gap-2" href="/">
+            <img src="/assets/logo/mark.svg" alt="" width="44" height="44" class="tw-h-11 tw-w-11" />
+            <span class="tw-text-lg tw-font-semibold tw-tracking-tight">Stats Compass</span>
+        </a>
+        <div class="tw-ml-auto tw-flex tw-gap-5 tw-text-base lg:tw-mx-auto">
+            <a class="header-links" href="/"> Home </a>
+            <a class="header-links" href="/#commerce"> Commerce </a>
+            <a class="header-links max-sm:tw-hidden" href="/blog/"> Blog </a>
+        </div>
+    </header>
+    <main class="tw-mt-[100px] tw-px-[10%] tw-pb-20 max-lg:tw-px-4">
+        <article class="tw-mx-auto tw-max-w-3xl">
+            <p class="tw-mb-2 tw-text-sm tw-text-gray-500"><a href="/blog/" class="hover:tw-underline">Blog</a> · DATE</p>
+            <h1 class="tw-mb-6 tw-text-4xl tw-font-semibold tw-leading-tight">ARTICLE TITLE</h1>
+            <p class="tw-mb-8 tw-text-lg tw-leading-relaxed tw-text-gray-700">The opening: the question it answers, in a sentence or two.</p>
+
+            <section class="tw-mb-10">
+                <h2 class="tw-mb-3 tw-text-2xl tw-font-semibold">A section</h2>
+                <p class="tw-leading-relaxed tw-text-gray-700">Paragraphs.</p>
+            </section>
+
+            <section class="tw-mt-12 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-5">
+                <p class="tw-font-semibold">Did your sale make money?</p>
+                <p class="tw-mt-1 tw-text-gray-700">
+                    Check it against the sales you'd have had anyway, free, in your browser. Your file never leaves your
+                    computer. <a href="/did-my-sale-make-money.html" class="tw-text-blue-600 hover:tw-underline">Try the checker</a>.
+                </p>
+            </section>
+        </article>
+    </main>
+    <footer
+        class="tw-mt-auto tw-flex tw-w-full tw-place-content-around tw-gap-3 tw-p-[5%] tw-px-[10%] tw-text-black max-md:tw-flex-col">
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-6 max-md:tw-w-full">
+            <img src="/assets/logo/mark.svg" alt="" width="72" height="72" class="tw-h-[72px] tw-w-[72px]" />
+            <div>
+                Stats Compass
+                <br />
+                Know what's real.
+                <br />
+                Act on what matters.
+            </div>
+        </div>
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
+            <h2 class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-gray-500">Commerce</h2>
+            <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
+                <a href="/#commerce" class="footer-link">Stats Compass Commerce</a>
+                <a href="/did-my-sale-make-money.html" class="footer-link">Did my sale make money?</a>
+                <a href="/blog/" class="footer-link">Blog</a>
+                <a href="/privacy.html" class="footer-link">Privacy policy</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
