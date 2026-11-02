@@ -38,7 +38,9 @@ $("form").addEventListener("submit", async (event) => {
   $("check").textContent = "Checking…";
   const csv = await $("file").files[0].text();
   const margin = $("margin").value === "" ? null : Number($("margin").value);
-  worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim() });
+  // Today's date here: its row in the export is a day still under way.
+  const today = new Date().toLocaleDateString("en-CA");
+  worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim(), today });
 });
 
 const BADGE = {

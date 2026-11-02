@@ -7,6 +7,7 @@ exact sentences. The rest runs the glue on synthetic Shopify exports, as the
 browser does.
 """
 
+import csv
 import importlib.util
 from pathlib import Path
 
@@ -97,7 +98,9 @@ class TestBreakEvenParity:
 
 
 def shopify_export(lift_share: float = 0.8, discount: float = 0.3, days: int = 760, money_as_text: bool = False) -> str:
-    """Shopify's Sales over time, by day: a store with a Black Friday sale at the end."""
+    """Shopify's Total sales over time, by day, as exported (seen 2 Nov 2026): quoted ISO
+    dates, plain numbers, negative discounts, "Sales reversals", and a last all-zero row
+    for the day still under way. A store with a Black Friday sale near the end."""
     rng = np.random.default_rng(4)
     day = pd.date_range(end="2026-12-14", periods=days, freq="D")
     t = np.arange(days) / 365.25
@@ -108,13 +111,17 @@ def shopify_export(lift_share: float = 0.8, discount: float = 0.3, days: int = 7
     gross = net / (1 - depth)
     frame = pd.DataFrame({
         "Day": day.strftime("%Y-%m-%d"), "Orders": np.round(net / 45).astype(int),
-        "Gross sales": gross.round(2), "Discounts": (-(gross - net)).round(2), "Returns": 0.0,
-        "Net sales": net.round(2), "Shipping charges": 0.0, "Taxes": (net * 0.2).round(2), "Total sales": (net * 1.2).round(2),
+        "Gross sales": gross.round(2), "Discounts": (-(gross - net)).round(2), "Sales reversals": 0,
+        "Net sales": net.round(2), "Shipping charges": 0, "Duties": 0, "Additional fees": 0,
+        "Taxes": (net * 0.2).round(2), "Total sales": (net * 1.2).round(2),
     })
+    under_way = {c: 0 for c in frame.columns}
+    under_way["Day"] = (day[-1] + pd.Timedelta(days=1)).strftime("%Y-%m-%d")
+    frame = pd.concat([frame, pd.DataFrame([under_way])], ignore_index=True)
     if money_as_text:
         for c in ("Gross sales", "Discounts", "Net sales"):
             frame[c] = frame[c].map(lambda v: f"£{v:,.2f}" if v >= 0 else f"-£{-v:,.2f}")
-    return frame.to_csv(index=False)
+    return frame.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC)
 
 
 class TestCheck:
@@ -145,13 +152,31 @@ class TestCheck:
             "with the same weeks a year earlier. Your report starts on 29 May 2026: export it from 27 October 2025 or earlier."
         )
 
-    def test_not_a_daily_export(self):
-        weekly = pd.DataFrame({"Week": ["2026-11-02"], "Gross sales": [1.0], "Discounts": [0.0], "Net sales": [1.0]}).to_csv(index=False)
-        with pytest.raises(ValueError, match="isn't by day"):
-            checker.analyse(weekly, "2026-11-27", "2026-11-30", 50)
+    def test_a_monthly_export_is_refused_plainly(self):
+        # The shape of Tunji's first real export (2 Nov 2026), by month.
+        monthly = (
+            '"Month","Orders","Gross sales","Discounts","Sales reversals","Net sales","Shipping charges","Duties","Additional fees","Taxes","Total sales"\n'
+            '"2026-09-01",197,7648.72,0,0,7648.72,0,0,0,1529.78,9178.5\n'
+            '"2026-10-01",104,4054.57,0,0,4054.57,0,0,0,810.93,4865.5\n'
+            '"2026-11-01",0,0,0,0,0,0,0,0,0,0\n'
+        )
+        with pytest.raises(ValueError, match="^This export is by month; set it to Day and export again.$"):
+            checker.analyse(monthly, "2026-11-27", "2026-11-30", 50)
+
+    def test_the_day_under_way_is_left_out(self):
+        rows = checker.read_export(shopify_export())
+        assert rows["Day"].max() == pd.Timestamp("2026-12-14")  # the all-zero last row is gone
+        rows = checker.read_export(shopify_export(), today="2026-12-14")
+        assert rows["Day"].max() == pd.Timestamp("2026-12-13")  # and today's own row, still under way
+
+    def test_discounts_given_as_negatives(self):
+        rows = checker.read_export(shopify_export())
+        assert (rows["Discounts"] <= 0).all()
+        sale = rows[(rows["Day"] >= "2026-11-27") & (rows["Day"] <= "2026-11-30")]
+        assert checker.discount_depth(sale) == pytest.approx(0.3, abs=0.005)
 
     def test_not_the_report(self):
-        with pytest.raises(ValueError, match="Sales over time"):
+        with pytest.raises(ValueError, match="Total sales over time"):
             checker.analyse("Product,Units\nMug,3\n", "2026-11-27", "2026-11-30", 50)
 
     def test_dates_outside_the_report(self):

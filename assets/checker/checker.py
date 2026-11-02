@@ -1,6 +1,6 @@
 """Did my sale make money? The checker's glue, run in the visitor's browser (Pyodide).
 
-Reads Shopify's "Sales over time" report, exported by day, then:
+Reads Shopify's "Total sales over time" report, exported by day, then:
 - measures the sale with stats-compass-core's promotion_lift: daily net sales
   against what was expected without it, with the app's settings, its range,
   verdict and the 3 weeks after;
@@ -41,17 +41,26 @@ NEEDED = ("net sales", "gross sales", "discounts")
 # -- reading the export -------------------------------------------------------------
 
 
-def read_export(csv_text: str) -> pd.DataFrame:
-    """The report's rows, one per day, with numeric Gross sales, Discounts and Net sales."""
-    df = pd.read_csv(io.StringIO(csv_text))
+def read_export(csv_text: str, today: str | None = None) -> pd.DataFrame:
+    """The report's rows, one per complete day, with numeric Gross sales, Discounts and Net sales.
+
+    Shopify's export (seen 2 Nov 2026): quoted ISO dates, plain numbers,
+    discounts as negatives, "Sales reversals" (once "Returns"), and a last row
+    for the period still under way, all zeros until it has sales. Rows from
+    ``today`` on, and trailing rows with no orders and no sales, are dropped:
+    they're incomplete, not days with no sales.
+    """
+    df = pd.read_csv(io.StringIO(csv_text.lstrip("\ufeff")))
     by_lower = {c.strip().lower(): c for c in df.columns}
-    if any(k in by_lower for k in ("week", "month", "quarter", "year", "hour")) and not any(k in by_lower for k in DATE_COLUMNS):
-        raise ValueError("This export isn't by day. In Shopify, open Sales over time, set it to show each day, and export again.")
+    if not any(k in by_lower for k in DATE_COLUMNS):
+        period = next((k for k in ("hour", "week", "month", "quarter", "year") if k in by_lower), None)
+        if period:
+            raise ValueError(f"This export is by {period}; set it to Day and export again.")
     date_col = next((by_lower[k] for k in DATE_COLUMNS if k in by_lower), None)
     missing = [k for k in NEEDED if k not in by_lower]
     if date_col is None or missing:
         wanted = ", ".join(["Day", "Gross sales", "Discounts", "Net sales"])
-        raise ValueError(f"This doesn't look like Shopify's Sales over time report: it needs the columns {wanted}.")
+        raise ValueError(f"This doesn't look like Shopify's Total sales over time report: it needs the columns {wanted}.")
     out = pd.DataFrame({"Day": pd.to_datetime(df[date_col], errors="coerce")})
     if out["Day"].isna().any():
         raise ValueError("Some days in the report couldn't be read.")
@@ -61,7 +70,16 @@ def read_export(csv_text: str) -> pd.DataFrame:
         if example:
             parsed.append(wording.money_parsed(name, example))
         out[name] = values
-    out = out.groupby("Day", as_index=False).sum(min_count=1).sort_values("Day")
+    if "orders" in by_lower:
+        out["Orders"] = pd.to_numeric(df[by_lower["orders"]], errors="coerce").fillna(0)
+    out = out.groupby("Day", as_index=False).sum(min_count=1).sort_values("Day").reset_index(drop=True)
+    if today:
+        out = out[out["Day"] < pd.Timestamp(today)]
+    # The period still under way: trailing rows with nothing in them.
+    empty = (out["Net sales"].fillna(0) == 0) & (out["Gross sales"].fillna(0) == 0) & (out.get("Orders", 0) == 0)
+    while len(out) and empty.iloc[len(out) - 1]:
+        out, empty = out.iloc[:-1], empty.iloc[:-1]
+    out = out.drop(columns=["Orders"], errors="ignore")
     out.attrs["notes"] = parsed[:1]
     return out
 
@@ -165,9 +183,14 @@ def headline(b: dict) -> str | None:
 # -- the check ------------------------------------------------------------------------------
 
 
-def analyse(csv_text: str, start: str, end: str, margin_pct: float | None, symbol: str = "£", name: str | None = None) -> dict:
-    """Everything the page shows, as plain data."""
-    rows = read_export(csv_text)
+def analyse(
+    csv_text: str, start: str, end: str, margin_pct: float | None, symbol: str = "£",
+    name: str | None = None, today: str | None = None,
+) -> dict:
+    """Everything the page shows, as plain data. ``today``, the visitor's date: its row and later are incomplete."""
+    rows = read_export(csv_text, today)
+    if rows.empty:
+        raise ValueError("The report has no complete days with sales in it.")
     first, last = pd.Timestamp(start), pd.Timestamp(end)
     if last < first:
         raise ValueError("The sale ends before it starts.")
