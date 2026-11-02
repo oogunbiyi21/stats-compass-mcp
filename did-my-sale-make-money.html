@@ -22,7 +22,7 @@
     <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.17/dist/plot.umd.min.js"></script>
     <script type="module" src="./assets/checker/page.js"></script>
-    <!-- Cloudflare Web Analytics: Tunji's snippet goes here (cookieless). -->
+    <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5acfd6a4cd23427cbea5c6c689599dfc"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <!--
 The "Did my sale make money?" checker. It runs stats-compass-core's
@@ -56,8 +56,8 @@ figures). The chosen file is read in the browser and never uploaded.
                 <p class="tw-font-semibold">Your file never leaves your computer.</p>
                 <p class="tw-mt-1 tw-text-gray-700">
                     The calculator runs in this page. Once it says it's ready, you can disconnect from the internet
-                    and it still works. It loads its statistics libraries from jsdelivr; your file is read here and
-                    isn't sent anywhere.
+                    and it still works. It loads its statistics libraries from jsdelivr, and Cloudflare counts the
+                    visit, without cookies; your file is read here and isn't sent anywhere.
                 </p>
                 <p id="status" class="tw-mt-3 tw-text-sm tw-text-gray-600" role="status" aria-live="polite">Getting the calculator ready…</p>
                 <p class="tw-mt-1 tw-text-xs tw-text-gray-500">First visit downloads about 30 MB; on a slow connection this can take a few minutes.</p>
@@ -143,10 +143,23 @@ figures). The chosen file is read in the browser and never uploaded.
             <section id="signup" hidden class="tw-mt-10 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-5">
                 <h2 class="tw-text-xl tw-font-semibold">Get this every week automatically</h2>
                 <p class="tw-mt-1 tw-text-gray-700">Join the early-access list, and we'll tell you when you can try Stats Compass on your store.</p>
-                <!-- Email capture: Tunji's hosted form (Tally or Buttondown) embed goes here. -->
+                <!-- The list's endpoint (hosted, Resend) goes in data-endpoint; the section stays hidden until it's set.
+                     Change data-consent-version whenever the consent wording changes. -->
+                <form id="list-form" class="tw-mt-4 tw-space-y-3" data-endpoint="" data-consent-version="early-access-2026-11-02">
+                    <label class="tw-block tw-text-sm tw-text-gray-700">Email
+                        <input id="list-email" type="email" required autocomplete="email" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-max-w-sm" />
+                    </label>
+                    <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-700">
+                        <input id="list-consent" type="checkbox" required class="tw-mt-1" />
+                        <span>Email me about early access to Stats Compass. I can unsubscribe at any time.</span>
+                    </label>
+                    <button id="list-join" type="submit"
+                        class="tw-rounded-lg tw-bg-black tw-px-5 tw-py-2 tw-font-semibold tw-text-white disabled:tw-cursor-not-allowed disabled:tw-opacity-40">Join the list</button>
+                </form>
+                <p id="list-done" hidden class="tw-mt-4 tw-font-semibold tw-text-green-700" role="status">You're on the list. Check your inbox.</p>
+                <p id="list-error" hidden class="tw-mt-3 tw-text-red-800" role="alert">That didn't work; try again.</p>
                 <p class="tw-mt-3 tw-text-xs tw-text-gray-500">
-                    By joining you agree to get emails from Stats Compass about early access. You can unsubscribe
-                    at any time. See our <a href="/privacy.html" class="tw-underline">privacy policy</a>.
+                    We only email you about early access. See our <a href="/privacy.html" class="tw-underline">privacy policy</a>.
                 </p>
             </section>
         </div>
