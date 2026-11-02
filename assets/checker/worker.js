@@ -60,15 +60,15 @@ const ready = (async () => {
 });
 
 onmessage = async (event) => {
-  const { csv, start, end, margin, currency, name, today } = event.data;
+  const { csv, start, end, margin, currency, name, today, others } = event.data;
   try {
     const pyodide = await ready;
     pyodide.globals.set("_csv", csv);
-    pyodide.globals.set("_args", pyodide.toPy({ start, end, margin, currency, name, today }));
+    pyodide.globals.set("_args", pyodide.toPy({ start, end, margin, currency, name, today, others }));
     const json = await pyodide.runPythonAsync(`
 import json
 _a = _args.to_py() if hasattr(_args, "to_py") else _args
-json.dumps(checker.analyse(_csv, _a["start"], _a["end"], _a["margin"], _a["currency"], _a["name"] or None, _a["today"]), default=str)
+json.dumps(checker.analyse(_csv, _a["start"], _a["end"], _a["margin"], _a["currency"], _a["name"] or None, _a["today"], _a["others"]), default=str)
 `);
     postMessage({ type: "result", data: JSON.parse(json) });
   } catch (err) {

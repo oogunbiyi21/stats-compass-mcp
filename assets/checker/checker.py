@@ -189,11 +189,32 @@ def headline(b: dict) -> str | None:
 # -- the check ------------------------------------------------------------------------------
 
 
+def other_sales(others: list[dict] | None, first: pd.Timestamp, last: pd.Timestamp, rows: pd.DataFrame) -> list[dict]:
+    """The other sales the merchant added, as windows: left out of the fitted history, as the app does.
+
+    One overlapping the sale being checked is refused; one with no days in the report is left out.
+    """
+    windows = []
+    for i, other in enumerate(others or [], start=1):
+        a, b = pd.Timestamp(other["start"]), pd.Timestamp(other["end"])
+        if b < a:
+            raise ValueError("One of the other sales ends before it starts.")
+        if a <= last and b >= first:
+            raise ValueError("One of the other sales overlaps the sale you're checking. Remove it, or check it on its own.")
+        if a <= rows["Day"].max() and b >= rows["Day"].min():
+            windows.append({"name": f"Other sale {i}", "start": a.date(), "end": b.date()})
+    return windows
+
+
 def analyse(
     csv_text: str, start: str, end: str, margin_pct: float | None, symbol: str = "£",
-    name: str | None = None, today: str | None = None,
+    name: str | None = None, today: str | None = None, others: list[dict] | None = None,
 ) -> dict:
-    """Everything the page shows, as plain data. ``today``, the visitor's date: its row and later are incomplete."""
+    """Everything the page shows, as plain data.
+
+    ``today``, the visitor's date: its row and later are incomplete. ``others``, any
+    other sales in the period ({start, end}): measured with them left out, as the app does.
+    """
     rows = read_export(csv_text, today)
     if rows.empty:
         raise ValueError("The report has no complete days with sales in it.")
@@ -204,6 +225,7 @@ def analyse(
     if in_sale.empty:
         raise ValueError("The report has no days inside the sale. Check the dates, or export a longer period.")
     label = name or "The sale"
+    extra = other_sales(others, first, last, rows)
     starts = rows["Day"].min()
     needed_from = first - pd.DateOffset(months=MIN_MONTHS)
     if starts > needed_from:
@@ -221,9 +243,10 @@ def analyse(
     state.set_dataframe(rows, name="sales", operation="upload")
     lift = promotion_lift(state, PromotionLiftInput(
         dataframe_name="sales", date_column="Day", value_column="Net sales", currency=symbol,
-        include_series=True, windows=[{"name": label, "start": first.date(), "end": last.date()}],
+        include_series=True, windows=[{"name": label, "start": first.date(), "end": last.date()}, *extra],
     ))
-    row = lift.rows[0]
+    # Each window gets a row (others are left out of each one's fit); only the chosen sale is shown.
+    row = next(r for r in lift.rows if (r.start, r.end) == (first.date().isoformat(), last.date().isoformat()))
     out = {
         "verdict": row.verdict,
         "label": row.label,
@@ -252,6 +275,8 @@ def analyse(
     # 1 − (1 − d₀)(1 − m₀)/(1 − d₁), with d₀ the usual discount over the 8 weeks
     # before, d₁ the sale's.
     usual = rows[(rows["Day"] < first) & (rows["Day"] >= first - pd.Timedelta(days=56))]
+    for w in extra:
+        usual = usual[(usual["Day"] < pd.Timestamp(w["start"])) | (usual["Day"] > pd.Timestamp(w["end"]))]
     d0, d1 = usual_discount(usual), out["discount_depth"]
     m0 = margin_pct / 100
     m1 = 1 - (1 - d0) * (1 - m0) / (1 - d1) if d1 < 1 else -math.inf

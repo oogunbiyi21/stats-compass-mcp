@@ -30,9 +30,34 @@ function update() {
 }
 for (const id of ["file", "start", "end"]) $(id).addEventListener("input", update);
 
+// Other sales in the period: each a row of two dates, left out of the comparison.
+$("add-other").addEventListener("click", () => {
+  const row = $("other-row").content.firstElementChild.cloneNode(true);
+  row.querySelector("[data-remove]").addEventListener("click", () => row.remove());
+  $("others").append(row);
+  row.querySelector("[data-start]").focus();
+});
+
+function otherSales() {
+  const rows = [...$("others").children].map((row) => ({
+    start: row.querySelector("[data-start]").value,
+    end: row.querySelector("[data-end]").value,
+  }));
+  if (rows.some((r) => !r.start !== !r.end)) throw new Error("Give each other sale a first and last day, or remove it.");
+  return rows.filter((r) => r.start && r.end);
+}
+
 $("form").addEventListener("submit", async (event) => {
   event.preventDefault();
   $("error").hidden = true;
+  let others;
+  try {
+    others = otherSales();
+  } catch (err) {
+    $("error").textContent = err.message;
+    $("error").hidden = false;
+    return;
+  }
   $("result").hidden = true;
   $("check").disabled = true;
   $("check").textContent = "Checking…";
@@ -40,7 +65,7 @@ $("form").addEventListener("submit", async (event) => {
   const margin = $("margin").value === "" ? null : Number($("margin").value);
   // Today's date here: its row in the export is a day still under way.
   const today = new Date().toLocaleDateString("en-CA");
-  worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim(), today });
+  worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim(), today, others });
 });
 
 // The early-access list: the visitor's email and consent, posted to the list's endpoint

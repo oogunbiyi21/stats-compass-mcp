@@ -195,6 +195,30 @@ class TestCheck:
         assert out["break_even"]["sentence"].startswith("It earned less on each sale")
         assert float(out["break_even"]["needed"].rstrip("×")) > 1
 
+    def test_other_sales_are_left_out_of_the_comparison(self):
+        # A deep sale ending 11 days before Black Friday inflates what Black Friday is
+        # compared with. Added as another sale, it's left out, as the app leaves out
+        # every promotion: the comparison comes back to the store without that sale.
+        def expected(out):
+            return sum(p["expected"] for p in out["chart"] if p["in_promotion"])
+        earlier = {"start": "2026-10-27", "end": "2026-11-16"}
+        csv_text = shopify_export(discount=0.12, earlier_sale=(earlier["start"], earlier["end"], 0.36))
+        clean = expected(checker.analyse(shopify_export(discount=0.12), "2026-11-27", "2026-11-30", 50))
+        alone = expected(checker.analyse(csv_text, "2026-11-27", "2026-11-30", 50))
+        out = checker.analyse(csv_text, "2026-11-27", "2026-11-30", 50, "£", "Black Friday", others=[earlier])
+        assert out["summary"].startswith("Black Friday, 27–30 November 2026: ")  # the chosen sale, not the other
+        assert abs(alone / clean - 1) > 0.2
+        assert abs(expected(out) / clean - 1) < 0.05
+
+    def test_another_sale_overlapping_is_refused(self):
+        with pytest.raises(ValueError, match="overlaps the sale you're checking"):
+            checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50, others=[{"start": "2026-11-29", "end": "2026-12-02"}])
+
+    def test_other_sales_outside_the_report_change_nothing(self):
+        alone = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50)
+        out = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50, others=[{"start": "2020-01-01", "end": "2020-01-10"}])
+        assert out["summary"] == alone["summary"]
+
     def test_dates_outside_the_report(self):
         with pytest.raises(ValueError, match="no days inside the sale"):
             checker.analyse(shopify_export(), "2027-01-01", "2027-01-05", 50)
