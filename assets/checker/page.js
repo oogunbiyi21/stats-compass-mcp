@@ -68,27 +68,15 @@ $("form").addEventListener("submit", async (event) => {
   worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim(), today, others });
 });
 
-// The early-access list: the visitor's email and consent, posted to the list's endpoint
-// (hosted). Only this form sends anything, and only when the visitor joins.
-$("list-form").addEventListener("submit", async (event) => {
-  event.preventDefault();
+// The early-access list: the form posts the visitor's email to Buttondown in a new tab
+// (the browser checks the email and the consent box first), and this page keeps the result.
+// Only this form sends anything, and only when the visitor joins.
+$("list-form").addEventListener("submit", (event) => {
   const form = event.currentTarget;
-  if (!$("list-consent").checked) return;
-  $("list-error").hidden = true;
-  $("list-join").disabled = true;
-  try {
-    const response = await fetch(form.dataset.endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: $("list-email").value.trim(), consent: true, consent_version: form.dataset.consentVersion }),
-    });
-    if (!response.ok) throw new Error(String(response.status));
+  setTimeout(() => {
     form.hidden = true;
     $("list-done").hidden = false;
-  } catch {
-    $("list-error").hidden = false;
-    $("list-join").disabled = false;
-  }
+  });
 });
 
 const BADGE = {
@@ -121,6 +109,6 @@ function show(r) {
   $("notes").replaceChildren(...(r.warnings || []).map((w) => Object.assign(document.createElement("li"), { textContent: w })));
   $("notes-box").hidden = !(r.warnings && r.warnings.length);
   $("result").hidden = false;
-  $("signup").hidden = !$("list-form").dataset.endpoint;
+  $("signup").hidden = false;
   $("result").scrollIntoView({ behavior: "smooth", block: "start" });
 }
