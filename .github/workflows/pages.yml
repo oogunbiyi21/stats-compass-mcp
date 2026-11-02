@@ -4,14 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'index.html'
-      - 'privacy.html'
-      - 'commerce-privacy.html'
-      - 'commerce-terms.html'
-      - 'stats-compass-vs-shopify-sidekick.html'
+      # Every page at the root (pricing.html was missing from the old list) and the blog.
+      - '*.html'
+      - 'blog/**'
       - 'sitemap.xml'
       - 'robots.txt'
-      - 'terms.html'
       - 'index.js'
       - 'css/**'
       - 'assets/**'

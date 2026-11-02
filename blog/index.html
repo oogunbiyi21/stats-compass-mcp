@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog | Stats Compass</title>
+    <meta name="description" content="Notes on running promotions and reading your sales: whether a sale made money, what each time of year usually brings, and how to tell a real change from noise." />
+    <link rel="canonical" href="https://statscompass.io/blog/" />
+    <link rel="shortcut icon" href="/assets/logo/logo1.png" type="image/x-icon" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { prefix: 'tw-' }</script>
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5acfd6a4cd23427cbea5c6c689599dfc"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<!--
+The blog's index. Each article is a page in /blog/, made from
+blog/article-template.html, listed below newest first and added to sitemap.xml.
+-->
+<body class="tw-flex tw-min-h-[100vh] tw-flex-col tw-bg-[#ffffff]">
+    <header
+        class="tw-absolute tw-top-0 tw-z-20 tw-flex tw-h-[60px] tw-w-full tw-items-center tw-bg-white tw-px-[10%] tw-text-black max-lg:tw-px-4 lg:tw-justify-around">
+        <a class="tw-flex tw-shrink-0 tw-items-center tw-gap-2" href="/">
+            <img src="/assets/logo/mark.svg" alt="" width="44" height="44" class="tw-h-11 tw-w-11" />
+            <span class="tw-text-lg tw-font-semibold tw-tracking-tight">Stats Compass</span>
+        </a>
+        <div class="tw-ml-auto tw-flex tw-gap-5 tw-text-base lg:tw-mx-auto">
+            <a class="header-links" href="/"> Home </a>
+            <a class="header-links" href="/#commerce"> Commerce </a>
+            <a class="header-links max-sm:tw-hidden" href="/blog/"> Blog </a>
+        </div>
+    </header>
+    <main class="tw-mt-[100px] tw-px-[10%] tw-pb-20 max-lg:tw-px-4">
+        <div class="tw-mx-auto tw-max-w-3xl">
+            <h1 class="tw-mb-3 tw-text-4xl tw-font-semibold tw-leading-tight">Blog</h1>
+            <p class="tw-mb-10 tw-text-lg tw-leading-relaxed tw-text-gray-700">
+                Notes on running promotions and reading your sales: whether a sale made money, what each time of year
+                usually brings, and how to tell a real change from noise.
+            </p>
+            <!-- Articles, newest first. Copy this block for each one. -->
+            <!--
+            <article class="tw-mb-8 tw-border-b tw-border-gray-200 tw-pb-8">
+                <p class="tw-text-sm tw-text-gray-500">1 December 2026</p>
+                <h2 class="tw-mt-1 tw-text-2xl tw-font-semibold"><a href="/blog/ARTICLE.html" class="hover:tw-underline">Title</a></h2>
+                <p class="tw-mt-2 tw-leading-relaxed tw-text-gray-700">One or two sentences on what it answers.</p>
+            </article>
+            -->
+            <p class="tw-text-gray-600">The first articles are on their way.</p>
+            <section class="tw-mt-12 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-5">
+                <p class="tw-font-semibold">Did your sale make money?</p>
+                <p class="tw-mt-1 tw-text-gray-700">
+                    Check it against the sales you'd have had anyway, free, in your browser.
+                    <a href="/did-my-sale-make-money.html" class="tw-text-blue-600 hover:tw-underline">Try the checker</a>.
+                </p>
+            </section>
+        </div>
+    </main>
+    <footer
+        class="tw-mt-auto tw-flex tw-w-full tw-place-content-around tw-gap-3 tw-p-[5%] tw-px-[10%] tw-text-black max-md:tw-flex-col">
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-6 max-md:tw-w-full">
+            <img src="/assets/logo/mark.svg" alt="" width="72" height="72" class="tw-h-[72px] tw-w-[72px]" />
+            <div>
+                Stats Compass
+                <br />
+                Know what's real.
+                <br />
+                Act on what matters.
+            </div>
+        </div>
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
+            <h2 class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-gray-500">Commerce</h2>
+            <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
+                <a href="/#commerce" class="footer-link">Stats Compass Commerce</a>
+                <a href="/did-my-sale-make-money.html" class="footer-link">Did my sale make money?</a>
+                <a href="/blog/" class="footer-link">Blog</a>
+                <a href="/privacy.html" class="footer-link">Privacy policy</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

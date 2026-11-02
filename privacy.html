@@ -16,6 +16,7 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
         integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5acfd6a4cd23427cbea5c6c689599dfc"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 
 <body class="tw-flex tw-min-h-[100vh] tw-flex-col tw-bg-[#ffffff]">
@@ -37,7 +38,7 @@
     <main class="tw-mt-[100px] tw-px-[10%] tw-pb-20 max-lg:tw-px-4">
         <div class="tw-max-w-3xl tw-mx-auto">
             <h1 class="tw-text-4xl tw-font-bold tw-mb-2">Privacy Policy</h1>
-            <p class="tw-text-gray-500 tw-mb-8">Last updated: August 22, 2026</p>
+            <p class="tw-text-gray-500 tw-mb-8">Last updated: November 1, 2026</p>
 
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Who We Are</h2>
@@ -51,15 +52,39 @@
                 <p class="tw-text-gray-700 tw-leading-relaxed">
                     Stats Compass is available in three modes: <strong>local</strong> (installed on your own machine),
                     <strong>self-hosted</strong> (run on your own server), and <strong>hosted</strong>
-                    (our cloud service at <code class="tw-bg-gray-100 tw-px-1 tw-rounded">mcp.statscompass.io</code>).
+                    (our cloud service at <code class="tw-bg-gray-100 tw-px-1 tw-rounded tw-break-words">mcp.statscompass.io</code>).
                     This policy covers all three modes. The data we collect depends on which mode you use.
+                </p>
+            </section>
+
+            <section class="tw-mb-8">
+                <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">The Website, the Sale Checker and the Early-Access List</h2>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-3">
+                    <strong>The sale checker</strong> (<a href="/did-my-sale-make-money.html" class="tw-text-blue-600 hover:tw-underline">Did my sale make money?</a>)
+                    runs entirely in your browser. The file you choose is read on your computer and is never sent to
+                    us or to anyone else. To run, the page loads its statistics libraries from jsdelivr, a public
+                    content delivery network, which sees the usual details of any web request, such as your IP address
+                    and browser, but never your file. Once the page says the calculator is ready, it works without an
+                    internet connection.
+                </p>
+                <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-3">
+                    <strong>The early-access list.</strong> If you join it, we keep your email address with our list
+                    provider, <strong>[to confirm: Tally or Buttondown]</strong>, only to tell you about early access to
+                    Stats Compass. We don't share it with anyone else. You can unsubscribe at any time from any email
+                    we send, or by writing to us, and we'll delete it.
+                </p>
+                <p class="tw-text-gray-700 tw-leading-relaxed">
+                    <strong>Website analytics.</strong> We use Cloudflare Web Analytics to count visits to
+                    statscompass.io. It sets no cookies and doesn't follow you across other sites or build a profile of
+                    you. It records the page visited, the site that referred you, and your browser, type of device and
+                    country, which we see only as totals.
                 </p>
             </section>
 
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Local Mode</h2>
                 <p class="tw-text-gray-700 tw-leading-relaxed">
-                    When you install Stats Compass via <code class="tw-bg-gray-100 tw-px-1 tw-rounded">pip install stats-compass-mcp</code>
+                    When you install Stats Compass via <code class="tw-bg-gray-100 tw-px-1 tw-rounded tw-break-words">pip install stats-compass-mcp</code>
                     and run it locally, all data processing happens entirely on your machine. No data is sent to our servers.
                     We have no access to your files or analysis results.
                 </p>
@@ -69,7 +94,7 @@
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Self-Hosted Mode</h2>
                 <p class="tw-text-gray-700 tw-leading-relaxed">
                     When you run Stats Compass on your own server using
-                    <code class="tw-bg-gray-100 tw-px-1 tw-rounded">stats-compass-mcp serve</code> or Docker,
+                    <code class="tw-bg-gray-100 tw-px-1 tw-rounded tw-break-words">stats-compass-mcp serve</code> or Docker,
                     you control where data is stored and processed. We have no access to your self-hosted instance.
                 </p>
             </section>
@@ -93,7 +118,7 @@
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Data Retention</h2>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
-                    <li><strong>Session data, uploaded files and exports</strong>: deleted when you call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code> tool, and automatically removed after 24 hours of inactivity.</li>
+                    <li><strong>Session data, uploaded files and exports</strong>: deleted when you call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded tw-break-words">delete_session</code> tool, and automatically removed after 24 hours of inactivity.</li>
                     <li><strong>Google Sheets access tokens</strong>: deleted when you disconnect, when you delete your account, or automatically after 90 days without use.</li>
                     <li><strong>Usage counts</strong>: stored per calendar month against a pseudonymous account identifier, and deleted automatically 35 days after your first call in that month.</li>
                     <li><strong>Server logs</strong>: automatically rotated, with the oldest entries overwritten once a fixed size is reached. Retention therefore varies with traffic. Logs record request paths and timestamps for security and debugging; they do not contain the contents of your files or spreadsheets.</li>
@@ -112,7 +137,7 @@
 
                 <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data accessed</h3>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
-                    Stats Compass requests only the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">drive.file</code> permission. Under this permission Google grants access to individual files one at a time, and only when you select them yourself in Google's own file picker. Stats Compass cannot list, search or open anything else in your Google Drive: not other spreadsheets, and not files of any other kind.
+                    Stats Compass requests only the <code class="tw-bg-gray-100 tw-px-1 tw-rounded tw-break-words">drive.file</code> permission. Under this permission Google grants access to individual files one at a time, and only when you select them yourself in Google's own file picker. Stats Compass cannot list, search or open anything else in your Google Drive: not other spreadsheets, and not files of any other kind.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
                     This is enforced by Google rather than promised by us: a request for a spreadsheet you have not picked is refused by Google, not by our code. Files that Stats Compass creates for you, such as a sheet of analysis results, are also covered, since we created them.
@@ -128,13 +153,13 @@
                     Spreadsheet data loaded from Google Sheets is held in memory for the duration of your session and is not written to disk, <em>unless you explicitly export it</em>, for example by asking your assistant to save results as a CSV. Exported files are written to our server so you can download them, and are deleted along with the rest of your session data.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
-                    Session data and any exported files are deleted when you call <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code>, and are automatically removed after 24 hours of inactivity.
+                    Session data and any exported files are deleted when you call <code class="tw-bg-gray-100 tw-px-1 tw-rounded tw-break-words">delete_session</code>, and are automatically removed after 24 hours of inactivity.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
                     OAuth tokens, and a list of which spreadsheets you have selected, are stored in our Redis datastore on the same server and are automatically deleted after 90 days without use. The stored list is only a record of what you chose. It grants nothing on its own, since the access itself is held by Google against your account.
                 </p>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-4">
-                    You can disconnect at any time in three ways: ask your AI assistant to disconnect Google Sheets, visit <code class="tw-bg-gray-100 tw-px-1 tw-rounded">mcp.statscompass.io/google/disconnect</code>, or revoke access from <a href="https://myaccount.google.com/connections" class="tw-text-blue-600 hover:tw-underline" target="_blank">your Google Account connections</a>. The first two revoke the grant with Google <em>and</em> delete our copy of the tokens and your selection list. Deleting your Stats Compass account does the same.
+                    You can disconnect at any time in three ways: ask your AI assistant to disconnect Google Sheets, visit <code class="tw-bg-gray-100 tw-px-1 tw-rounded tw-break-words">mcp.statscompass.io/google/disconnect</code>, or revoke access from <a href="https://myaccount.google.com/connections" class="tw-text-blue-600 hover:tw-underline" target="_blank">your Google Account connections</a>. The first two revoke the grant with Google <em>and</em> delete our copy of the tokens and your selection list. Deleting your Stats Compass account does the same.
                 </p>
 
                 <h3 class="tw-text-lg tw-font-semibold tw-mb-2">Data transfer</h3>
@@ -157,12 +182,15 @@
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Third-Party Services</h2>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mb-3">
-                    We use the following third-party services in hosted mode:
+                    We use the following third-party services in hosted mode and on the website:
                 </p>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
                     <li><strong>Auth0</strong>: handles authentication and sign-in. Your email address is shared with Auth0 for this purpose. See <a href="https://auth0.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Auth0's Privacy Policy</a>.</li>
                     <li><strong>Stripe</strong>: handles payment processing for paid subscriptions. Payment information is processed directly by Stripe and is not stored on our servers. See <a href="https://stripe.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Stripe's Privacy Policy</a>.</li>
                     <li><strong>Google</strong>: if you connect Google Sheets, OAuth tokens and API requests are processed by Google. Only the specific spreadsheets you choose to load are accessed. See <a href="https://policies.google.com/privacy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Google's Privacy Policy</a>.</li>
+                    <li><strong>Cloudflare</strong>: counts visits to statscompass.io (Cloudflare Web Analytics, without cookies), as described above. See <a href="https://www.cloudflare.com/privacypolicy/" class="tw-text-blue-600 hover:tw-underline" target="_blank">Cloudflare's Privacy Policy</a>.</li>
+                    <li><strong>jsdelivr</strong>: serves the statistics libraries the sale checker runs in your browser. It never receives your file. See <a href="https://www.jsdelivr.com/terms/privacy-policy-jsdelivr-net" class="tw-text-blue-600 hover:tw-underline" target="_blank">jsdelivr's Privacy Policy</a>.</li>
+                    <li><strong>[to confirm: Tally or Buttondown]</strong>: keeps the early-access list, if you join it.</li>
                     <li><strong>Resend</strong>: delivers our account and product emails. Your email address and name are shared with Resend for this purpose. No file contents, spreadsheet data or analysis results are ever sent to Resend. See <a href="https://resend.com/legal/privacy-policy" class="tw-text-blue-600 hover:tw-underline" target="_blank">Resend's Privacy Policy</a>.</li>
                 </ul>
                 <p class="tw-text-gray-700 tw-leading-relaxed tw-mt-4">
@@ -182,9 +210,9 @@
             <section class="tw-mb-8">
                 <h2 class="tw-text-2xl tw-font-semibold tw-mb-3">Your Controls</h2>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
-                    <li><strong>Delete session data</strong>: call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded">delete_session</code> tool at any time to delete your session and all associated uploaded files from our servers.</li>
+                    <li><strong>Delete session data</strong>: call the <code class="tw-bg-gray-100 tw-px-1 tw-rounded tw-break-words">delete_session</code> tool at any time to delete your session and all associated uploaded files from our servers.</li>
                     <li><strong>Unsubscribe from product emails</strong>: use the unsubscribe link in the footer of any product email, or email us. You will still receive service messages about your account, billing, security and outages.</li>
-                    <li><strong>Disconnect Google Sheets</strong>: ask your AI assistant to disconnect Google Sheets, or visit <code class="tw-bg-gray-100 tw-px-1 tw-rounded">mcp.statscompass.io/google/disconnect</code>. Both revoke our access with Google and delete the stored tokens.</li>
+                    <li><strong>Disconnect Google Sheets</strong>: ask your AI assistant to disconnect Google Sheets, or visit <code class="tw-bg-gray-100 tw-px-1 tw-rounded tw-break-words">mcp.statscompass.io/google/disconnect</code>. Both revoke our access with Google and delete the stored tokens.</li>
                     <li><strong>Delete your account</strong>: email us at <a href="mailto:tunji@statscompass.io" class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a> to request full account deletion.</li>
                 </ul>
             </section>
@@ -196,7 +224,8 @@
                 </p>
                 <ul class="tw-list-disc tw-pl-6 tw-text-gray-700 tw-leading-relaxed tw-space-y-2">
                     <li><strong>Contract performance</strong>: processing your email, usage counts, and uploaded data is necessary to provide the Stats Compass hosted service and manage your subscription.</li>
-                    <li><strong>Legitimate interest</strong>: we use aggregated, non-identifying usage data to maintain and improve the service.</li>
+                    <li><strong>Legitimate interest</strong>: we use aggregated, non-identifying usage data to maintain and improve the service, and cookieless website analytics to count visits.</li>
+                    <li><strong>Consent</strong>: if you join the early-access list, we email you about early access because you asked us to. You can withdraw that consent at any time by unsubscribing.</li>
                     <li><strong>Legitimate interest (soft opt-in)</strong>: we send occasional product emails, such as a welcome message and notices of significant new features, to people who have signed up for the service. You can opt out of these at any time using the unsubscribe link in any such email, or by contacting us, and we will stop. Service messages about your account, billing, security or outages are sent on the basis of contract performance and are not affected by that choice.</li>
                 </ul>
             </section>
@@ -286,6 +315,7 @@
         <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
             <h2 class="tw-text-3xl max-md:tw-text-xl">Legal</h2>
             <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
+                <a href="/did-my-sale-make-money.html" class="footer-link">Did my sale make money?</a>
                 <a href="/privacy.html" class="footer-link">Privacy Policy</a>
                 <a href="/terms.html" class="footer-link">Terms of Service</a>
                 <a href="https://mcp.statscompass.io/billing/portal" class="footer-link">Manage Subscription</a>
