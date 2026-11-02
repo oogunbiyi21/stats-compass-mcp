@@ -94,6 +94,12 @@ def discount_depth(rows: pd.DataFrame) -> float:
     return abs(float(rows["Discounts"].sum())) / gross if gross > 0 else 0.0
 
 
+def usual_discount(rows: pd.DataFrame) -> float:
+    """The usual day's discount: the median day's depth, so another sale in these weeks doesn't count as usual."""
+    days = rows[rows["Gross sales"] > 0]
+    return float((days["Discounts"].abs() / days["Gross sales"]).median()) if len(days) else 0.0
+
+
 # -- the app's break-even (commerce packages/ui/src/break-even.ts), ported ---------------
 
 
@@ -243,9 +249,10 @@ def analyse(
     }
     # The margin lift, from the typed margin and the discount: cost per pound
     # of gross sales unchanged, so the margin on net sales during the sale is
-    # 1 − (1 − d₀)(1 − m₀)/(1 − d₁), with d₀ the usual discount, d₁ the sale's.
+    # 1 − (1 − d₀)(1 − m₀)/(1 − d₁), with d₀ the usual discount over the 8 weeks
+    # before, d₁ the sale's.
     usual = rows[(rows["Day"] < first) & (rows["Day"] >= first - pd.Timedelta(days=56))]
-    d0, d1 = discount_depth(usual), out["discount_depth"]
+    d0, d1 = usual_discount(usual), out["discount_depth"]
     m0 = margin_pct / 100
     m1 = 1 - (1 - d0) * (1 - m0) / (1 - d1) if d1 < 1 else -math.inf
     c0, c1 = r0 * m0, row.observed_total * m1

@@ -97,7 +97,10 @@ class TestBreakEvenParity:
         assert checker.break_even(REVENUE, {**MARGIN, "pct": 0}, "£") is None
 
 
-def shopify_export(lift_share: float = 0.8, discount: float = 0.3, days: int = 760, money_as_text: bool = False) -> str:
+def shopify_export(
+    lift_share: float = 0.8, discount: float = 0.3, days: int = 760, money_as_text: bool = False,
+    earlier_sale: tuple[str, str, float] | None = None,
+) -> str:
     """Shopify's Total sales over time, by day, as exported (seen 2 Nov 2026): quoted ISO
     dates, plain numbers, negative discounts, "Sales reversals", and a last all-zero row
     for the day still under way. A store with a Black Friday sale near the end."""
@@ -108,6 +111,11 @@ def shopify_export(lift_share: float = 0.8, discount: float = 0.3, days: int = 7
     sale = (day >= "2026-11-27") & (day <= "2026-11-30")
     depth = np.where(sale, discount, 0.03)
     net = base * np.where(sale, 1 + lift_share, 1.0)
+    if earlier_sale:
+        start, end, deeper = earlier_sale
+        earlier = (day >= start) & (day <= end)
+        depth = np.where(earlier, deeper, depth)
+        net = net * np.where(earlier, 1.5, 1.0)
     gross = net / (1 - depth)
     frame = pd.DataFrame({
         "Day": day.strftime("%Y-%m-%d"), "Orders": np.round(net / 45).astype(int),
@@ -178,6 +186,14 @@ class TestCheck:
     def test_not_the_report(self):
         with pytest.raises(ValueError, match="Total sales over time"):
             checker.analyse("Product,Units\nMug,3\n", "2026-11-27", "2026-11-30", 50)
+
+    def test_another_sale_in_the_weeks_before_is_not_the_usual_discount(self):
+        # SUMMER40 then FLASH20 on Tunji's demo store: a deep 3-week sale ending 10 days
+        # before a shallower one. The shallower one still earned less on each sale.
+        csv_text = shopify_export(discount=0.12, earlier_sale=("2026-10-27", "2026-11-16", 0.36))
+        out = checker.analyse(csv_text, "2026-11-27", "2026-11-30", 50)
+        assert out["break_even"]["sentence"].startswith("It earned less on each sale")
+        assert float(out["break_even"]["needed"].rstrip("×")) > 1
 
     def test_dates_outside_the_report(self):
         with pytest.raises(ValueError, match="no days inside the sale"):
