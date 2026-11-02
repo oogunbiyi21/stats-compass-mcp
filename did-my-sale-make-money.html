@@ -159,12 +159,14 @@ figures). The chosen file is read in the browser and never uploaded.
             <section id="signup" hidden class="tw-mt-10 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-5">
                 <h2 class="tw-text-xl tw-font-semibold">Get this every week automatically</h2>
                 <p class="tw-mt-1 tw-text-gray-700">Join the early-access list, and we'll tell you when you can try Stats Compass on your store.</p>
-                <!-- The list's endpoint (hosted, Resend) goes in data-endpoint; the section stays hidden until it's set.
-                     Change data-consent-version whenever the consent wording changes. -->
-                <form id="list-form" class="tw-mt-4 tw-space-y-3" data-endpoint="" data-consent-version="early-access-2026-11-02">
+                <!-- The list is on Buttondown, which sends the confirmation email (double opt-in). The form posts
+                     to Buttondown in a new tab, as Buttondown asks (it may need a CAPTCHA or a correction there),
+                     so the visitor's result stays on this page. -->
+                <form id="list-form" class="tw-mt-4 tw-space-y-3" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank">
                     <label class="tw-block tw-text-sm tw-text-gray-700">Email
-                        <input id="list-email" type="email" required autocomplete="email" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-max-w-sm" />
+                        <input id="list-email" name="email" type="email" required autocomplete="email" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-max-w-sm" />
                     </label>
+                    <input type="hidden" name="embed" value="1" />
                     <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-700">
                         <input id="list-consent" type="checkbox" required class="tw-mt-1" />
                         <span>Email me about early access to Stats Compass. I can unsubscribe at any time.</span>
@@ -172,8 +174,10 @@ figures). The chosen file is read in the browser and never uploaded.
                     <button id="list-join" type="submit"
                         class="tw-rounded-lg tw-bg-black tw-px-5 tw-py-2 tw-font-semibold tw-text-white disabled:tw-cursor-not-allowed disabled:tw-opacity-40">Join the list</button>
                 </form>
-                <p id="list-done" hidden class="tw-mt-4 tw-font-semibold tw-text-green-700" role="status">You're on the list. Check your inbox.</p>
-                <p id="list-error" hidden class="tw-mt-3 tw-text-red-800" role="alert">That didn't work; try again.</p>
+                <div id="list-done" hidden class="tw-mt-4" role="status">
+                    <p class="tw-font-semibold tw-text-green-700">Check your inbox to confirm.</p>
+                    <p class="tw-mt-1 tw-text-sm tw-text-gray-700">We've sent you a link: you're on the list once you click it. Buttondown, which keeps our list, opened in a new tab; if it asks for anything more, finish there.</p>
+                </div>
                 <p class="tw-mt-3 tw-text-xs tw-text-gray-500">
                     We only email you about early access. See our <a href="/privacy.html" class="tw-underline">privacy policy</a>.
                 </p>
