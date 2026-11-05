@@ -59,8 +59,26 @@ const ready = (async () => {
   throw err;
 });
 
-onmessage = async (event) => {
-  const { csv, start, end, margin, currency, name, today, others } = event.data;
+// One job at a time: a check and a search for other sales share Python's globals.
+let queue = ready.catch(() => {});
+onmessage = (event) => {
+  queue = queue.then(() => (event.data.type === "find" ? find(event.data) : check(event.data)));
+};
+
+// The other sales in a chosen report, found from its discounts, to suggest on the page.
+async function find({ csv, today }) {
+  try {
+    const pyodide = await ready;
+    pyodide.globals.set("_csv", csv);
+    pyodide.globals.set("_today", today);
+    const json = await pyodide.runPythonAsync("import json\njson.dumps(checker.detect(_csv, _today))");
+    postMessage({ type: "found", sales: JSON.parse(json) });
+  } catch {
+    postMessage({ type: "found", sales: [] });
+  }
+}
+
+async function check({ csv, start, end, margin, currency, name, today, others }) {
   try {
     const pyodide = await ready;
     pyodide.globals.set("_csv", csv);
@@ -77,4 +95,4 @@ json.dumps(checker.analyse(_csv, _a["start"], _a["end"], _a["margin"], _a["curre
     const line = text.trim().split("\n").pop().replace(/^ValueError: /, "");
     postMessage({ type: "error", message: line });
   }
-};
+}
