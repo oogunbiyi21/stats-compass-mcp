@@ -1,4 +1,4 @@
-// The checker's calculator: Python (Pyodide) in a Web Worker, so the page stays
+// The checker's engine: Python (Pyodide) in a Web Worker, so the page stays
 // responsive while it loads. It starts loading as soon as the page opens.
 //
 // Everything is fetched here, at load: Pyodide and its packages from jsdelivr
@@ -48,14 +48,14 @@ const ready = (async () => {
     await micropip.install.callKwargs(self.location.origin + wheel, { deps: false });
   }
   loaded += SIZES.core;
-  progress("calculator");
+  progress("checker");
   const glue = await (await fetch("/assets/checker/checker.py")).text();
   pyodide.FS.writeFile("/home/pyodide/checker.py", glue);
   await pyodide.runPythonAsync("import sys; sys.path.insert(0, '/home/pyodide'); import checker");
   postMessage({ type: "ready" });
   return pyodide;
 })().catch((err) => {
-  postMessage({ type: "error", message: "The calculator couldn't load: " + String(err && err.message || err) });
+  postMessage({ type: "error", message: "The checker couldn't load: " + String(err && err.message || err) });
   throw err;
 });
 
