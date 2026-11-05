@@ -132,6 +132,30 @@ At +10% and +20%, nothing is detected at 7, 14 or 21 days. The interval holds th
 
 This retailer is lumpier than a typical Shopify store selling to consumers: fewer, larger orders, and wholesale customers. The sizes above are for this series; the mechanisms apply to any store.
 
+## After the fixes: core 0.1.45 (sales layer)
+
+Core 0.1.45 (stats-compass-core #8) does three things in the sales layer only:
+- shows the percentage range as the test inverted, (e − q)/(1 + q) to (e + q)/(1 − q);
+- treats runs of 3 or more zero days as closures, given as missing days;
+- adds result notes on closures, a sale starting within 14 days of one, and one earlier year.
+
+Same windows and seed, as exported (`VALIDATION_TAG=_0.1.45`, results/uci_*_0.1.45.csv):
+
+| | 0.1.44 | 0.1.45 |
+|---|---|---|
+| January placebo, called a real change | 52–63% | 26–30% |
+| …windows starting from 12 Jan | 43% | 2.5% |
+| Feb–Nov placebo, real change (all starts) | 0% | 0–4% |
+| …non-overlapping windows, pooled | 0 of 264 | 0.8% of 264 |
+| Placebo range holds 0 | 94–98% | 91–96% |
+| Daily range covers the day | 87–92% | 86–91% |
+| +80% lift detected | 2–45% (pooled 16%) | 48–78% (pooled 66%) |
+| +50% lift detected | 0–12% (pooled 3%) | 17–48% (pooled 35%) |
+| Range holds the true lift, +80% | 70–83% (pooled 78%) | 90–93% (pooled 91%) |
+| Range holds the true lift, +50% | 78–92% (pooled 85%) | 85–97% (pooled 91%) |
+
+The January flags left are windows containing the first trading week after the Christmas closure: 68k on 11 Jan 2011 against about 25k normally, and 72k on 7 Jan 2010. That's orders held over from the closure. The note for a sale starting within 14 days of a closure says so.
+
 ## Rerunning
 
 ```

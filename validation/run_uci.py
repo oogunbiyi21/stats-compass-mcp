@@ -4,6 +4,7 @@ Run after fetch_uci.py: python -I validation/run_uci.py
 Writes results/uci_placebo.csv, results/uci_injected.csv and prints the tables in the README.
 """
 
+import os
 from pathlib import Path
 
 import numpy as np
@@ -16,6 +17,8 @@ RESULTS = HERE / "results"
 LENGTHS = (4, 7, 14, 21)
 LIFTS = (0.1, 0.2, 0.5, 0.8)
 PER_CELL = 60
+# Results are named by the core version that made them (stats-compass-core in this environment).
+TAG = os.environ.get("VALIDATION_TAG", "")
 # 13 months before the first window is the data's start (1 Dec 2009); the last window
 # leaves 3 weeks of data after it (the data ends 9 Dec 2011).
 FIRST, LAST = pd.Timestamp("2011-01-04"), pd.Timestamp("2011-11-18")
@@ -77,8 +80,8 @@ def main() -> None:
                     m = lift.measure(injected(rows, s, length, effect), s.date().isoformat(), e.date().isoformat())
                     inject.append({"series": name, "length": length, "lift_pct": 100 * effect, "start": s.date(), **m})
     p, i = pd.DataFrame(placebo), pd.DataFrame(inject)
-    p.to_csv(RESULTS / "uci_placebo.csv", index=False)
-    i.to_csv(RESULTS / "uci_injected.csv", index=False)
+    p.to_csv(RESULTS / f"uci_placebo{TAG}.csv", index=False)
+    i.to_csv(RESULTS / f"uci_injected{TAG}.csv", index=False)
     summarise(p, i)
 
 
