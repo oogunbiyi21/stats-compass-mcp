@@ -143,6 +143,15 @@ class TestCheck:
         assert len(out["chart"]) > 30 and any(p["in_promotion"] for p in out["chart"])
         assert out["after"].startswith("In the ") and " after, " in out["after"]
 
+    def test_the_money_range_is_centred_on_what_was_expected(self):
+        # Core 0.1.45's percentage range is the test inverted (wider above), so the money
+        # range comes from core's amount range: what you'd normally have had, plus or minus.
+        import re
+        sentence = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50)["break_even"]["sentence"]
+        expected, low, high = (float(x.replace(",", "")) for x in re.search(
+            r"against about £([\d,]+) you'd normally have had \(likely between £([\d,]+) and £([\d,]+)\)", sentence).groups())
+        assert (low + high) / 2 == pytest.approx(expected, rel=0.01)
+
     def test_without_a_margin_there_is_no_break_even(self):
         out = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", None)
         assert out["break_even"] is None and out["verdict"] == "real change"

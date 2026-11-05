@@ -312,14 +312,11 @@ def analyse(
     }
     if row.verdict == "insufficient" or margin_pct is None:
         return out
-    # The revenue lift as the app's breakEven reads it. Its range, in money, is
-    # the percentage range applied to the expected total (one basis with the verdict).
+    # The revenue lift as the app's breakEven reads it, with core's range in money:
+    # the test's half-width applied to the expected total (core 0.1.45), which holds
+    # at any lift. The percentage range is the test inverted, so it isn't used here.
     r0 = row.expected_total
-    revenue = {
-        "estimate": row.estimate,
-        "pct": row.estimate_pct,
-        "interval": (r0 * row.interval_pct[0] / 100, r0 * row.interval_pct[1] / 100) if row.interval_pct else row.interval,
-    }
+    revenue = {"estimate": row.estimate, "pct": row.estimate_pct, "interval": row.interval}
     # The margin lift, from the typed margin and the discount: cost per pound
     # of gross sales unchanged, so the margin on net sales during the sale is
     # 1 − (1 − d₀)(1 − m₀)/(1 − d₁), with d₀ the usual discount over the 8 weeks

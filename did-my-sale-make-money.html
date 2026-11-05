@@ -148,6 +148,7 @@ figures). The chosen file is read in the browser and never uploaded.
                     <p class="tw-font-semibold">Notes</p>
                     <ul id="notes" class="tw-list-disc tw-space-y-1 tw-pl-5"></ul>
                 </div>
+                <p class="tw-text-sm"><a href="#how-it-works" class="tw-text-blue-600 hover:tw-underline">How this works and its limits</a></p>
                 <div class="tw-rounded-2xl tw-border tw-border-gray-200 tw-p-5">
                     <p class="tw-font-semibold">Stats Compass does this for every promotion, every week.</p>
                     <p class="tw-mt-1 tw-text-gray-700">
@@ -182,6 +183,58 @@ figures). The chosen file is read in the browser and never uploaded.
                 </div>
                 <p class="tw-mt-3 tw-text-xs tw-text-gray-500">
                     We only email you about early access. See our <a href="/privacy" class="tw-underline">privacy policy</a>.
+                </p>
+            </section>
+
+            <section id="how-it-works" class="tw-mt-16 tw-border-t tw-border-gray-200 tw-pt-8 tw-leading-relaxed tw-text-gray-700">
+                <h2 class="tw-text-xl tw-font-semibold tw-text-black">How this works and its limits</h2>
+
+                <h3 class="tw-mt-5 tw-font-semibold tw-text-black">How it works</h3>
+                <p class="tw-mt-2">
+                    The checker works out what you'd have sold without the sale, from your own report: the level of
+                    the four weeks before it, and the shape of your year and your week. What you sold, minus that, is
+                    what the sale added. The range is where the true figure probably lies, nine times in ten. It says
+                    "Real change" only when the difference is bigger than your sales usually move on their own.
+                </p>
+                <p class="tw-mt-2">
+                    For break-even, it uses the margin you type and the discount in your report: a deeper discount
+                    earns less on each sale, so the sale needed more extra sales to pay for itself.
+                </p>
+
+                <h3 class="tw-mt-5 tw-font-semibold tw-text-black">Its limits</h3>
+                <ul class="tw-mt-2 tw-list-disc tw-space-y-1 tw-pl-5">
+                    <li>It can't tell your sale from anything else that happened at the same time. A busier season
+                        than last year, press coverage or a competitor running out of stock all look the same in your
+                        sales.</li>
+                    <li>With under two years of history, the shape of your year comes from one earlier year, so a
+                        season that's busier than last year for other reasons can look like a sale effect.</li>
+                    <li>Days in a row with no sales are taken as a closure. Orders held over from a closure can make a
+                        sale just after it look better than it was.</li>
+                    <li>Other sales in the period are left out of what's expected. We suggest them from your report's
+                        discounts: add any we missed, such as one run by lowering prices rather than with a discount.</li>
+                    <li>Small effects are hard to see when your daily sales jump around a lot. "Expected" means any
+                        effect was too small to tell apart from your usual ups and downs, not that the sale did
+                        nothing.</li>
+                    <li>Customers who bought during the sale instead of later make it look better than it was. That's
+                        why the result also shows the three weeks after it.</li>
+                    <li>Your margin is the one you type, and product costs are taken as unchanged for each pound of
+                        full-price sales.</li>
+                </ul>
+
+                <h3 class="tw-mt-5 tw-font-semibold tw-text-black">How it did on real data</h3>
+                <p class="tw-mt-2">
+                    We tested it on two years of a real UK online retailer's daily sales (the UCI Online Retail II
+                    dataset), on hundreds of dates with no sale, and with sales of a known size added in:
+                </p>
+                <ul class="tw-mt-2 tw-list-disc tw-space-y-1 tw-pl-5">
+                    <li>On dates with no sale, it said "Real change" at most 4% of the time.</li>
+                    <li>A sale that lifted sales by 80% for one to three weeks was picked out about two times in three,
+                        and one that lifted them by 50% about one time in three. Smaller lifts were rarely picked out.</li>
+                    <li>The "likely between" range held the true effect about nine times in ten.</li>
+                </ul>
+                <p class="tw-mt-2 tw-text-sm">
+                    That retailer sold mostly to wholesalers, in fewer and larger orders than a typical Shopify store,
+                    so its daily sales jump around more than most.
                 </p>
             </section>
         </div>
