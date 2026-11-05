@@ -1,4 +1,4 @@
-// The checker page: starts the calculator (worker.js) as soon as the page opens,
+// The checker page: starts the checker (worker.js) as soon as the page opens,
 // reads the chosen file here in the browser, and shows the result. The file's
 // text goes to the worker by postMessage; it is never sent over the network.
 import { CAPTION, promotionDaily } from "./chart.js";
@@ -9,10 +9,11 @@ let ready = false;
 
 worker.onmessage = ({ data }) => {
   if (data.type === "progress") {
-    $("status").textContent = `Getting the calculator ready… ${data.loadedMb} of about ${data.totalMb} MB`;
+    $("status").textContent = `Getting the checker ready… ${data.loadedMb} of about ${data.totalMb} MB`;
   } else if (data.type === "ready") {
     ready = true;
-    $("status").textContent = "The calculator is ready. You can disconnect from the internet now if you like: your file stays on this computer.";
+    $("status").textContent = "The checker is ready.";
+    $("first-visit").hidden = true;
     $("status").classList.add("tw-text-green-700");
     update();
   } else if (data.type === "result") {
