@@ -219,6 +219,51 @@ class TestCheck:
         out = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50, others=[{"start": "2020-01-01", "end": "2020-01-10"}])
         assert out["summary"] == alone["summary"]
 
+    def test_a_found_sale_overlapping_the_one_checked_is_that_sale(self):
+        bf = {"start": "2026-11-27", "end": "2026-11-30"}
+        alone = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50)
+        assert checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50, others=[{**bf, "auto": True}])["summary"] == alone["summary"]
+        with pytest.raises(ValueError, match="overlaps the sale you're checking"):
+            checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50, others=[{**bf, "auto": False}])
+
     def test_dates_outside_the_report(self):
         with pytest.raises(ValueError, match="no days inside the sale"):
             checker.analyse(shopify_export(), "2027-01-01", "2027-01-05", 50)
+
+
+def daily_report(depth: np.ndarray, sales: list[tuple[str, str, float]], seed: int = 2) -> str:
+    """A store's daily report with a given discount share each day, and sales at set shares."""
+    rng = np.random.default_rng(seed)
+    day = pd.date_range("2025-04-01", periods=len(depth), freq="D")
+    net = 300 * (1 + 0.1 * np.sin(2 * np.pi * day.dayofweek / 7)) * rng.lognormal(0, 0.2, len(day))
+    depth = depth.copy()
+    for start, end, share in sales:
+        depth[(day >= start) & (day <= end)] = share
+    gross = net / (1 - depth)
+    frame = pd.DataFrame({"Day": day.strftime("%Y-%m-%d"), "Gross sales": gross.round(2), "Discounts": (-(gross - net)).round(2), "Net sales": net.round(2)})
+    return frame.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC)
+
+
+class TestFindingOtherSales:
+    def test_the_demo_stores_two_promotions(self):
+        # Tunji's demo store (2 Nov 2026): no discounts on ordinary days, SUMMER40 for
+        # 21 days with one shallower day (29 May, 22%), then FLASH20 12 days later.
+        report = daily_report(np.zeros(565), [("2026-05-14", "2026-06-03", 0.36), ("2026-05-29", "2026-05-29", 0.22),
+                                             ("2026-06-15", "2026-06-21", 0.12)])
+        assert checker.detect(report) == [{"start": "2026-05-14", "end": "2026-06-03"}, {"start": "2026-06-15", "end": "2026-06-21"}]
+
+    def test_last_years_black_friday(self):
+        found = checker.detect(shopify_export(earlier_sale=("2025-11-28", "2025-12-01", 0.3)))
+        assert found == [{"start": "2025-11-28", "end": "2025-12-01"}, {"start": "2026-11-27", "end": "2026-11-30"}]
+
+    def test_nothing_in_a_store_whose_discounts_just_vary(self):
+        rng = np.random.default_rng(7)
+        for seed in range(5):
+            assert checker.detect(daily_report(np.clip(rng.normal(0.08, 0.03, 565), 0, 0.6), [], seed)) == []
+
+    def test_one_discounted_day_and_an_always_on_discount_are_not_sales(self):
+        report = daily_report(np.zeros(565), [("2026-02-14", "2026-02-14", 0.5), ("2025-06-01", "2025-09-30", 0.2)])
+        assert checker.detect(report) == []
+
+    def test_a_report_that_cannot_be_read_finds_nothing(self):
+        assert checker.detect("Product,Units\nMug,3\n") == []

@@ -100,6 +100,52 @@ def usual_discount(rows: pd.DataFrame) -> float:
     return float((days["Discounts"].abs() / days["Gross sales"]).median()) if len(days) else 0.0
 
 
+# -- other sales, found from the discounts ---------------------------------------------
+# The app finds promotions from the discount codes on orders (commerce
+# packages/metrics/src/promotion-windows.ts). The export has only daily totals,
+# so here a sale is a run of days whose discount share stands well above the
+# store's usual day. The merge gap and the always-on span are the app's.
+
+MERGE_GAP_DAYS = 2  # runs fewer than 2 ordinary days apart are one sale (the app's)
+ALWAYS_ON_SPAN_DAYS = 56  # a run longer than 8 weeks is an always-on discount, not a sale (the app's)
+MIN_SALE_DAYS = 2  # one discounted day is more often one large order than a sale
+ABOVE_USUAL = 0.05  # at least 5 points of discount share above the usual day
+ROBUST_SIGMAS = 3.0  # and beyond the day-to-day spread of a store whose discounts vary
+QUIET_DAY = 0.25  # a day under a quarter of the usual day's gross sales can't tell
+
+
+def find_sales(rows: pd.DataFrame) -> list[dict]:
+    """Runs of days with a discount share well above the store's usual day, as {start, end} (ISO dates)."""
+    days = rows[rows["Gross sales"] > 0]
+    if days.empty:
+        return []
+    share = days["Discounts"].abs() / days["Gross sales"]
+    usual = float(share.median())
+    spread = 1.4826 * float((share - usual).abs().median())
+    above = share > usual + max(ABOVE_USUAL, ROBUST_SIGMAS * spread)
+    above &= days["Gross sales"] >= QUIET_DAY * float(days["Gross sales"].median())
+    found, run = [], None
+    for day in days.loc[above, "Day"]:
+        if run and (day - run[1]).days - 1 < MERGE_GAP_DAYS:
+            run[1], run[2] = day, run[2] + 1
+        else:
+            run = [day, day, 1]
+            found.append(run)
+    return [
+        {"start": a.date().isoformat(), "end": b.date().isoformat()}
+        for a, b, n in found
+        if n >= MIN_SALE_DAYS and (b - a).days + 1 <= ALWAYS_ON_SPAN_DAYS
+    ]
+
+
+def detect(csv_text: str, today: str | None = None) -> list[dict]:
+    """The other sales to suggest when a report is chosen; none if it can't be read (the check says why)."""
+    try:
+        return find_sales(read_export(csv_text, today))
+    except ValueError:
+        return []
+
+
 # -- the app's break-even (commerce packages/ui/src/break-even.ts), ported ---------------
 
 
@@ -190,9 +236,11 @@ def headline(b: dict) -> str | None:
 
 
 def other_sales(others: list[dict] | None, first: pd.Timestamp, last: pd.Timestamp, rows: pd.DataFrame) -> list[dict]:
-    """The other sales the merchant added, as windows: left out of the fitted history, as the app does.
+    """The other sales, as windows: left out of the fitted history, as the app does.
 
-    One overlapping the sale being checked is refused; one with no days in the report is left out.
+    Each is one the merchant added or one found from the discounts (``auto``). A found one
+    overlapping the sale being checked is that sale, so it's dropped; an added one is refused.
+    One with no days in the report is left out.
     """
     windows = []
     for i, other in enumerate(others or [], start=1):
@@ -200,6 +248,8 @@ def other_sales(others: list[dict] | None, first: pd.Timestamp, last: pd.Timesta
         if b < a:
             raise ValueError("One of the other sales ends before it starts.")
         if a <= last and b >= first:
+            if other.get("auto"):
+                continue
             raise ValueError("One of the other sales overlaps the sale you're checking. Remove it, or check it on its own.")
         if a <= rows["Day"].max() and b >= rows["Day"].min():
             windows.append({"name": f"Other sale {i}", "start": a.date(), "end": b.date()})

@@ -16,6 +16,9 @@ worker.onmessage = ({ data }) => {
     $("first-visit").hidden = true;
     $("status").classList.add("tw-text-green-700");
     update();
+    findSales();
+  } else if (data.type === "found") {
+    suggest(data.sales);
   } else if (data.type === "result") {
     show(data.data);
   } else if (data.type === "error") {
@@ -32,17 +35,56 @@ function update() {
 for (const id of ["file", "start", "end"]) $(id).addEventListener("input", update);
 
 // Other sales in the period: each a row of two dates, left out of the comparison.
-$("add-other").addEventListener("click", () => {
+function addOther(start = "", end = "", found = false) {
   const row = $("other-row").content.firstElementChild.cloneNode(true);
-  row.querySelector("[data-remove]").addEventListener("click", () => row.remove());
+  row.querySelector("[data-start]").value = start;
+  row.querySelector("[data-end]").value = end;
+  if (found) row.dataset.found = "";
+  row.querySelector("[data-remove]").addEventListener("click", () => {
+    row.remove();
+    showFound();
+  });
   $("others").append(row);
-  row.querySelector("[data-start]").focus();
-});
+  return row;
+}
+$("add-other").addEventListener("click", () => addOther().querySelector("[data-start]").focus());
+
+// When a report is chosen, the sales its discounts show are suggested as other sales:
+// the merchant removes any that weren't. The sale being checked is never one of them.
+async function findSales() {
+  if (!ready || !$("file").files.length) return;
+  const csv = await $("file").files[0].text();
+  worker.postMessage({ type: "find", csv, today: new Date().toLocaleDateString("en-CA") });
+}
+$("file").addEventListener("input", findSales);
+
+function suggest(sales) {
+  for (const row of $("others").querySelectorAll("[data-found]")) row.remove();
+  for (const s of sales) addOther(s.start, s.end, true);
+  showFound();
+}
+
+// A found sale overlapping the dates being checked is that sale: it's hidden, and not sent.
+function showFound() {
+  const start = $("start").value;
+  const end = $("end").value || start;
+  let shown = 0;
+  for (const row of $("others").querySelectorAll("[data-found]")) {
+    const a = row.querySelector("[data-start]").value;
+    const b = row.querySelector("[data-end]").value || a;
+    row.hidden = Boolean(start && a <= end && b >= start);
+    row.style.display = row.hidden ? "none" : "";  // the row's grid class would otherwise outrank [hidden]
+    if (!row.hidden) shown += 1;
+  }
+  $("found-note").hidden = shown === 0;
+}
+for (const id of ["start", "end"]) $(id).addEventListener("input", showFound);
 
 function otherSales() {
-  const rows = [...$("others").children].map((row) => ({
+  const rows = [...$("others").children].filter((row) => !row.hidden).map((row) => ({
     start: row.querySelector("[data-start]").value,
     end: row.querySelector("[data-end]").value,
+    auto: "found" in row.dataset,
   }));
   if (rows.some((r) => !r.start !== !r.end)) throw new Error("Give each other sale a first and last day, or remove it.");
   return rows.filter((r) => r.start && r.end);
