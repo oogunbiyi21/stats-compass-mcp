@@ -1,7 +1,9 @@
 """Diagnostic: the same placebo and injected lifts with the store's closures listed as other sales.
 
-A merchant can do this today (the checker's "other sales" rows), so it tests an input,
-not a change to the method. Run after run_uci.py: python -I validation/closures.py
+It tests what drives the range's width (the method's misses around closures, in its past
+errors) through an input, without changing the method. It isn't advice for merchants:
+an "other sale" also leaves out the 3 weeks after it, which a closure doesn't need.
+Run after run_uci.py: python -I validation/closures.py
 """
 
 from pathlib import Path

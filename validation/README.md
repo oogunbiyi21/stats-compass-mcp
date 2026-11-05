@@ -37,7 +37,7 @@ So the **nominal false-alarm rate is about 4.6%**, split between rises and dips.
 | UK | 14 | 220 (17) | 0.0% | 97.3% | 88.5% | 134 |
 | UK | 21 | 192 (11) | 0.0% | 94.3% | 87.4% | 105 |
 
-**With the closures listed as other sales**: Christmas and Easter in both years, as a merchant can enter them today. Same windows.
+**With the closures listed as other sales**: Christmas and Easter in both years. This is a diagnostic of what drives the range's width, not advice for merchants (see What breaks, 2). Same windows.
 
 | Series | Days | Real change, all windows (up) | Real change, independent | Interval holds 0 | Days in range | Interval width, pts |
 |---|---|---|---|---|---|---|
@@ -49,6 +49,8 @@ So the **nominal false-alarm rate is about 4.6%**, split between rises and dips.
 | UK | 7 | 4.4% (4.4%) | 5.4% of 37 | 89.5% | 89.6% | 78 |
 | UK | 14 | 7.7% (7.7%) | 5.9% of 17 | 85.9% | 88.6% | 72 |
 | UK | 21 | 10.9% (10.9%) | 9.1% of 11 | 85.4% | 87.9% | 72 |
+
+Pooled over the non-overlapping windows: 12 real changes in 264, which is 4.5% against a nominal 4.6%. Six of the 12 start in September and four in August. The all-starts rates of 4–11% count September's overlapping windows many times. The UK and all-countries series overlap, so the effective count is lower than 264: call this about nominal, not exactly. As exported, the same pool has 0 in 264.
 
 With the closures listed, the false alarms are in **September**. Share of windows called a real change, by start month:
 
@@ -117,8 +119,13 @@ At +10% and +20%, nothing is detected at 7, 14 or 21 days. The interval holds th
 1. **A closure in the baseline.** In January, the 28 days before a window include the 11-day Christmas closure. As exported, 52–63% of placebo windows come out as a real change, nearly all upward. Listing the closure doesn't fix it (59–74%).
 2. **Closures in the history widen every range.** As exported, the method's past errors include its misses around the closures. That makes the expected band about 100–137 points wide, so it almost never claims anything: 0% placebo false alarms, and +80% for a week detected 17–20% of the time.
    - The caution is a side effect of the closures, not robustness.
-   - Listing the closures narrows it to 60–91 points. Power rises (+80% detected 68–98%), and so do false alarms (4–11%, mostly September).
-3. **The interval is too narrow for large lifts.** It should hold the true lift 90% of the time. At +80% it holds it 70–83% of the time as exported, and 53–70% with the closures listed. At +50%, 78–92% and 65–78%. Its half-width comes from errors measured at no lift, but on the percent scale the error grows with (1 + lift).
+   - Listing the closures narrows it to 60–91 points. Power rises (+80% detected 68–98%), and so do false alarms: 4–11% over all starts, 4.5% over non-overlapping windows, mostly August and September.
+   - Listing a closure isn't the remedy. An "other sale" also leaves out the 3 weeks after it, which is meant for the dip after a sale, and a closure has no such dip. That's probably why January doesn't improve: windows starting 4–24 Jan sit inside the listed closure's 3 weeks after, so the baseline reaches back to before Christmas. The open question for core is how runs of zero-sales days should be treated: as missing days, or left out of the fit without the 3 weeks after. The found-sales suggestions can't find closures either, since closures carry no discounts.
+3. **The percent range is too narrow for large lifts.** It should hold the true lift 90% of the time. At +80% it holds it 70–83% of the time as exported, and 53–70% with the closures listed. At +50%, 78–92% and 65–78%.
+   - **Why:** its half-width comes from errors measured at no lift, but on the percent scale a window's error grows with (1 + lift).
+   - **Confirmed:** with the half-width scaled by (1 + estimate), coverage of the true lift is 88–90% at every lift size with closures listed, and about 97% as exported, matching that run's placebo.
+   - **The money range is already right.** The checker's "likely between £… and £…" is the expected total × the percent range, which cancels the factor. Only core's percent range on the page ("likely between +52% and +112%") understates.
+   - **The fix** is small, for after approval: scale the percent half-width by (1 + lift) in core.
 4. **A season unlike last year's.** With one earlier year to learn from, a stronger or earlier ramp than last year's reads as a change in the window. Here that's September 2011.
 5. **Lumpy wholesale orders.** The biggest days are about 4× the median. Large cancellations make 4 negative days (the largest −£22k on 29 Apr 2010). Saturdays are always 0. The weekly cycle absorbs the Saturdays; the lumpiness is in the wide ranges above.
 6. **Not tested:** stockouts (no stock data) and real promotions (none are marked).
