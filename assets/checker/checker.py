@@ -232,6 +232,39 @@ def headline(b: dict) -> str | None:
     return f"Needed {b['needed']} normal sales · Got {b['got']}" if b.get("needed") and b.get("got") else None
 
 
+# -- did it make money? ---------------------------------------------------------------
+# The result's headline: break-even's multiple against the likely range of what the
+# sale brought. Got's range is what you sold over the range of what you'd normally
+# have had, the same range as break-even's sentence. A call on profit, so it doesn't
+# use the four verdict words.
+
+MADE_MONEY = "Yes, it made money."
+LOST_MONEY = "No, it lost money."
+CANT_TELL = "Can't tell: it could have gone either way."
+
+
+def profitability(needed: float | None, got: float, got_low: float, got_high: float | None, sentence: str) -> dict:
+    """Yes, no or can't tell, and the line under it.
+
+    ``needed`` is None when no amount of extra sales could have paid (each sale earned
+    nothing); ``got_high`` is None when the range is unbounded above. Under 1×, the sale
+    earned as much or more on each sale, and break-even's own sentence says so better
+    than "needed 0.9× your normal sales" would.
+    """
+    if needed is None:
+        return {"call": "no", "headline": LOST_MONEY, "sub": sentence}
+    plain = needed <= 1
+    said = f"It needed about {multiple(needed)} your normal sales to break even and brought about {multiple(got)}"
+    if got_low >= needed:
+        return {"call": "yes", "headline": MADE_MONEY, "sub": sentence if plain else
+                f"{said}. Even at the low end of the likely range ({multiple(got_low)}), it beat break-even."}
+    if got_high is not None and got_high < needed:
+        return {"call": "no", "headline": LOST_MONEY, "sub": sentence if plain else
+                f"{said}. Even at the high end of the likely range ({multiple(got_high)}), it fell short."}
+    likely = f"likely above {multiple(got_low)}" if got_high is None else f"likely between {multiple(got_low)} and {multiple(got_high)}"
+    return {"call": "unclear", "headline": CANT_TELL, "sub": sentence if plain else f"{said}, {likely}."}
+
+
 # -- the check ------------------------------------------------------------------------------
 
 
@@ -288,6 +321,7 @@ def analyse(
                 f"{_day(needed_from)} or earlier."
             ),
             "after": None, "amount": None, "discount_depth": discount_depth(in_sale), "break_even": None, "break_even_headline": None,
+            "profit": None,
         }
     state = DataFrameState()
     state.set_dataframe(rows, name="sales", operation="upload")
@@ -309,17 +343,15 @@ def analyse(
         "discount_depth": discount_depth(in_sale),
         "break_even": None,
         "break_even_headline": None,
+        "profit": None,
     }
     if row.verdict == "insufficient" or margin_pct is None:
         return out
-    # The revenue lift as the app's breakEven reads it. Its range, in money, is
-    # the percentage range applied to the expected total (one basis with the verdict).
+    # The revenue lift as the app's breakEven reads it, with core's range in money:
+    # the test's half-width applied to the expected total (core 0.1.45), which holds
+    # at any lift. The percentage range is the test inverted, so it isn't used here.
     r0 = row.expected_total
-    revenue = {
-        "estimate": row.estimate,
-        "pct": row.estimate_pct,
-        "interval": (r0 * row.interval_pct[0] / 100, r0 * row.interval_pct[1] / 100) if row.interval_pct else row.interval,
-    }
+    revenue = {"estimate": row.estimate, "pct": row.estimate_pct, "interval": row.interval}
     # The margin lift, from the typed margin and the discount: cost per pound
     # of gross sales unchanged, so the margin on net sales during the sale is
     # 1 − (1 − d₀)(1 − m₀)/(1 − d₁), with d₀ the usual discount over the 8 weeks
@@ -335,4 +367,10 @@ def analyse(
     b = break_even(revenue, margin, symbol)
     out["break_even"] = b
     out["break_even_headline"] = headline(b) if b else None
+    if b and row.interval_pct and r0 > 0:
+        low, high = row.interval_pct
+        out["profit"] = profitability(
+            m0 / m1 if m1 > 0 else None, row.observed_total / r0,
+            1 + low / 100, None if high is None else 1 + high / 100, b["sentence"],
+        )
     return out
