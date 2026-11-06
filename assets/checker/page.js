@@ -132,6 +132,14 @@ const BADGE = {
 function show(r) {
   $("check").disabled = false;
   $("check").textContent = "Check my sale";
+  // The headline: did it make money? Break-even against the likely range of what it brought.
+  const PROFIT = { yes: "tw-text-green-800", no: "tw-text-red-800", unclear: "tw-text-gray-900" };
+  $("profit-box").hidden = !r.profit;
+  if (r.profit) {
+    $("profit").textContent = r.profit.headline;
+    $("profit").className = `tw-text-3xl tw-font-semibold tw-leading-tight ${PROFIT[r.profit.call]}`;
+    $("profit-sub").textContent = r.profit.sub;
+  }
   $("verdict").textContent = r.label;
   $("verdict").className = `tw-inline-block tw-rounded-full tw-px-3 tw-py-1 tw-text-sm tw-font-semibold ${BADGE[r.verdict] || BADGE.expected}`;
   // The dip after the sale is in the summary when it's beyond the usual; otherwise say it plainly.

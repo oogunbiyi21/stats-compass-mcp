@@ -8,9 +8,9 @@
 
 const PYODIDE = "https://cdn.jsdelivr.net/pyodide/v0.29.5/full/";
 const WHEELS = [
-  // core 0.1.44 needs joblib >=1.5.2; Pyodide 0.29.5 bundles 1.4.2.
+  // core 0.1.45 needs joblib >=1.5.2; Pyodide 0.29.5 bundles 1.4.2.
   "/assets/wheels/joblib-1.6.0-py3-none-any.whl",
-  "/assets/wheels/stats_compass_core-0.1.44-py3-none-any.whl",
+  "/assets/wheels/stats_compass_core-0.1.45-py3-none-any.whl",
 ];
 const PACKAGES = ["numpy", "pandas", "scipy", "pydantic", "micropip"];
 // Approximate download sizes in MB, for the progress line (measured 1 Nov 2026).
