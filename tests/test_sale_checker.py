@@ -283,11 +283,11 @@ class TestDidItMakeMoney:
 
     def test_the_three_calls(self):
         made = checker.profitability(1.17, 1.82, 1.40, 2.60, "")
-        assert (made["call"], made["headline"]) == ("yes", "Yes, it made money.")
+        assert (made["call"], made["headline"]) == ("yes", "It made money.")
         assert made["sub"] == ("It needed about 1.17× your normal sales to break even and brought about 1.82×. "
                                "Even at the low end of the likely range (1.4×), it beat break-even.")
         lost = checker.profitability(2.29, 1.29, 1.10, 1.83, "")
-        assert (lost["call"], lost["headline"]) == ("no", "No, it lost money.")
+        assert (lost["call"], lost["headline"]) == ("no", "It lost money.")
         assert lost["sub"].endswith("Even at the high end of the likely range (1.83×), it fell short.")
         unclear = checker.profitability(1.63, 1.62, 1.42, 1.89, "")
         assert (unclear["call"], unclear["headline"]) == ("unclear", "Can't tell: it could have gone either way.")

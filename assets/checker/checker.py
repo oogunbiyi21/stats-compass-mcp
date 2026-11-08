@@ -238,13 +238,13 @@ def headline(b: dict) -> str | None:
 # have had, the same range as break-even's sentence. A call on profit, so it doesn't
 # use the four verdict words.
 
-MADE_MONEY = "Yes, it made money."
-LOST_MONEY = "No, it lost money."
+MADE_MONEY = "It made money."
+LOST_MONEY = "It lost money."
 CANT_TELL = "Can't tell: it could have gone either way."
 
 
 def profitability(needed: float | None, got: float, got_low: float, got_high: float | None, sentence: str) -> dict:
-    """Yes, no or can't tell, and the line under it.
+    """Made money, lost money or can't tell, and the line under it.
 
     ``needed`` is None when no amount of extra sales could have paid (each sale earned
     nothing); ``got_high`` is None when the range is unbounded above. Under 1×, the sale
