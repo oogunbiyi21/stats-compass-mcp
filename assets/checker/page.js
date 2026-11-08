@@ -15,7 +15,7 @@ worker.onmessage = ({ data }) => {
     $("status").textContent = "The checker is ready.";
     $("first-visit").hidden = true;
     $("status").classList.add("tw-text-green-700");
-    update();
+    $("hint").hidden = true;
     findSales();
   } else if (data.type === "found") {
     suggest(data.sales);
@@ -29,10 +29,27 @@ worker.onmessage = ({ data }) => {
   }
 };
 
-function update() {
-  $("check").disabled = !(ready && $("file").files.length && $("start").value && $("end").value);
+// What's still missing before a check, said on the click rather than by a greyed-out button.
+function missing() {
+  if (!ready) return "The checker is still getting ready: it'll take a moment.";
+  if (!$("file").files.length) return "Choose your report first.";
+  if (!$("start").value || !$("end").value) return "Choose which sale to check, or enter its first and last day.";
+  return null;
 }
-for (const id of ["file", "start", "end"]) $(id).addEventListener("input", update);
+for (const id of ["file", "start", "end"]) $(id).addEventListener("input", () => { $("hint").hidden = true; });
+
+// Dates as the app writes them: "15–21 June 2026", "14 May – 3 June 2026".
+const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const parts = (iso) => iso.split("-").map(Number);
+function span(a, b) {
+  const [ya, ma, da] = parts(a);
+  const [yb, mb, db] = parts(b);
+  const last = `${db} ${MONTHS[mb - 1]} ${yb}`;
+  if (a === b) return last;
+  if (ya === yb && ma === mb) return `${da}–${last}`;
+  if (ya === yb) return `${da} ${MONTHS[ma - 1]} – ${last}`;
+  return `${da} ${MONTHS[ma - 1]} ${ya} – ${last}`;
+}
 
 // Other sales in the period: each a row of two dates, left out of the comparison.
 function addOther(start = "", end = "", found = false) {
@@ -58,13 +75,97 @@ async function findSales() {
 }
 $("file").addEventListener("input", findSales);
 
+let found = [];
+
 function suggest(sales) {
+  found = sales;
   for (const row of $("others").querySelectorAll("[data-found]")) row.remove();
   for (const s of sales) addOther(s.start, s.end, true);
+  offerChoices();
   showFound();
 }
 
+// The found sales are offered as the sale to check. The one chosen fills the dates
+// (still editable); the rest stay other sales. A lone sale is chosen for the merchant.
+function offerChoices() {
+  const list = $("choice-list");
+  list.replaceChildren();
+  // Dates and a name filled from a sale in an earlier report don't carry over to this one.
+  const kept = found.some((s) => s.start === $("start").value && s.end === $("end").value);
+  if ("found" in $("start").dataset && !kept) {
+    $("start").value = "";
+    $("end").value = "";
+    delete $("start").dataset.found;
+    if ("auto" in $("name").dataset) $("name").value = "";
+    delete $("name").dataset.auto;
+  }
+  $("choices").hidden = found.length === 0;
+  if (!found.length) {
+    $("dates").hidden = false;
+    return;
+  }
+  const add = (value, text, action) => {
+    const row = $("choice-row").content.firstElementChild.cloneNode(true);
+    row.querySelector("input").value = value;
+    row.querySelector("[data-span]").textContent = text;
+    row.querySelector("[data-action]").textContent = action;
+    list.append(row);
+  };
+  found.forEach((s, i) => add(String(i), span(s.start, s.end), " · Check this one"));
+  add("other", "A different sale or period", "");
+  const same = found.findIndex((s) => s.start === $("start").value && s.end === $("end").value);
+  if (same >= 0) select(String(same));
+  else if (found.length === 1 && !$("start").value && !$("end").value) select("0");
+  else $("dates").hidden = !($("start").value || $("end").value);
+  markChosen();
+}
+
+function select(value) {
+  $("choice-list").querySelector(`input[value="${value}"]`).checked = true;
+  choose(value);
+}
+
+function choose(value) {
+  if (value === "other") {
+    // Dates and a name that came from a found sale give way to the merchant's own.
+    if ("found" in $("start").dataset) {
+      $("start").value = "";
+      $("end").value = "";
+    }
+    if ("auto" in $("name").dataset) $("name").value = "";
+    delete $("start").dataset.found;
+    delete $("name").dataset.auto;
+  } else {
+    const s = found[Number(value)];
+    $("start").value = s.start;
+    $("end").value = s.end;
+    $("start").dataset.found = "";
+    if (!$("name").value || "auto" in $("name").dataset) {
+      const [, m, d] = parts(s.start);
+      $("name").value = `Sale from ${d} ${MONTHS[m - 1]}`;
+      $("name").dataset.auto = "";
+    }
+  }
+  $("dates").hidden = false;
+  $("hint").hidden = true;
+  markChosen();
+  showFound();
+}
+$("choice-list").addEventListener("change", (event) => choose(event.target.value));
+for (const id of ["start", "end"]) $(id).addEventListener("input", () => delete $("start").dataset.found);
+$("name").addEventListener("input", () => delete $("name").dataset.auto);
+
+function markChosen() {
+  for (const row of $("choice-list").children) {
+    const on = row.querySelector("input").checked;
+    row.classList.toggle("tw-border-black", on);
+    row.classList.toggle("tw-bg-gray-50", on);
+    row.classList.toggle("tw-border-gray-300", !on);
+  }
+}
+
 // A found sale overlapping the dates being checked is that sale: it's hidden, and not sent.
+// Until the sale to check is known, found sales are only offered as choices.
 function showFound() {
   const start = $("start").value;
   const end = $("end").value || start;
@@ -72,7 +173,7 @@ function showFound() {
   for (const row of $("others").querySelectorAll("[data-found]")) {
     const a = row.querySelector("[data-start]").value;
     const b = row.querySelector("[data-end]").value || a;
-    row.hidden = Boolean(start && a <= end && b >= start);
+    row.hidden = !start || (a <= end && b >= start);
     row.style.display = row.hidden ? "none" : "";  // the row's grid class would otherwise outrank [hidden]
     if (!row.hidden) shown += 1;
   }
@@ -93,6 +194,10 @@ function otherSales() {
 $("form").addEventListener("submit", async (event) => {
   event.preventDefault();
   $("error").hidden = true;
+  const needs = missing();
+  $("hint").textContent = needs || "";
+  $("hint").hidden = !needs;
+  if (needs) return;
   let others;
   try {
     others = otherSales();

@@ -80,17 +80,30 @@ figures). The chosen file is read in the browser and never uploaded.
                     <input id="file" type="file" accept=".csv,text/csv" class="tw-block tw-w-full tw-text-sm" />
                 </div>
                 <div>
-                    <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">3. The sale</h2>
-                    <div class="tw-grid tw-gap-4 sm:tw-grid-cols-3">
-                        <label class="tw-block tw-text-sm tw-text-gray-700">First day
-                            <input id="start" type="date" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                    <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">3. Which sale do you want to check?</h2>
+                    <!-- Sales found in the report, to choose from; hidden when none are found. -->
+                    <fieldset id="choices" hidden class="tw-mb-4">
+                        <legend class="tw-mb-2 tw-text-sm tw-text-gray-700">We found these sales in your report from their discounts.</legend>
+                        <div id="choice-list" class="tw-space-y-2 sm:tw-max-w-md"></div>
+                    </fieldset>
+                    <template id="choice-row">
+                        <label class="tw-flex tw-cursor-pointer tw-items-center tw-gap-3 tw-rounded-lg tw-border tw-border-gray-300 tw-p-3">
+                            <input type="radio" name="sale" class="tw-h-4 tw-w-4 tw-shrink-0" />
+                            <span><span data-span class="tw-font-semibold"></span><span data-action class="tw-text-gray-600"></span></span>
                         </label>
-                        <label class="tw-block tw-text-sm tw-text-gray-700">Last day
-                            <input id="end" type="date" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
-                        </label>
-                        <label class="tw-block tw-text-sm tw-text-gray-700">Name (optional)
-                            <input id="name" type="text" placeholder="Black Friday" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
-                        </label>
+                    </template>
+                    <div id="dates">
+                        <div class="tw-grid tw-gap-4 sm:tw-grid-cols-3">
+                            <label class="tw-block tw-text-sm tw-text-gray-700">First day
+                                <input id="start" type="date" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                            </label>
+                            <label class="tw-block tw-text-sm tw-text-gray-700">Last day
+                                <input id="end" type="date" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                            </label>
+                            <label class="tw-block tw-text-sm tw-text-gray-700">Name (optional)
+                                <input id="name" type="text" placeholder="Black Friday" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                            </label>
+                        </div>
                     </div>
                     <p class="tw-mt-4 tw-text-sm tw-text-gray-700">
                         Did you run any other sales in this time? Add their dates, so they aren't counted as normal sales.
@@ -127,8 +140,9 @@ figures). The chosen file is read in the browser and never uploaded.
                         </label>
                     </div>
                 </div>
-                <button id="check" type="submit" disabled
+                <button id="check" type="submit"
                     class="tw-rounded-lg tw-bg-black tw-px-5 tw-py-3 tw-font-semibold tw-text-white disabled:tw-cursor-not-allowed disabled:tw-opacity-40">Check my sale</button>
+                <p id="hint" hidden class="tw-text-amber-800" role="status"></p>
                 <p id="error" hidden class="tw-rounded-lg tw-bg-red-50 tw-p-3 tw-text-red-800" role="alert"></p>
             </form>
 
