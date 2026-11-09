@@ -104,15 +104,28 @@ figures). The chosen file is read in the browser and never uploaded.
                                 <input id="name" type="text" placeholder="Black Friday" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                             </label>
                         </div>
+                        <!-- Shopify's discounts don't show a sale run by lowering prices: the cut is asked for. -->
+                        <div id="cut-box" class="tw-mt-4 tw-rounded-lg tw-border tw-border-transparent tw-p-3 sm:tw-max-w-md">
+                            <label class="tw-block tw-text-sm tw-text-gray-700">Did you lower prices for this sale (instead of, or as well as, discount codes)? Average price cut, % (optional)
+                                <input id="cut" type="number" min="0" max="95" step="1" placeholder="0" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                            </label>
+                            <p id="cut-hint" hidden class="tw-mt-2 tw-text-sm tw-font-semibold tw-text-amber-900">
+                                We didn't find discounts for these dates. If you cut prices instead, enter the average cut so break-even counts it.
+                            </p>
+                        </div>
                     </div>
-                    <p class="tw-mt-4 tw-text-sm tw-text-gray-700">
-                        Did you run any other sales in this time? Add their dates, so they aren't counted as normal sales.
-                    </p>
-                    <p id="found-note" hidden class="tw-mt-2 tw-text-sm tw-text-gray-700">
-                        We found these other sales in your report from their discounts. Remove any that weren't sales.
-                    </p>
-                    <div id="others" class="tw-mt-2 tw-space-y-2"></div>
-                    <button id="add-other" type="button" class="tw-mt-2 tw-text-sm tw-font-semibold tw-text-blue-600 hover:tw-underline">+ Add another sale</button>
+                    <!-- Other sales: shown once the sale to check is known. -->
+                    <div id="other-sales" hidden class="tw-mt-6">
+                        <h3 class="tw-font-semibold">Other sales</h3>
+                        <p id="found-note" class="tw-mt-1 tw-text-sm tw-text-gray-700">
+                            Found from your discounts and left out of what counts as normal. Remove any that weren't sales.
+                        </p>
+                        <p id="none-note" class="tw-mt-1 tw-text-sm tw-text-gray-700">
+                            Ran any other sales in this period? Add them so they aren't counted as normal.
+                        </p>
+                        <div id="others" class="tw-mt-2 tw-space-y-2"></div>
+                        <button id="add-other" type="button" class="tw-mt-2 tw-text-sm tw-font-semibold tw-text-blue-600 hover:tw-underline">+ Add a sale we missed</button>
+                    </div>
                     <template id="other-row">
                         <div class="tw-grid tw-grid-cols-[1fr_1fr_auto] tw-items-end tw-gap-2 sm:tw-max-w-md">
                             <label class="tw-block tw-text-sm tw-text-gray-700">First day
@@ -126,9 +139,9 @@ figures). The chosen file is read in the browser and never uploaded.
                     </template>
                 </div>
                 <div>
-                    <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">4. Your usual margin</h2>
+                    <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">4. Your margin, and any ad spend</h2>
                     <div class="tw-grid tw-gap-4 sm:tw-grid-cols-3">
-                        <label class="tw-block tw-text-sm tw-text-gray-700 sm:tw-col-span-2">Margin, %: what's left from sales after product costs and payment fees, roughly
+                        <label class="tw-block tw-text-sm tw-text-gray-700 sm:tw-col-span-2">Your margin on the items in the sale, after product costs, shipping you pay and payment fees, roughly (%)
                             <input id="margin" type="number" min="1" max="99" step="1" placeholder="40" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                         </label>
                         <label class="tw-block tw-text-sm tw-text-gray-700">Currency
@@ -137,6 +150,9 @@ figures). The chosen file is read in the browser and never uploaded.
                                 <option value="$">$</option>
                                 <option value="€">€</option>
                             </select>
+                        </label>
+                        <label class="tw-block tw-text-sm tw-text-gray-700 sm:tw-col-span-2">Extra ad spend for this sale (<span id="ads-symbol">£</span>, optional)
+                            <input id="ads" type="number" min="0" step="1" placeholder="0" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                         </label>
                     </div>
                 </div>
@@ -147,21 +163,28 @@ figures). The chosen file is read in the browser and never uploaded.
             </form>
 
             <section id="result" hidden class="tw-mt-10 tw-space-y-4" aria-live="polite">
-                <h2 class="tw-text-2xl tw-font-semibold">The result</h2>
+                <!-- Each fact once: the call and why, what the sale added, the weeks after, the discount, the chart. -->
+                <h2 id="result-title" class="tw-text-2xl tw-font-semibold">The result</h2>
                 <div id="profit-box" hidden>
                     <p id="profit" class="tw-text-3xl tw-font-semibold tw-leading-tight"></p>
                     <p id="profit-sub" class="tw-mt-2 tw-text-lg tw-leading-relaxed tw-text-gray-700"></p>
                 </div>
-                <span id="verdict"></span>
-                <p id="summary" class="tw-text-lg tw-leading-relaxed"></p>
-                <p id="needed" class="tw-text-xl tw-font-semibold"></p>
-                <p id="be-sentence" class="tw-leading-relaxed tw-text-gray-700"></p>
-                <p id="be-discount" class="tw-leading-relaxed tw-text-gray-700"></p>
-                <p id="no-margin" hidden class="tw-text-gray-600">Add your usual margin to see what it needed to break even.</p>
+                <p id="no-margin" hidden class="tw-text-gray-600">Add your margin to see whether it made money.</p>
+                <div class="tw-space-y-2">
+                    <h3 class="tw-font-semibold">What the sale added</h3>
+                    <span id="verdict"></span>
+                    <p id="added" class="tw-leading-relaxed"></p>
+                </div>
+                <p id="after" class="tw-leading-relaxed tw-text-gray-700"></p>
+                <p id="discount" class="tw-leading-relaxed tw-text-gray-700"></p>
                 <figure>
                     <div id="chart" class="tw-max-w-xl"></div>
                     <figcaption id="caption" hidden class="tw-mt-2 tw-max-w-xl tw-text-sm tw-text-gray-600"></figcaption>
                 </figure>
+                <details id="worked-box" hidden class="tw-text-sm tw-text-gray-700">
+                    <summary class="tw-cursor-pointer tw-font-semibold">How this was worked out</summary>
+                    <p id="worked" class="tw-mt-2 tw-leading-relaxed"></p>
+                </details>
                 <div id="notes-box" hidden class="tw-text-sm tw-text-gray-600">
                     <p class="tw-font-semibold">Notes</p>
                     <ul id="notes" class="tw-list-disc tw-space-y-1 tw-pl-5"></ul>
@@ -215,8 +238,9 @@ figures). The chosen file is read in the browser and never uploaded.
                     "Real change" only when the difference is bigger than your sales usually move on their own.
                 </p>
                 <p class="tw-mt-2">
-                    For break-even, it uses the margin you type and the discount in your report: a deeper discount
-                    earns less on each sale, so the sale needed more extra sales to pay for itself.
+                    For break-even, it uses the margin you type, the discount in your report, any price cut and
+                    any ad spend you add: a deeper discount earns less on each sale, and ads have to be paid for, so the sale needed
+                    more extra sales to pay for itself.
                 </p>
 
                 <h3 class="tw-mt-5 tw-font-semibold tw-text-black">Its limits</h3>
@@ -237,8 +261,15 @@ figures). The chosen file is read in the browser and never uploaded.
                         why the result also shows the three weeks after it.</li>
                     <li>Your margin is the one you type, and product costs are taken as unchanged for each pound of
                         full-price sales.</li>
-                    <li>Break-even here counts the discount and your margin; it doesn't include ad spend or other
-                        campaign costs.</li>
+                    <li>One margin for the whole sale: if it moved buyers towards lower-margin products, it'll look a
+                        little better than it was. The Stats Compass app uses each product's actual cost.</li>
+                    <li>Returns are taken off on the day Shopify records them (Net sales). Returns of sale orders that
+                        come back during the sale are taken off its sales; ones that come back later show in the three
+                        weeks after, not in its break-even, and ones that haven't come back by the end of your report
+                        aren't counted.</li>
+                    <li>Other campaign costs (design, influencers, free gifts) aren't included unless you add them to
+                        ad spend.</li>
+                    <li>Sales run by lowering prices don't show in Shopify's discounts; enter the average cut.</li>
                 </ul>
 
                 <h3 class="tw-mt-5 tw-font-semibold tw-text-black">How it did on real data</h3>

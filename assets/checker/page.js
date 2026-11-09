@@ -17,8 +17,12 @@ worker.onmessage = ({ data }) => {
     $("status").classList.add("tw-text-green-700");
     $("hint").hidden = true;
     findSales();
+    checkDiscount();
   } else if (data.type === "found") {
     suggest(data.sales);
+  } else if (data.type === "discount") {
+    // Only for the dates still chosen: the merchant may have moved on.
+    if (data.start === $("start").value && data.end === $("end").value) showCutHint(!data.found);
   } else if (data.type === "result") {
     show(data.data);
   } else if (data.type === "error") {
@@ -37,6 +41,23 @@ function missing() {
   return null;
 }
 for (const id of ["file", "start", "end"]) $(id).addEventListener("input", () => { $("hint").hidden = true; });
+
+// A sale run by lowering prices shows no discount in the report: when the chosen dates
+// show none, the price-cut field is pointed out, so break-even doesn't read full price.
+async function checkDiscount() {
+  if (!ready || !$("file").files.length || !$("start").value || !$("end").value) {
+    showCutHint(false);
+    return;
+  }
+  const csv = await $("file").files[0].text();
+  worker.postMessage({ type: "discount", csv, start: $("start").value, end: $("end").value, today: new Date().toLocaleDateString("en-CA") });
+}
+function showCutHint(on) {
+  $("cut-hint").hidden = !on;
+  for (const c of ["tw-border-amber-300", "tw-bg-amber-50"]) $("cut-box").classList.toggle(c, on);
+  $("cut-box").classList.toggle("tw-border-transparent", !on);
+}
+for (const id of ["file", "start", "end"]) $(id).addEventListener("input", checkDiscount);
 
 // Dates as the app writes them: "15–21 June 2026", "14 May – 3 June 2026".
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -150,6 +171,7 @@ function choose(value) {
   $("hint").hidden = true;
   markChosen();
   showFound();
+  checkDiscount();
 }
 $("choice-list").addEventListener("change", (event) => choose(event.target.value));
 for (const id of ["start", "end"]) $(id).addEventListener("input", () => delete $("start").dataset.found);
@@ -165,10 +187,12 @@ function markChosen() {
 }
 
 // A found sale overlapping the dates being checked is that sale: it's hidden, and not sent.
-// Until the sale to check is known, found sales are only offered as choices.
+// Until the sale to check is known, found sales are only offered as choices, and the
+// other sales block waits.
 function showFound() {
   const start = $("start").value;
   const end = $("end").value || start;
+  $("other-sales").hidden = !start;
   let shown = 0;
   for (const row of $("others").querySelectorAll("[data-found]")) {
     const a = row.querySelector("[data-start]").value;
@@ -178,6 +202,8 @@ function showFound() {
     if (!row.hidden) shown += 1;
   }
   $("found-note").hidden = shown === 0;
+  $("none-note").hidden = shown > 0;
+  $("add-other").textContent = shown > 0 ? "+ Add a sale we missed" : "+ Add a sale";
 }
 for (const id of ["start", "end"]) $(id).addEventListener("input", showFound);
 
@@ -213,8 +239,13 @@ $("form").addEventListener("submit", async (event) => {
   const margin = $("margin").value === "" ? null : Number($("margin").value);
   // Today's date here: its row in the export is a day still under way.
   const today = new Date().toLocaleDateString("en-CA");
-  worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim(), today, others });
+  const ads = $("ads").value === "" ? null : Math.max(0, Number($("ads").value));
+  const cut = $("cut").value === "" ? null : Math.min(95, Math.max(0, Number($("cut").value)));
+  worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim(), today, others, ads, cut });
 });
+
+// The ad spend is in the store's currency.
+$("currency").addEventListener("change", () => { $("ads-symbol").textContent = $("currency").value; });
 
 // The early-access list: the form posts the visitor's email to Buttondown in a new tab
 // (the browser checks the email and the consent box first), and this page keeps the result.
@@ -237,6 +268,9 @@ const BADGE = {
 function show(r) {
   $("check").disabled = false;
   $("check").textContent = "Check my sale";
+  // The dates once, in the title, after the merchant's own name for the sale if they gave one.
+  const own = $("name").value.trim() && !("auto" in $("name").dataset);
+  $("result-title").textContent = own ? `${$("name").value.trim()} · ${r.span}` : r.span;
   // The headline: did it make money? Break-even against the likely range of what it brought.
   const PROFIT = { yes: "tw-text-green-800", no: "tw-text-red-800", unclear: "tw-text-gray-900" };
   $("profit-box").hidden = !r.profit;
@@ -247,14 +281,16 @@ function show(r) {
   }
   $("verdict").textContent = r.label;
   $("verdict").className = `tw-inline-block tw-rounded-full tw-px-3 tw-py-1 tw-text-sm tw-font-semibold ${BADGE[r.verdict] || BADGE.expected}`;
-  // The dip after the sale is in the summary when it's beyond the usual; otherwise say it plainly.
-  $("summary").textContent = r.after && !r.summary.includes(r.after) ? `${r.summary} ${r.after}` : r.summary;
+  // What the sale added, then the weeks after and the discount, each said once.
+  $("added").textContent = r.added || r.summary;
+  $("after").textContent = r.after_line || "";
+  $("after").hidden = !r.after_line;
+  $("discount").textContent = r.discount_line || "";
+  $("discount").hidden = !r.discount_line;
   const b = r.break_even;
-  $("needed").textContent = r.break_even_headline || "";
-  $("needed").hidden = !r.break_even_headline;
-  $("be-sentence").textContent = b ? b.sentence : "";
-  $("be-discount").textContent = b && b.max_discount ? b.max_discount : "";
-  $("no-margin").hidden = !(r.verdict !== "insufficient" && !b && $("margin").value === "");
+  $("worked").textContent = b ? b.sentence : "";
+  $("worked-box").hidden = !b;
+  $("no-margin").hidden = !(r.verdict !== "insufficient" && !r.profit && $("margin").value === "");
   $("chart").replaceChildren();
   $("caption").hidden = true;
   if (r.chart && r.chart.length) {

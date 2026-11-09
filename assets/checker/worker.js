@@ -8,9 +8,9 @@
 
 const PYODIDE = "https://cdn.jsdelivr.net/pyodide/v0.29.5/full/";
 const WHEELS = [
-  // core 0.1.45 needs joblib >=1.5.2; Pyodide 0.29.5 bundles 1.4.2.
+  // core 0.1.46 needs joblib >=1.5.2; Pyodide 0.29.5 bundles 1.4.2.
   "/assets/wheels/joblib-1.6.0-py3-none-any.whl",
-  "/assets/wheels/stats_compass_core-0.1.45-py3-none-any.whl",
+  "/assets/wheels/stats_compass_core-0.1.46-py3-none-any.whl",
 ];
 const PACKAGES = ["numpy", "pandas", "scipy", "pydantic", "micropip"];
 // Approximate download sizes in MB, for the progress line (measured 1 Nov 2026).
@@ -62,7 +62,8 @@ const ready = (async () => {
 // One job at a time: a check and a search for other sales share Python's globals.
 let queue = ready.catch(() => {});
 onmessage = (event) => {
-  queue = queue.then(() => (event.data.type === "find" ? find(event.data) : check(event.data)));
+  const job = { find, discount }[event.data.type] || check;
+  queue = queue.then(() => job(event.data));
 };
 
 // The other sales in a chosen report, found from its discounts, to suggest on the page.
@@ -78,15 +79,28 @@ async function find({ csv, today }) {
   }
 }
 
-async function check({ csv, start, end, margin, currency, name, today, others }) {
+// Whether the report shows a discount for the chosen dates, for the price-cut hint.
+async function discount({ csv, start, end, today }) {
   try {
     const pyodide = await ready;
     pyodide.globals.set("_csv", csv);
-    pyodide.globals.set("_args", pyodide.toPy({ start, end, margin, currency, name, today, others }));
+    pyodide.globals.set("_dates", pyodide.toPy([start, end, today]));
+    const json = await pyodide.runPythonAsync("import json\n_d = _dates.to_py() if hasattr(_dates, 'to_py') else _dates\njson.dumps(checker.sale_discount(_csv, *_d))");
+    postMessage({ type: "discount", start, end, ...JSON.parse(json) });
+  } catch {
+    postMessage({ type: "discount", start, end, found: true });
+  }
+}
+
+async function check({ csv, start, end, margin, currency, name, today, others, ads, cut }) {
+  try {
+    const pyodide = await ready;
+    pyodide.globals.set("_csv", csv);
+    pyodide.globals.set("_args", pyodide.toPy({ start, end, margin, currency, name, today, others, ads, cut }));
     const json = await pyodide.runPythonAsync(`
 import json
 _a = _args.to_py() if hasattr(_args, "to_py") else _args
-json.dumps(checker.analyse(_csv, _a["start"], _a["end"], _a["margin"], _a["currency"], _a["name"] or None, _a["today"], _a["others"]), default=str)
+json.dumps(checker.analyse(_csv, _a["start"], _a["end"], _a["margin"], _a["currency"], _a["name"] or None, _a["today"], _a["others"], _a["ads"], _a["cut"]), default=str)
 `);
     postMessage({ type: "result", data: JSON.parse(json) });
   } catch (err) {

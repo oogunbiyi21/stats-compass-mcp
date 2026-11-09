@@ -3410,14 +3410,14 @@ full = ["httpx (>=0.27.0,<0.29.0)", "itsdangerous", "jinja2", "python-multipart 
 
 [[package]]
 name = "stats-compass-core"
-version = "0.1.45"
+version = "0.1.46"
 description = "A clean toolkit of deterministic pandas-based data tools"
 optional = false
 python-versions = "<4.0,>=3.11"
 groups = ["main"]
 files = [
-    {file = "stats_compass_core-0.1.45-py3-none-any.whl", hash = "sha256:785301ff99d910a5a74f47a0392a76936ccfd2185e44484ab6e4e802344046bf"},
-    {file = "stats_compass_core-0.1.45.tar.gz", hash = "sha256:a6654cdc45cce65cba041eafbdcfffa1eb1811eddb7e823c3d4f269326ce8568"},
+    {file = "stats_compass_core-0.1.46-py3-none-any.whl", hash = "sha256:f3ffe7e009323c3a25fc19ccba1634bb1ad78b3208e885b2fa8e38bbb910ac2d"},
+    {file = "stats_compass_core-0.1.46.tar.gz", hash = "sha256:e080bae00a229e172992147f0ad4ea58279f75eba4b5abca715b2b088b82ea94"},
 ]
 
 [package.dependencies]
