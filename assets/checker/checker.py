@@ -177,8 +177,13 @@ def multiple(value: float) -> str:
     return f"{MINUS if r < 0 else ''}{text}×"
 
 
-def break_even(revenue: dict | None, margin: dict | None, symbol: str) -> dict | None:
-    """``breakEven`` from the app: the same arithmetic, in the same order."""
+def break_even(revenue: dict | None, margin: dict | None, symbol: str, ads: float = 0.0) -> dict | None:
+    """``breakEven`` from the app: the same arithmetic, in the same order.
+
+    ``ads``, the merchant's extra ad spend for the sale, is a fixed cost: the sale's
+    margin must cover the usual margin plus the ads, so it needs (c₀ + ads) ÷ m₁ of
+    sales. With none, every figure is the app's.
+    """
     if not revenue or not margin or not revenue.get("pct") or not margin.get("pct"):
         return None
     r0 = revenue["estimate"] / (revenue["pct"] / 100)
@@ -187,7 +192,7 @@ def break_even(revenue: dict | None, margin: dict | None, symbol: str) -> dict |
         return None
     r1 = r0 + revenue["estimate"]
     c1 = c0 + margin["estimate"]
-    max_discount = _discount_sentence(c0 / r0, c1 / r1, r1 / r0) if r1 > 0 else None
+    max_discount = _discount_sentence(c0 / r0, c1 / r1, r1 / r0, ads / r0) if r1 > 0 else None
     if c1 <= 0 or r1 <= 0:
         return {
             "needed": None,
@@ -196,35 +201,47 @@ def break_even(revenue: dict | None, margin: dict | None, symbol: str) -> dict |
             "max_discount": max_discount,
         }
     about = lambda x: money_about(max(0.0, x), symbol)  # noqa: E731
-    needed = about((c0 * r1) / c1)
+    needed = about((c0 + ads) * r1 / c1)
     expected = about(r0)
     lo, hi = revenue["interval"]
     rng = f"likely between {about(r1 - hi)} and {about(r1 - lo)}"
+    paid = f" and pay for {ad_spend(ads, symbol)} of ads" if ads else ""
+    paid_for = f" and paid for {ad_spend(ads, symbol)} of ads" if ads else ""
     if c1 / r1 < c0 / r0:
         sentence = (
-            f"It earned less on each sale, so to match its usual margin it needed about {needed} of sales, "
+            f"It earned less on each sale, so to match its usual margin{paid} it needed about {needed} of sales, "
             f"against about {expected} you'd normally have had ({rng}). It brought {about(r1)}."
         )
     else:
         sentence = (
             f"It earned as much or more on each sale, so about {needed} of sales would have matched its usual "
-            f"margin, against about {expected} you'd normally have had ({rng}). It brought {about(r1)}."
+            f"margin{paid_for}, against about {expected} you'd normally have had ({rng}). It brought {about(r1)}."
         )
-    return {"needed": multiple((c0 / r0) / (c1 / r1)), "got": multiple(r1 / r0), "sentence": sentence, "max_discount": max_discount}
+    ratio = (c0 / r0) / (c1 / r1) if not ads else (c0 + ads) * r1 / (c1 * r0)
+    return {"needed": multiple(ratio), "got": multiple(r1 / r0), "sentence": sentence, "max_discount": max_discount}
 
 
-def _discount_sentence(m0: float, m1: float, brought: float) -> str | None:
+def ad_spend(ads: float, symbol: str) -> str:
+    """The ad spend as the merchant typed it, to the pound: "£500", "£1,250"."""
+    return f"{symbol}{ads:,.0f}"
+
+
+def _discount_sentence(m0: float, m1: float, brought: float, ads_share: float = 0.0) -> str | None:
+    """``ads_share``, the ad spend over what you'd normally have had, also has to come
+    out of the margin: at a full-price-equivalent volume k times normal, the discount
+    that breaks even is m₀(1 − 1/k) − ads_share/k (the app's, with no ads)."""
     if not (m1 < m0) or not (m1 < 1):
         return None
     given = (m0 - m1) / (1 - m1)
     k = brought / (1 - given)
     gave = f"It gave away about {percent(given * 100)} on average across its sales"
-    if k <= 1:
-        return f"{gave}; at the sales it brought, any discount at all lost money."
-    affordable = m0 * (1 - 1 / k)
+    after = ", after the ads," if ads_share else ","
+    affordable = m0 * (1 - 1 / k) - ads_share / k
+    if k <= 1 or affordable <= 0:
+        return f"{gave}; at the sales it brought{after} any discount at all lost money."
     if percent(affordable * 100) == percent(given * 100):
-        return f"{gave}, about what the extra sales it brought could afford."
-    return f"{gave}; at the extra sales it brought, anything above about {percent(affordable * 100)} lost money. {CEILING}"
+        return f"{gave}, about what the extra sales it brought could afford{' after the ads' if ads_share else ''}."
+    return f"{gave}; at the extra sales it brought{after} anything above about {percent(affordable * 100)} lost money. {CEILING}"
 
 
 def headline(b: dict) -> str | None:
@@ -243,8 +260,13 @@ LOST_MONEY = "It lost money."
 CANT_TELL = "Can't tell: it could have gone either way."
 
 
-def profitability(needed: float | None, got: float, got_low: float, got_high: float | None, sentence: str) -> dict:
+def profitability(
+    needed: float | None, got: float, got_low: float, got_high: float | None, sentence: str, ads: str | None = None,
+) -> dict:
     """Made money, lost money or can't tell, and the line under it.
+
+    The line says what break-even covers: the discount, and the ad spend when it's
+    given ("£500"), otherwise that ad spend isn't included.
 
     ``needed`` is None when no amount of extra sales could have paid (each sale earned
     nothing); ``got_high`` is None when the range is unbounded above. Under 1×, the sale
@@ -254,7 +276,8 @@ def profitability(needed: float | None, got: float, got_low: float, got_high: fl
     if needed is None:
         return {"call": "no", "headline": LOST_MONEY, "sub": sentence}
     plain = needed <= 1
-    said = f"It needed about {multiple(needed)} your normal sales to break even and brought about {multiple(got)}"
+    cover = f"to cover the discount and {ads} of ads" if ads else "to cover the discount (ad spend not included)"
+    said = f"It needed about {multiple(needed)} your normal sales {cover}, and brought about {multiple(got)}"
     if got_low >= needed:
         return {"call": "yes", "headline": MADE_MONEY, "sub": sentence if plain else
                 f"{said}. Even at the low end of the likely range ({multiple(got_low)}), it beat break-even."}
@@ -291,12 +314,13 @@ def other_sales(others: list[dict] | None, first: pd.Timestamp, last: pd.Timesta
 
 def analyse(
     csv_text: str, start: str, end: str, margin_pct: float | None, symbol: str = "£",
-    name: str | None = None, today: str | None = None, others: list[dict] | None = None,
+    name: str | None = None, today: str | None = None, others: list[dict] | None = None, ads: float | None = None,
 ) -> dict:
     """Everything the page shows, as plain data.
 
     ``today``, the visitor's date: its row and later are incomplete. ``others``, any
     other sales in the period ({start, end}): measured with them left out, as the app does.
+    ``ads``, extra ad spend for the sale: a cost break-even has to cover.
     """
     rows = read_export(csv_text, today)
     if rows.empty:
@@ -364,13 +388,17 @@ def analyse(
     m1 = 1 - (1 - d0) * (1 - m0) / (1 - d1) if d1 < 1 else -math.inf
     c0, c1 = r0 * m0, row.observed_total * m1
     margin = {"estimate": c1 - c0, "pct": 100 * (c1 - c0) / c0 if c0 else None}
-    b = break_even(revenue, margin, symbol)
+    spend = max(0.0, float(ads or 0))
+    b = break_even(revenue, margin, symbol, spend)
     out["break_even"] = b
     out["break_even_headline"] = headline(b) if b else None
     if b and row.interval_pct and r0 > 0:
+        # The sales needed for the sale's margin to cover the usual margin and the ads,
+        # as a multiple of what you'd normally have had: (m₀·E + ads) ÷ (m₁·E).
         low, high = row.interval_pct
         out["profit"] = profitability(
-            m0 / m1 if m1 > 0 else None, row.observed_total / r0,
+            (m0 * r0 + spend) / (m1 * r0) if m1 > 0 else None, row.observed_total / r0,
             1 + low / 100, None if high is None else 1 + high / 100, b["sentence"],
+            ad_spend(spend, symbol) if spend else None,
         )
     return out

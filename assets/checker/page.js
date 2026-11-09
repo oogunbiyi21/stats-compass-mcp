@@ -213,8 +213,12 @@ $("form").addEventListener("submit", async (event) => {
   const margin = $("margin").value === "" ? null : Number($("margin").value);
   // Today's date here: its row in the export is a day still under way.
   const today = new Date().toLocaleDateString("en-CA");
-  worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim(), today, others });
+  const ads = $("ads").value === "" ? null : Math.max(0, Number($("ads").value));
+  worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim(), today, others, ads });
 });
+
+// The ad spend is in the store's currency.
+$("currency").addEventListener("change", () => { $("ads-symbol").textContent = $("currency").value; });
 
 // The early-access list: the form posts the visitor's email to Buttondown in a new tab
 // (the browser checks the email and the consent box first), and this page keeps the result.

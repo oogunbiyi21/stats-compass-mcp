@@ -78,15 +78,15 @@ async function find({ csv, today }) {
   }
 }
 
-async function check({ csv, start, end, margin, currency, name, today, others }) {
+async function check({ csv, start, end, margin, currency, name, today, others, ads }) {
   try {
     const pyodide = await ready;
     pyodide.globals.set("_csv", csv);
-    pyodide.globals.set("_args", pyodide.toPy({ start, end, margin, currency, name, today, others }));
+    pyodide.globals.set("_args", pyodide.toPy({ start, end, margin, currency, name, today, others, ads }));
     const json = await pyodide.runPythonAsync(`
 import json
 _a = _args.to_py() if hasattr(_args, "to_py") else _args
-json.dumps(checker.analyse(_csv, _a["start"], _a["end"], _a["margin"], _a["currency"], _a["name"] or None, _a["today"], _a["others"]), default=str)
+json.dumps(checker.analyse(_csv, _a["start"], _a["end"], _a["margin"], _a["currency"], _a["name"] or None, _a["today"], _a["others"], _a["ads"]), default=str)
 `);
     postMessage({ type: "result", data: JSON.parse(json) });
   } catch (err) {

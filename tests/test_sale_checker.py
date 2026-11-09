@@ -284,14 +284,15 @@ class TestDidItMakeMoney:
     def test_the_three_calls(self):
         made = checker.profitability(1.17, 1.82, 1.40, 2.60, "")
         assert (made["call"], made["headline"]) == ("yes", "It made money.")
-        assert made["sub"] == ("It needed about 1.17× your normal sales to break even and brought about 1.82×. "
-                               "Even at the low end of the likely range (1.4×), it beat break-even.")
+        assert made["sub"] == ("It needed about 1.17× your normal sales to cover the discount (ad spend not included), and brought "
+                               "about 1.82×. Even at the low end of the likely range (1.4×), it beat break-even.")
         lost = checker.profitability(2.29, 1.29, 1.10, 1.83, "")
         assert (lost["call"], lost["headline"]) == ("no", "It lost money.")
         assert lost["sub"].endswith("Even at the high end of the likely range (1.83×), it fell short.")
         unclear = checker.profitability(1.63, 1.62, 1.42, 1.89, "")
         assert (unclear["call"], unclear["headline"]) == ("unclear", "Can't tell: it could have gone either way.")
-        assert unclear["sub"] == "It needed about 1.63× your normal sales to break even and brought about 1.62×, likely between 1.42× and 1.89×."
+        assert unclear["sub"] == ("It needed about 1.63× your normal sales to cover the discount (ad spend not included), and brought "
+                                  "about 1.62×, likely between 1.42× and 1.89×.")
 
     def test_not_one_of_the_four_verdicts(self):
         for call in (checker.MADE_MONEY, checker.LOST_MONEY, checker.CANT_TELL):
@@ -319,3 +320,40 @@ class TestDidItMakeMoney:
     def test_no_headline_without_a_margin_or_enough_data(self):
         assert checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", None)["profit"] is None
         assert checker.analyse(shopify_export(days=200), "2026-11-27", "2026-11-30", 50)["profit"] is None
+
+
+class TestAdSpend:
+    """Extra ad spend for the sale: a fixed cost the sale's margin has to cover too."""
+
+    @pytest.mark.parametrize("revenue, margin", [
+        (REVENUE, MARGIN),
+        (lift(10000, (4000, 16000), 10), {**MARGIN, "estimate": 60.0, "pct": 20}),
+        (REVENUE, {**MARGIN, "estimate": -2500.0, "pct": -119}),
+        ({**REVENUE, "estimate": -150.0, "pct": -15}, {**MARGIN, "estimate": -90.0, "pct": -30}),
+    ])
+    def test_none_is_the_apps_break_even(self, revenue, margin):
+        assert checker.break_even(revenue, margin, "£", ads=0.0) == checker.break_even(revenue, margin, "£")
+
+    def test_ads_raise_what_it_needed(self):
+        # SPRING10: £7,860 normal, £9,700 brought; margin rate from 26.7% to 19.6% of sales.
+        r0 = 184000 / 100 / 0.234
+        c0 = -21000 / 100 / -0.10
+        r1, c1 = r0 + 1840, c0 - 210
+        b = checker.break_even(REVENUE, MARGIN, "£", ads=500.0)
+        assert b["needed"] == checker.multiple((c0 + 500) * r1 / (c1 * r0))
+        assert b["got"] == "1.23×"
+        assert "to match its usual margin and pay for £500 of ads it needed about" in b["sentence"]
+        assert ", after the ads, anything above about" in b["max_discount"] or ", after the ads, any discount at all" in b["max_discount"]
+
+    def test_the_headline_line_names_the_ads(self):
+        out = checker.profitability(1.62, 1.82, 1.40, 2.60, "", ads="£500")
+        assert out["call"] == "unclear"
+        assert out["sub"] == "It needed about 1.62× your normal sales to cover the discount and £500 of ads, and brought about 1.82×, likely between 1.4× and 2.6×."
+
+    def test_enough_ads_turn_a_sale_that_made_money(self):
+        # Black Friday at +90%, 30% off, 50% margin: it needs about 1.63× without ads.
+        calls = {ads: checker.analyse(shopify_export(lift_share=0.9), "2026-11-27", "2026-11-30", 50, ads=ads)["profit"]
+                 for ads in (None, 1000, 5000)}
+        assert calls[None]["call"] == "yes"
+        assert calls[1000]["call"] == "unclear" and "£1,000 of ads" in calls[1000]["sub"]
+        assert calls[5000]["call"] == "no"
