@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import io
 import math
+import re
 from decimal import ROUND_HALF_UP, Decimal
 
 import pandas as pd
@@ -226,22 +227,72 @@ def ad_spend(ads: float, symbol: str) -> str:
     return f"{symbol}{ads:,.0f}"
 
 
-def _discount_sentence(m0: float, m1: float, brought: float, ads_share: float = 0.0) -> str | None:
-    """``ads_share``, the ad spend over what you'd normally have had, also has to come
+def _discount(m0: float, m1: float, brought: float, ads_share: float = 0.0) -> tuple[float, float | None] | None:
+    """The average discount given, and the most the extra sales could afford (None: no discount at all).
+
+    ``ads_share``, the ad spend over what you'd normally have had, also has to come
     out of the margin: at a full-price-equivalent volume k times normal, the discount
-    that breaks even is m₀(1 − 1/k) − ads_share/k (the app's, with no ads)."""
+    that breaks even is m₀(1 − 1/k) − ads_share/k (the app's, with no ads).
+    """
     if not (m1 < m0) or not (m1 < 1):
         return None
     given = (m0 - m1) / (1 - m1)
     k = brought / (1 - given)
+    affordable = m0 * (1 - 1 / k) - ads_share / k
+    return given, (affordable if k > 1 and affordable > 0 else None)
+
+
+def _discount_sentence(m0: float, m1: float, brought: float, ads_share: float = 0.0) -> str | None:
+    """The app's sentence (``maxDiscount``), with the ads taken off when there are any."""
+    numbers = _discount(m0, m1, brought, ads_share)
+    if numbers is None:
+        return None
+    given, affordable = numbers
     gave = f"It gave away about {percent(given * 100)} on average across its sales"
     after = ", after the ads," if ads_share else ","
-    affordable = m0 * (1 - 1 / k) - ads_share / k
-    if k <= 1 or affordable <= 0:
+    if affordable is None:
         return f"{gave}; at the sales it brought{after} any discount at all lost money."
     if percent(affordable * 100) == percent(given * 100):
         return f"{gave}, about what the extra sales it brought could afford{' after the ads' if ads_share else ''}."
     return f"{gave}; at the extra sales it brought{after} anything above about {percent(affordable * 100)} lost money. {CEILING}"
+
+
+def discount_line(m0: float, m1: float, brought: float, ads_share: float = 0.0) -> str | None:
+    """The page's line: "Discount: you gave about 12% off on average; at the extra sales it
+    brought, anything above about 26% lost money. This is a ceiling, not a recommendation."."""
+    numbers = _discount(m0, m1, brought, ads_share)
+    if numbers is None:
+        return None
+    given, affordable = numbers
+    gave = f"Discount: you gave about {percent(given * 100)} off on average"
+    after = ", after the ads," if ads_share else ","
+    if affordable is None:
+        return f"{gave}; at the sales it brought{after} any discount at all lost money."
+    if percent(affordable * 100) == percent(given * 100):
+        return f"{gave}, about what the extra sales it brought could afford{' after the ads' if ads_share else ''}."
+    return (f"{gave}; at the extra sales it brought{after} anything above about {percent(affordable * 100)} lost money. "
+            "This is a ceiling, not a recommendation.")
+
+
+def added_line(value: str | None, amount: str | None, verdict: str, interval_pct: tuple | None) -> str | None:
+    """"+82%: £2,126 more than expected (likely +40% to +160%)."; no range beside an
+    expected verdict, as in the app."""
+    if not value or not amount:
+        return None
+    likely = ""
+    if verdict != "expected" and interval_pct:
+        low, high = interval_pct
+        likely = f" (likely above {wording.signed_pct(low)})" if high is None else (
+            f" (likely {wording.signed_pct(low)} to {wording.signed_pct(high)})")
+    return f"{value}: {amount}{likely}."
+
+
+def after_line(after: str | None) -> str | None:
+    """"After the sale (3 weeks): sales were about as expected." from core's "In the 3 weeks after, …"."""
+    if not after:
+        return None
+    m = re.match(r"In the (.+?) after, (.*)$", after)
+    return f"After the sale ({m.group(1)}): {m.group(2)}" if m else after
 
 
 def headline(b: dict) -> str | None:
@@ -268,24 +319,22 @@ def profitability(
     The line says what break-even covers: the discount, and the ad spend when it's
     given ("£500"), otherwise that ad spend isn't included.
 
-    ``needed`` is None when no amount of extra sales could have paid (each sale earned
-    nothing); ``got_high`` is None when the range is unbounded above. Under 1×, the sale
-    earned as much or more on each sale, and break-even's own sentence says so better
-    than "needed 0.9× your normal sales" would.
+    One line under it: what it needed, what it brought and the likely range of that,
+    which is why the call can be made (or not). ``needed`` is None when no amount of
+    extra sales could have paid (each sale earned nothing), and break-even's sentence
+    says so; ``got_high`` is None when the range is unbounded above.
     """
     if needed is None:
         return {"call": "no", "headline": LOST_MONEY, "sub": sentence}
-    plain = needed <= 1
-    cover = f"to cover the discount and {ads} of ads" if ads else "to cover the discount (ad spend not included)"
-    said = f"It needed about {multiple(needed)} your normal sales {cover}, and brought about {multiple(got)}"
+    cover = f"to cover the discount and {ads} of ads," if ads else "to cover the discount (ad spend not included)"
+    since = ", as it earned as much or more on each sale," if needed <= 1 else ""
+    likely = f"likely above {multiple(got_low)}" if got_high is None else f"likely {multiple(got_low)} to {multiple(got_high)}"
+    sub = f"It needed about {multiple(needed)} your normal sales {cover}{since} and brought about {multiple(got)} ({likely})."
     if got_low >= needed:
-        return {"call": "yes", "headline": MADE_MONEY, "sub": sentence if plain else
-                f"{said}. Even at the low end of the likely range ({multiple(got_low)}), it beat break-even."}
+        return {"call": "yes", "headline": MADE_MONEY, "sub": sub}
     if got_high is not None and got_high < needed:
-        return {"call": "no", "headline": LOST_MONEY, "sub": sentence if plain else
-                f"{said}. Even at the high end of the likely range ({multiple(got_high)}), it fell short."}
-    likely = f"likely above {multiple(got_low)}" if got_high is None else f"likely between {multiple(got_low)} and {multiple(got_high)}"
-    return {"call": "unclear", "headline": CANT_TELL, "sub": sentence if plain else f"{said}, {likely}."}
+        return {"call": "no", "headline": LOST_MONEY, "sub": sub}
+    return {"call": "unclear", "headline": CANT_TELL, "sub": sub}
 
 
 # -- the check ------------------------------------------------------------------------------
@@ -345,7 +394,7 @@ def analyse(
                 f"{_day(needed_from)} or earlier."
             ),
             "after": None, "amount": None, "discount_depth": discount_depth(in_sale), "break_even": None, "break_even_headline": None,
-            "profit": None,
+            "profit": None, "span": wording.span(first.date(), last.date()), "added": None, "after_line": None, "discount_line": None,
         }
     state = DataFrameState()
     state.set_dataframe(rows, name="sales", operation="upload")
@@ -368,6 +417,11 @@ def analyse(
         "break_even": None,
         "break_even_headline": None,
         "profit": None,
+        # The page's lines, each fact once: the dates go in the result's title.
+        "span": wording.span(first.date(), last.date()),
+        "added": added_line(row.value, row.amount, row.verdict, row.interval_pct),
+        "after_line": after_line(row.after_summary),
+        "discount_line": None,
     }
     if row.verdict == "insufficient" or margin_pct is None:
         return out
@@ -390,6 +444,8 @@ def analyse(
     margin = {"estimate": c1 - c0, "pct": 100 * (c1 - c0) / c0 if c0 else None}
     spend = max(0.0, float(ads or 0))
     b = break_even(revenue, margin, symbol, spend)
+    if b and r0 > 0:
+        out["discount_line"] = discount_line(m0, m1, row.observed_total / r0, spend / r0)
     out["break_even"] = b
     out["break_even_headline"] = headline(b) if b else None
     if b and row.interval_pct and r0 > 0:

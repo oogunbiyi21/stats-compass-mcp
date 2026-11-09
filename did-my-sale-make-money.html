@@ -105,14 +105,18 @@ figures). The chosen file is read in the browser and never uploaded.
                             </label>
                         </div>
                     </div>
-                    <p class="tw-mt-4 tw-text-sm tw-text-gray-700">
-                        Did you run any other sales in this time? Add their dates, so they aren't counted as normal sales.
-                    </p>
-                    <p id="found-note" hidden class="tw-mt-2 tw-text-sm tw-text-gray-700">
-                        We found these other sales in your report from their discounts. Remove any that weren't sales.
-                    </p>
-                    <div id="others" class="tw-mt-2 tw-space-y-2"></div>
-                    <button id="add-other" type="button" class="tw-mt-2 tw-text-sm tw-font-semibold tw-text-blue-600 hover:tw-underline">+ Add another sale</button>
+                    <!-- Other sales: shown once the sale to check is known. -->
+                    <div id="other-sales" hidden class="tw-mt-6">
+                        <h3 class="tw-font-semibold">Other sales</h3>
+                        <p id="found-note" class="tw-mt-1 tw-text-sm tw-text-gray-700">
+                            Found from your discounts and left out of what counts as normal. Remove any that weren't sales.
+                        </p>
+                        <p id="none-note" class="tw-mt-1 tw-text-sm tw-text-gray-700">
+                            Ran any other sales in this period? Add them so they aren't counted as normal.
+                        </p>
+                        <div id="others" class="tw-mt-2 tw-space-y-2"></div>
+                        <button id="add-other" type="button" class="tw-mt-2 tw-text-sm tw-font-semibold tw-text-blue-600 hover:tw-underline">+ Add a sale we missed</button>
+                    </div>
                     <template id="other-row">
                         <div class="tw-grid tw-grid-cols-[1fr_1fr_auto] tw-items-end tw-gap-2 sm:tw-max-w-md">
                             <label class="tw-block tw-text-sm tw-text-gray-700">First day
@@ -150,21 +154,28 @@ figures). The chosen file is read in the browser and never uploaded.
             </form>
 
             <section id="result" hidden class="tw-mt-10 tw-space-y-4" aria-live="polite">
-                <h2 class="tw-text-2xl tw-font-semibold">The result</h2>
+                <!-- Each fact once: the call and why, what the sale added, the weeks after, the discount, the chart. -->
+                <h2 id="result-title" class="tw-text-2xl tw-font-semibold">The result</h2>
                 <div id="profit-box" hidden>
                     <p id="profit" class="tw-text-3xl tw-font-semibold tw-leading-tight"></p>
                     <p id="profit-sub" class="tw-mt-2 tw-text-lg tw-leading-relaxed tw-text-gray-700"></p>
                 </div>
-                <span id="verdict"></span>
-                <p id="summary" class="tw-text-lg tw-leading-relaxed"></p>
-                <p id="needed" class="tw-text-xl tw-font-semibold"></p>
-                <p id="be-sentence" class="tw-leading-relaxed tw-text-gray-700"></p>
-                <p id="be-discount" class="tw-leading-relaxed tw-text-gray-700"></p>
-                <p id="no-margin" hidden class="tw-text-gray-600">Add your usual margin to see what it needed to break even.</p>
+                <p id="no-margin" hidden class="tw-text-gray-600">Add your margin to see whether it made money.</p>
+                <div class="tw-space-y-2">
+                    <h3 class="tw-font-semibold">What the sale added</h3>
+                    <span id="verdict"></span>
+                    <p id="added" class="tw-leading-relaxed"></p>
+                </div>
+                <p id="after" class="tw-leading-relaxed tw-text-gray-700"></p>
+                <p id="discount" class="tw-leading-relaxed tw-text-gray-700"></p>
                 <figure>
                     <div id="chart" class="tw-max-w-xl"></div>
                     <figcaption id="caption" hidden class="tw-mt-2 tw-max-w-xl tw-text-sm tw-text-gray-600"></figcaption>
                 </figure>
+                <details id="worked-box" hidden class="tw-text-sm tw-text-gray-700">
+                    <summary class="tw-cursor-pointer tw-font-semibold">How this was worked out</summary>
+                    <p id="worked" class="tw-mt-2 tw-leading-relaxed"></p>
+                </details>
                 <div id="notes-box" hidden class="tw-text-sm tw-text-gray-600">
                     <p class="tw-font-semibold">Notes</p>
                     <ul id="notes" class="tw-list-disc tw-space-y-1 tw-pl-5"></ul>

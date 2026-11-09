@@ -165,10 +165,12 @@ function markChosen() {
 }
 
 // A found sale overlapping the dates being checked is that sale: it's hidden, and not sent.
-// Until the sale to check is known, found sales are only offered as choices.
+// Until the sale to check is known, found sales are only offered as choices, and the
+// other sales block waits.
 function showFound() {
   const start = $("start").value;
   const end = $("end").value || start;
+  $("other-sales").hidden = !start;
   let shown = 0;
   for (const row of $("others").querySelectorAll("[data-found]")) {
     const a = row.querySelector("[data-start]").value;
@@ -178,6 +180,8 @@ function showFound() {
     if (!row.hidden) shown += 1;
   }
   $("found-note").hidden = shown === 0;
+  $("none-note").hidden = shown > 0;
+  $("add-other").textContent = shown > 0 ? "+ Add a sale we missed" : "+ Add a sale";
 }
 for (const id of ["start", "end"]) $(id).addEventListener("input", showFound);
 
@@ -241,6 +245,9 @@ const BADGE = {
 function show(r) {
   $("check").disabled = false;
   $("check").textContent = "Check my sale";
+  // The dates once, in the title, after the merchant's own name for the sale if they gave one.
+  const own = $("name").value.trim() && !("auto" in $("name").dataset);
+  $("result-title").textContent = own ? `${$("name").value.trim()} · ${r.span}` : r.span;
   // The headline: did it make money? Break-even against the likely range of what it brought.
   const PROFIT = { yes: "tw-text-green-800", no: "tw-text-red-800", unclear: "tw-text-gray-900" };
   $("profit-box").hidden = !r.profit;
@@ -251,14 +258,16 @@ function show(r) {
   }
   $("verdict").textContent = r.label;
   $("verdict").className = `tw-inline-block tw-rounded-full tw-px-3 tw-py-1 tw-text-sm tw-font-semibold ${BADGE[r.verdict] || BADGE.expected}`;
-  // The dip after the sale is in the summary when it's beyond the usual; otherwise say it plainly.
-  $("summary").textContent = r.after && !r.summary.includes(r.after) ? `${r.summary} ${r.after}` : r.summary;
+  // What the sale added, then the weeks after and the discount, each said once.
+  $("added").textContent = r.added || r.summary;
+  $("after").textContent = r.after_line || "";
+  $("after").hidden = !r.after_line;
+  $("discount").textContent = r.discount_line || "";
+  $("discount").hidden = !r.discount_line;
   const b = r.break_even;
-  $("needed").textContent = r.break_even_headline || "";
-  $("needed").hidden = !r.break_even_headline;
-  $("be-sentence").textContent = b ? b.sentence : "";
-  $("be-discount").textContent = b && b.max_discount ? b.max_discount : "";
-  $("no-margin").hidden = !(r.verdict !== "insufficient" && !b && $("margin").value === "");
+  $("worked").textContent = b ? b.sentence : "";
+  $("worked-box").hidden = !b;
+  $("no-margin").hidden = !(r.verdict !== "insufficient" && !r.profit && $("margin").value === "");
   $("chart").replaceChildren();
   $("caption").hidden = true;
   if (r.chart && r.chart.length) {

@@ -284,15 +284,15 @@ class TestDidItMakeMoney:
     def test_the_three_calls(self):
         made = checker.profitability(1.17, 1.82, 1.40, 2.60, "")
         assert (made["call"], made["headline"]) == ("yes", "It made money.")
-        assert made["sub"] == ("It needed about 1.17× your normal sales to cover the discount (ad spend not included), and brought "
-                               "about 1.82×. Even at the low end of the likely range (1.4×), it beat break-even.")
+        assert made["sub"] == ("It needed about 1.17× your normal sales to cover the discount (ad spend not included) and brought "
+                               "about 1.82× (likely 1.4× to 2.6×).")
         lost = checker.profitability(2.29, 1.29, 1.10, 1.83, "")
         assert (lost["call"], lost["headline"]) == ("no", "It lost money.")
-        assert lost["sub"].endswith("Even at the high end of the likely range (1.83×), it fell short.")
+        assert lost["sub"].endswith("and brought about 1.29× (likely 1.1× to 1.83×).")
         unclear = checker.profitability(1.63, 1.62, 1.42, 1.89, "")
         assert (unclear["call"], unclear["headline"]) == ("unclear", "Can't tell: it could have gone either way.")
-        assert unclear["sub"] == ("It needed about 1.63× your normal sales to cover the discount (ad spend not included), and brought "
-                                  "about 1.62×, likely between 1.42× and 1.89×.")
+        assert unclear["sub"] == ("It needed about 1.63× your normal sales to cover the discount (ad spend not included) and brought "
+                                  "about 1.62× (likely 1.42× to 1.89×).")
 
     def test_not_one_of_the_four_verdicts(self):
         for call in (checker.MADE_MONEY, checker.LOST_MONEY, checker.CANT_TELL):
@@ -302,14 +302,16 @@ class TestDidItMakeMoney:
         out = checker.profitability(None, 1.3, 1.1, 1.5, "At the margin it sold at, no amount of extra sales would have paid for this promotion: each sale earned nothing.")
         assert out["call"] == "no" and out["sub"].startswith("At the margin it sold at")
 
-    def test_under_one_times_says_it_as_break_even_does(self):
-        sentence = "It earned as much or more on each sale, so about £917 of sales would have matched its usual margin, ..."
-        assert checker.profitability(0.92, 1.1, 0.95, 1.3, sentence) == {"call": "yes", "headline": checker.MADE_MONEY, "sub": sentence}
-        assert checker.profitability(0.92, 1.0, 0.85, 1.2, sentence)["call"] == "unclear"
+    def test_under_one_times_says_why(self):
+        out = checker.profitability(0.92, 1.1, 0.95, 1.3, "")
+        assert out["call"] == "yes"
+        assert out["sub"] == ("It needed about 0.92× your normal sales to cover the discount (ad spend not included), as it earned "
+                              "as much or more on each sale, and brought about 1.1× (likely 0.95× to 1.3×).")
+        assert checker.profitability(0.92, 1.0, 0.85, 1.2, "")["call"] == "unclear"
 
     def test_unbounded_above(self):
         out = checker.profitability(2.0, 2.5, 1.5, None, "")
-        assert out["call"] == "unclear" and out["sub"].endswith("likely above 1.5×.")
+        assert out["call"] == "unclear" and out["sub"].endswith("(likely above 1.5×).")
 
     @pytest.mark.parametrize("lift, call", [(0.9, "yes"), (0.45, "unclear"), (0.1, "no")])
     def test_on_a_black_friday(self, lift, call):
@@ -348,7 +350,7 @@ class TestAdSpend:
     def test_the_headline_line_names_the_ads(self):
         out = checker.profitability(1.62, 1.82, 1.40, 2.60, "", ads="£500")
         assert out["call"] == "unclear"
-        assert out["sub"] == "It needed about 1.62× your normal sales to cover the discount and £500 of ads, and brought about 1.82×, likely between 1.4× and 2.6×."
+        assert out["sub"] == "It needed about 1.62× your normal sales to cover the discount and £500 of ads, and brought about 1.82× (likely 1.4× to 2.6×)."
 
     def test_enough_ads_turn_a_sale_that_made_money(self):
         # Black Friday at +90%, 30% off, 50% margin: it needs about 1.63× without ads.
@@ -357,3 +359,36 @@ class TestAdSpend:
         assert calls[None]["call"] == "yes"
         assert calls[1000]["call"] == "unclear" and "£1,000 of ads" in calls[1000]["sub"]
         assert calls[5000]["call"] == "no"
+
+
+class TestEachFactOnce:
+    """The result's lines below the headline: what the sale added, the weeks after, the discount."""
+
+    def test_what_the_sale_added(self):
+        assert checker.added_line("+82%", "£2,126 more than expected", "real change", (40.2, 160.4)) == (
+            "+82%: £2,126 more than expected (likely +40% to +160%).")
+        assert checker.added_line("+29%", "£2,031 more than expected", "expected", (-1.0, 83.0)) == "+29%: £2,031 more than expected."
+        assert checker.added_line("−15%", "£150 less than expected", "real change", (-30.0, None)) == (
+            "−15%: £150 less than expected (likely above −30%).")
+        assert checker.added_line(None, None, "insufficient", None) is None
+
+    def test_after_the_sale(self):
+        assert checker.after_line("In the 3 weeks after, sales were about as expected.") == "After the sale (3 weeks): sales were about as expected."
+        assert checker.after_line("In the 14 days after, sales ran 22% below expected (£8,374 less): customers may have stocked up.") == (
+            "After the sale (14 days): sales ran 22% below expected (£8,374 less): customers may have stocked up.")
+        assert checker.after_line(None) is None
+
+    def test_the_discount(self):
+        # SPRING10's margins, as break-even's parity case: 9% given, 7% affordable.
+        assert checker.discount_line(0.267, 0.196, 1.23) == (
+            "Discount: you gave about 9% off on average; at the extra sales it brought, anything above about 7% lost money. "
+            "This is a ceiling, not a recommendation.")
+        assert checker.discount_line(0.5, 0.6, 1.3) is None  # it earned more on each sale: no discount to speak of
+
+    def test_each_fact_once_on_a_black_friday(self):
+        out = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50, "£", "Black Friday")
+        assert out["span"] == "27–30 November 2026"
+        assert out["added"].startswith("+") and "Real change" not in out["added"] and "November" not in out["added"]
+        assert out["after_line"].startswith("After the sale (")
+        assert out["discount_line"].startswith("Discount: you gave about 28% off on average")  # 30% off, against the usual 3%
+        assert out["break_even"]["sentence"].startswith("It earned less on each sale")  # kept for "How this was worked out"
