@@ -17,8 +17,12 @@ worker.onmessage = ({ data }) => {
     $("status").classList.add("tw-text-green-700");
     $("hint").hidden = true;
     findSales();
+    checkDiscount();
   } else if (data.type === "found") {
     suggest(data.sales);
+  } else if (data.type === "discount") {
+    // Only for the dates still chosen: the merchant may have moved on.
+    if (data.start === $("start").value && data.end === $("end").value) showCutHint(!data.found);
   } else if (data.type === "result") {
     show(data.data);
   } else if (data.type === "error") {
@@ -37,6 +41,23 @@ function missing() {
   return null;
 }
 for (const id of ["file", "start", "end"]) $(id).addEventListener("input", () => { $("hint").hidden = true; });
+
+// A sale run by lowering prices shows no discount in the report: when the chosen dates
+// show none, the price-cut field is pointed out, so break-even doesn't read full price.
+async function checkDiscount() {
+  if (!ready || !$("file").files.length || !$("start").value || !$("end").value) {
+    showCutHint(false);
+    return;
+  }
+  const csv = await $("file").files[0].text();
+  worker.postMessage({ type: "discount", csv, start: $("start").value, end: $("end").value, today: new Date().toLocaleDateString("en-CA") });
+}
+function showCutHint(on) {
+  $("cut-hint").hidden = !on;
+  for (const c of ["tw-border-amber-300", "tw-bg-amber-50"]) $("cut-box").classList.toggle(c, on);
+  $("cut-box").classList.toggle("tw-border-transparent", !on);
+}
+for (const id of ["file", "start", "end"]) $(id).addEventListener("input", checkDiscount);
 
 // Dates as the app writes them: "15–21 June 2026", "14 May – 3 June 2026".
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -150,6 +171,7 @@ function choose(value) {
   $("hint").hidden = true;
   markChosen();
   showFound();
+  checkDiscount();
 }
 $("choice-list").addEventListener("change", (event) => choose(event.target.value));
 for (const id of ["start", "end"]) $(id).addEventListener("input", () => delete $("start").dataset.found);
@@ -218,7 +240,8 @@ $("form").addEventListener("submit", async (event) => {
   // Today's date here: its row in the export is a day still under way.
   const today = new Date().toLocaleDateString("en-CA");
   const ads = $("ads").value === "" ? null : Math.max(0, Number($("ads").value));
-  worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim(), today, others, ads });
+  const cut = $("cut").value === "" ? null : Math.min(95, Math.max(0, Number($("cut").value)));
+  worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim(), today, others, ads, cut });
 });
 
 // The ad spend is in the store's currency.

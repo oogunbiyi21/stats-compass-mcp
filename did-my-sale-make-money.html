@@ -104,6 +104,15 @@ figures). The chosen file is read in the browser and never uploaded.
                                 <input id="name" type="text" placeholder="Black Friday" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                             </label>
                         </div>
+                        <!-- Shopify's discounts don't show a sale run by lowering prices: the cut is asked for. -->
+                        <div id="cut-box" class="tw-mt-4 tw-rounded-lg tw-border tw-border-transparent tw-p-3 sm:tw-max-w-md">
+                            <label class="tw-block tw-text-sm tw-text-gray-700">Did you lower prices for this sale (instead of, or as well as, discount codes)? Average price cut, % (optional)
+                                <input id="cut" type="number" min="0" max="95" step="1" placeholder="0" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                            </label>
+                            <p id="cut-hint" hidden class="tw-mt-2 tw-text-sm tw-font-semibold tw-text-amber-900">
+                                We didn't find discounts for these dates. If you cut prices instead, enter the average cut so break-even counts it.
+                            </p>
+                        </div>
                     </div>
                     <!-- Other sales: shown once the sale to check is known. -->
                     <div id="other-sales" hidden class="tw-mt-6">
@@ -229,8 +238,8 @@ figures). The chosen file is read in the browser and never uploaded.
                     "Real change" only when the difference is bigger than your sales usually move on their own.
                 </p>
                 <p class="tw-mt-2">
-                    For break-even, it uses the margin you type, the discount in your report and any ad spend you
-                    add: a deeper discount earns less on each sale, and ads have to be paid for, so the sale needed
+                    For break-even, it uses the margin you type, the discount in your report, any price cut and
+                    any ad spend you add: a deeper discount earns less on each sale, and ads have to be paid for, so the sale needed
                     more extra sales to pay for itself.
                 </p>
 
@@ -260,6 +269,7 @@ figures). The chosen file is read in the browser and never uploaded.
                         aren't counted.</li>
                     <li>Other campaign costs (design, influencers, free gifts) aren't included unless you add them to
                         ad spend.</li>
+                    <li>Sales run by lowering prices don't show in Shopify's discounts; enter the average cut.</li>
                 </ul>
 
                 <h3 class="tw-mt-5 tw-font-semibold tw-text-black">How it did on real data</h3>

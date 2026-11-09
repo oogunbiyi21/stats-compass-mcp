@@ -257,17 +257,21 @@ def _discount_sentence(m0: float, m1: float, brought: float, ads_share: float = 
     return f"{gave}; at the extra sales it brought{after} anything above about {percent(affordable * 100)} lost money. {CEILING}"
 
 
-def discount_line(m0: float, m1: float, brought: float, ads_share: float = 0.0) -> str | None:
+def discount_line(m0: float, m1: float, brought: float, ads_share: float = 0.0, label: str = "Discount") -> str | None:
     """The page's line: "Discount: you gave about 12% off on average; at the extra sales it
-    brought, anything above about 26% lost money. This is a ceiling, not a recommendation."."""
+    brought, anything above about 26% lost money. This is a ceiling, not a recommendation.".
+    ``label``: "Discount", "Price cut" or "Discount and price cut"."""
     numbers = _discount(m0, m1, brought, ads_share)
     if numbers is None:
         return None
     given, affordable = numbers
-    gave = f"Discount: you gave about {percent(given * 100)} off on average"
+    if percent(given * 100) == "0%":
+        return None  # no discount to speak of: the note asks for a price cut instead
+    gave = f"{label}: you gave about {percent(given * 100)} off on average"
     after = ", after the ads," if ads_share else ","
     if affordable is None:
-        return f"{gave}; at the sales it brought{after} any discount at all lost money."
+        noun = "price cut" if label == "Price cut" else "discount"
+        return f"{gave}; at the sales it brought{after} any {noun} at all lost money."
     if percent(affordable * 100) == percent(given * 100):
         return f"{gave}, about what the extra sales it brought could afford{' after the ads' if ads_share else ''}."
     return (f"{gave}; at the extra sales it brought{after} anything above about {percent(affordable * 100)} lost money. "
@@ -288,9 +292,19 @@ def added_line(value: str | None, amount: str | None, verdict: str, interval_pct
 
 
 def after_line(after: str | None) -> str | None:
-    """"After the sale (3 weeks): sales were about as expected." from core's "In the 3 weeks after, …"."""
+    """"After the sale (3 weeks): sales were about as expected." from core's "In the 3 weeks after, …".
+
+    Since core 0.1.46 the weeks after stop at the next promotion: "In the 11 days before
+    the next promotion, …", or "The next promotion started 5 days later, so …".
+    """
     if not after:
         return None
+    m = re.match(r"In the (.+?) before the next promotion, (.*)$", after)
+    if m:
+        return f"After the sale ({m.group(1)}, until the next sale): {m.group(2)}"
+    m = re.match(r"The next promotion (started .*)$", after)
+    if m:
+        return f"After the sale: the next sale {m.group(1)}"
     m = re.match(r"In the (.+?) after, (.*)$", after)
     return f"After the sale ({m.group(1)}): {m.group(2)}" if m else after
 
@@ -306,6 +320,13 @@ def headline(b: dict) -> str | None:
 # have had, the same range as break-even's sentence. A call on profit, so it doesn't
 # use the four verdict words.
 
+# A sale whose discount share is under 2 points above the usual day's shows no discount:
+# it may have been run by lowering prices, which Shopify's discounts don't record.
+NO_DISCOUNT_FOUND = 0.02
+NO_DISCOUNT_NOTE = (
+    "We didn't find discounts for these dates. If you cut prices instead, enter the average cut so break-even counts it."
+)
+
 MADE_MONEY = "It made money."
 LOST_MONEY = "It lost money."
 CANT_TELL = "Can't tell: it could have gone either way."
@@ -313,6 +334,7 @@ CANT_TELL = "Can't tell: it could have gone either way."
 
 def profitability(
     needed: float | None, got: float, got_low: float, got_high: float | None, sentence: str, ads: str | None = None,
+    covers: str = "the discount",
 ) -> dict:
     """Made money, lost money or can't tell, and the line under it.
 
@@ -326,7 +348,7 @@ def profitability(
     """
     if needed is None:
         return {"call": "no", "headline": LOST_MONEY, "sub": sentence}
-    cover = f"to cover the discount and {ads} of ads," if ads else "to cover the discount (ad spend not included)"
+    cover = f"to cover {covers} and {ads} of ads," if ads else f"to cover {covers} (ad spend not included)"
     since = ", as it earned as much or more on each sale," if needed <= 1 else ""
     likely = f"likely above {multiple(got_low)}" if got_high is None else f"likely {multiple(got_low)} to {multiple(got_high)}"
     sub = f"It needed about {multiple(needed)} your normal sales {cover}{since} and brought about {multiple(got)} ({likely})."
@@ -364,12 +386,15 @@ def other_sales(others: list[dict] | None, first: pd.Timestamp, last: pd.Timesta
 def analyse(
     csv_text: str, start: str, end: str, margin_pct: float | None, symbol: str = "£",
     name: str | None = None, today: str | None = None, others: list[dict] | None = None, ads: float | None = None,
+    cut: float | None = None,
 ) -> dict:
     """Everything the page shows, as plain data.
 
     ``today``, the visitor's date: its row and later are incomplete. ``others``, any
     other sales in the period ({start, end}): measured with them left out, as the app does.
-    ``ads``, extra ad spend for the sale: a cost break-even has to cover.
+    ``ads``, extra ad spend for the sale: a cost break-even has to cover. ``cut``, the
+    average price cut in percent, for a sale run by lowering prices, which Shopify's
+    discounts don't show.
     """
     rows = read_export(csv_text, today)
     if rows.empty:
@@ -438,14 +463,23 @@ def analyse(
     for w in extra:
         usual = usual[(usual["Day"] < pd.Timestamp(w["start"])) | (usual["Day"] > pd.Timestamp(w["end"]))]
     d0, d1 = usual_discount(usual), out["discount_depth"]
+    # A price cut is off normal prices, and discount codes come off the cut price, so
+    # the sale's depth against normal prices is 1 − (1 − cut)(1 − d₁).
+    price_cut = min(max(float(cut or 0) / 100, 0.0), 0.95)
+    codes = d1 - d0 >= NO_DISCOUNT_FOUND
+    depth = 1 - (1 - price_cut) * (1 - d1)
+    covers, label = (("the discount and price cut", "Discount and price cut") if codes and price_cut
+                     else ("the price cut", "Price cut") if price_cut else ("the discount", "Discount"))
+    if not codes and not price_cut:
+        out["warnings"] = out["warnings"] + [NO_DISCOUNT_NOTE]
     m0 = margin_pct / 100
-    m1 = 1 - (1 - d0) * (1 - m0) / (1 - d1) if d1 < 1 else -math.inf
+    m1 = 1 - (1 - d0) * (1 - m0) / (1 - depth) if depth < 1 else -math.inf
     c0, c1 = r0 * m0, row.observed_total * m1
     margin = {"estimate": c1 - c0, "pct": 100 * (c1 - c0) / c0 if c0 else None}
     spend = max(0.0, float(ads or 0))
     b = break_even(revenue, margin, symbol, spend)
     if b and r0 > 0:
-        out["discount_line"] = discount_line(m0, m1, row.observed_total / r0, spend / r0)
+        out["discount_line"] = discount_line(m0, m1, row.observed_total / r0, spend / r0, label)
     out["break_even"] = b
     out["break_even_headline"] = headline(b) if b else None
     if b and row.interval_pct and r0 > 0:
@@ -455,6 +489,25 @@ def analyse(
         out["profit"] = profitability(
             (m0 * r0 + spend) / (m1 * r0) if m1 > 0 else None, row.observed_total / r0,
             1 + low / 100, None if high is None else 1 + high / 100, b["sentence"],
-            ad_spend(spend, symbol) if spend else None,
+            ad_spend(spend, symbol) if spend else None, covers,
         )
     return out
+
+
+def sale_discount(csv_text: str, start: str, end: str, today: str | None = None) -> dict:
+    """Whether the report shows a discount for these dates, for the page's price-cut hint.
+
+    "Found" when the sale's discount share is NO_DISCOUNT_FOUND or more above the usual
+    day's; a report that can't be read says found, so the page doesn't nag before the
+    check explains what's wrong.
+    """
+    try:
+        rows = read_export(csv_text, today)
+    except ValueError:
+        return {"found": True}
+    first, last = pd.Timestamp(start), pd.Timestamp(end)
+    in_sale = rows[(rows["Day"] >= first) & (rows["Day"] <= last)]
+    usual = rows[(rows["Day"] < first) & (rows["Day"] >= first - pd.Timedelta(days=56))]
+    if in_sale.empty:
+        return {"found": True}
+    return {"found": discount_depth(in_sale) - usual_discount(usual) >= NO_DISCOUNT_FOUND}

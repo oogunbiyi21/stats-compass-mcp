@@ -392,3 +392,40 @@ class TestEachFactOnce:
         assert out["after_line"].startswith("After the sale (")
         assert out["discount_line"].startswith("Discount: you gave about 28% off on average")  # 30% off, against the usual 3%
         assert out["break_even"]["sentence"].startswith("It earned less on each sale")  # kept for "How this was worked out"
+
+
+class TestPriceCuts:
+    """A sale run by lowering prices shows no discount in Shopify's report: break-even
+    needs the cut typed in, or it reads as full price."""
+
+    def test_a_typed_cut_stops_a_trivial_made_money(self):
+        # No discount codes in the sale (3% off, the store's usual), sales up about 30%.
+        report = shopify_export(lift_share=0.3, discount=0.03)
+        plain = checker.analyse(report, "2026-11-27", "2026-11-30", 50)
+        assert plain["profit"]["call"] == "yes" and checker.NO_DISCOUNT_NOTE in plain["warnings"]
+        assert plain["discount_line"] is None  # no "you gave about 0% off"
+        cut = checker.analyse(report, "2026-11-27", "2026-11-30", 50, cut=25)
+        assert cut["profit"]["call"] != "yes"
+        assert "to cover the price cut (ad spend not included)" in cut["profit"]["sub"]
+        assert cut["discount_line"].startswith("Price cut: you gave about")
+        assert checker.NO_DISCOUNT_NOTE not in cut["warnings"]
+
+    def test_codes_on_top_of_a_cut(self):
+        out = checker.analyse(shopify_export(discount=0.1), "2026-11-27", "2026-11-30", 50, cut=20)
+        assert "to cover the discount and price cut" in out["profit"]["sub"]
+        assert out["discount_line"].startswith("Discount and price cut: you gave about")
+
+    def test_the_page_hint(self):
+        assert checker.sale_discount(shopify_export(), "2026-11-27", "2026-11-30")["found"] is True
+        assert checker.sale_discount(shopify_export(discount=0.03), "2026-11-27", "2026-11-30")["found"] is False
+        assert checker.sale_discount("Product,Units\nMug,3\n", "2026-11-27", "2026-11-30")["found"] is True
+
+
+class TestUntilTheNextSale:
+    """Core 0.1.46 stops a sale's weeks after at the next one: the page says so."""
+
+    def test_the_lines(self):
+        assert checker.after_line("In the 11 days before the next promotion, sales ran 24% below expected (£971 less): customers may have stocked up.") == (
+            "After the sale (11 days, until the next sale): sales ran 24% below expected (£971 less): customers may have stocked up.")
+        assert checker.after_line("The next promotion started 5 days later, so the weeks after can't be judged.") == (
+            "After the sale: the next sale started 5 days later, so the weeks after can't be judged.")
