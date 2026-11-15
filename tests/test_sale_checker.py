@@ -429,3 +429,24 @@ class TestUntilTheNextSale:
             "After the sale (11 days, until the next sale): sales ran 24% below expected (£971 less): customers may have stocked up.")
         assert checker.after_line("The next promotion started 5 days later, so the weeks after can't be judged.") == (
             "After the sale: the next sale started 5 days later, so the weeks after can't be judged.")
+
+
+class TestCheckAgain:
+    """The reminder: offered while the report doesn't cover the 3 weeks after the sale."""
+
+    def test_a_recent_sale(self):
+        # Black Friday 27–30 Nov 2026, report to 14 Dec: the 3 weeks after end on 21 Dec.
+        r = checker.reminder(pd.Timestamp("2026-11-30"), pd.Timestamp("2026-12-14"), "2026-12-15")
+        assert r == {"reexport": False, "date": "2026-12-22", "label": "22 December", "tag": "remind-2026-12-22"}
+
+    def test_the_weeks_after_are_in_the_report(self):
+        assert checker.reminder(pd.Timestamp("2026-06-21"), pd.Timestamp("2026-11-01"), "2026-11-15") is None
+
+    def test_a_report_that_is_out_of_date(self):
+        assert checker.reminder(pd.Timestamp("2026-11-30"), pd.Timestamp("2026-12-05"), "2027-01-10") == {"reexport": True}
+
+    def test_on_a_check(self):
+        out = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50, today="2026-12-15")
+        assert out["remind"]["label"] == "22 December"
+        old = checker.analyse(shopify_export(days=900), "2025-11-28", "2025-12-01", 50, today="2026-12-15")
+        assert old["remind"] is None

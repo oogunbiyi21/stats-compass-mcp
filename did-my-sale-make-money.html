@@ -15,13 +15,30 @@
     <meta property="og:image" content="https://statscompass.io/assets/commerce/promotions-og.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="shortcut icon" href="./assets/logo/logo1.png" type="image/x-icon" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { prefix: 'tw-' }</script>
     <link rel="stylesheet" href="./css/index.css" />
+    <link rel="stylesheet" href="/css/tailwind.css" />
     <!-- The app's chart library, pinned to the version the app uses. -->
     <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@observablehq/plot@0.6.17/dist/plot.umd.min.js"></script>
     <script type="module" src="./assets/checker/page.js"></script>
+    <style>
+        /* "Save as PDF": the browser's print, with only the result on the page. */
+        @media print {
+            body > header, body > footer, main > div > :not(#result), #result .no-print { display: none !important; }
+            main { margin-top: 0 !important; padding: 0 !important; }
+            #print-head { display: block !important; }
+            #worked-box > summary { display: none; }
+            /* One page: a smaller headline and chart, tighter spacing. */
+            #result > * + * { margin-top: 8px !important; }
+            #result { font-size: 13px; }
+            #result-title { font-size: 18px !important; }
+            #profit { font-size: 24px !important; }
+            #profit-sub { font-size: 14px !important; }
+            #chart { width: 55% !important; }
+            figcaption { font-size: 11px !important; }
+            @page { margin: 12mm; }
+        }
+    </style>
     <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5acfd6a4cd23427cbea5c6c689599dfc"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <!--
@@ -52,14 +69,25 @@ figures). The chosen file is read in the browser and never uploaded.
                 discount paid for itself. It's free, and it uses the same calculations as the Stats Compass app.
             </p>
 
+            <section class="tw-mb-8">
+                <h2 class="tw-mb-3 tw-text-xl tw-font-semibold">What you'll see</h2>
+                <figure>
+                    <img src="/assets/checker/example-result.png" width="780" height="1698" loading="lazy"
+                        alt="An example result: It made money. It needed about 1.61× its normal sales to cover the discount and brought about 2.06×."
+                        class="tw-w-full tw-rounded-xl tw-border tw-border-gray-200 sm:tw-max-w-sm" />
+                    <figcaption class="tw-mt-2 tw-text-sm tw-text-gray-600">An example result, from a made-up store's sample file.</figcaption>
+                </figure>
+                <button id="try-sample" type="button" class="tw-mt-3 tw-rounded-lg tw-border tw-border-black tw-px-4 tw-py-2 tw-font-semibold hover:tw-bg-gray-50">Try it with a sample file</button>
+            </section>
+
             <section class="tw-mb-8 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-5">
                 <p class="tw-font-semibold">Your file never leaves your computer.</p>
                 <p class="tw-mt-1 tw-text-gray-700">
                     It's read and analysed in this page, and not sent anywhere. See our
                     <a href="/privacy" class="tw-underline">privacy policy</a>.
                 </p>
-                <p id="status" class="tw-mt-3 tw-text-sm tw-text-gray-600" role="status" aria-live="polite">Getting the checker ready…</p>
-                <p id="first-visit" class="tw-mt-1 tw-text-xs tw-text-gray-500">First visit downloads about 30 MB; on a slow connection this can take a few minutes.</p>
+                <p id="status" class="tw-mt-3 tw-text-sm tw-text-gray-600" role="status" aria-live="polite">The checker starts when you choose your file.</p>
+                <p id="first-visit" hidden class="tw-mt-1 tw-text-xs tw-text-gray-500">First visit downloads about 30 MB; on a slow connection this can take a few minutes.</p>
             </section>
 
             <form id="form" class="tw-space-y-6">
@@ -78,6 +106,19 @@ figures). The chosen file is read in the browser and never uploaded.
                 <div>
                     <label for="file" class="tw-mb-2 tw-block tw-text-xl tw-font-semibold">2. Choose the file</label>
                     <input id="file" type="file" accept=".csv,text/csv" class="tw-block tw-w-full tw-text-sm" />
+                    <!-- Its inputs belong to running-form, below the main form (forms can't nest). -->
+                    <div id="running" class="tw-mt-4 tw-text-sm tw-text-gray-700">
+                        <p>Sale still running? Your numbers won't be ready until about a week after it ends.</p>
+                        <div class="tw-mt-2 tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row sm:tw-items-center">
+                            <input form="running-form" name="email" type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Your email"
+                                class="tw-w-full tw-min-w-0 tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-max-w-xs" />
+                            <label class="tw-sr-only" for="running-date">Remind me on</label>
+                            <input id="running-date" form="running-form" type="date" class="tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                            <button form="running-form" type="submit" class="tw-self-start tw-rounded-lg tw-border tw-border-black tw-px-4 tw-py-2 tw-font-semibold hover:tw-bg-gray-50">Remind me</button>
+                        </div>
+                        <p id="running-note" class="tw-mt-1 tw-text-xs tw-text-gray-500"></p>
+                        <p id="running-done" hidden class="tw-mt-2 tw-font-semibold tw-text-green-700" role="status"></p>
+                    </div>
                 </div>
                 <div>
                     <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">3. Which sale do you want to check?</h2>
@@ -161,9 +202,18 @@ figures). The chosen file is read in the browser and never uploaded.
                 <p id="hint" hidden class="tw-text-amber-800" role="status"></p>
                 <p id="error" hidden class="tw-rounded-lg tw-bg-red-50 tw-p-3 tw-text-red-800" role="alert"></p>
             </form>
+            <form id="running-form" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank">
+                <input type="hidden" name="embed" value="1" />
+                <input type="hidden" name="tag" value="sale-running" />
+                <input id="running-tag" type="hidden" name="tag" value="" />
+            </form>
 
             <section id="result" hidden class="tw-mt-10 tw-space-y-4" aria-live="polite">
                 <!-- Each fact once: the call and why, what the sale added, the weeks after, the discount, the chart. -->
+                <div id="print-head" class="tw-hidden tw-text-sm tw-text-gray-600">
+                    <p class="tw-font-semibold tw-text-black">Did my sale make money? Stats Compass</p>
+                    <p id="print-meta"></p>
+                </div>
                 <h2 id="result-title" class="tw-text-2xl tw-font-semibold">The result</h2>
                 <div id="profit-box" hidden>
                     <p id="profit" class="tw-text-3xl tw-font-semibold tw-leading-tight"></p>
@@ -176,6 +226,30 @@ figures). The chosen file is read in the browser and never uploaded.
                     <p id="added" class="tw-leading-relaxed"></p>
                 </div>
                 <p id="after" class="tw-leading-relaxed tw-text-gray-700"></p>
+                <!-- The main ask, while the report doesn't cover the 3 weeks after the sale. -->
+                <div id="remind-box" hidden class="no-print tw-rounded-2xl tw-border tw-border-gray-300 tw-bg-gray-50 tw-p-4">
+                    <p class="tw-leading-relaxed">The 3 weeks after a sale often look quieter, because some customers bought early. Your report
+                        doesn't cover them yet. Check again once they've passed, and the result will show them.</p>
+                    <form id="remind-form" class="tw-mt-3 tw-space-y-2" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank">
+                        <input type="hidden" name="embed" value="1" />
+                        <input type="hidden" name="tag" value="dip-reminder" />
+                        <input id="remind-tag" type="hidden" name="tag" value="" />
+                        <div class="tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row">
+                            <input name="email" type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Your email"
+                                class="tw-w-full tw-min-w-0 tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-max-w-xs" />
+                            <button id="remind-button" type="submit" class="tw-self-start tw-rounded-lg tw-bg-black tw-px-4 tw-py-2 tw-font-semibold tw-text-white">Remind me</button>
+                        </div>
+                        <p class="tw-text-sm tw-text-gray-600">One email on that date. Your file stays on your computer, so you'll upload it again then.</p>
+                        <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-700">
+                            <input type="checkbox" name="tag" value="early-access" class="tw-mt-1" />
+                            <span>Also email me about early access to the Stats Compass Shopify app (a few emails, unsubscribe any time).</span>
+                        </label>
+                        <p class="tw-text-xs tw-text-gray-500">Sent by Stats Compass using Buttondown. You'll get a confirmation email first.
+                            <a href="/privacy" class="tw-underline">Privacy notice</a></p>
+                    </form>
+                    <p id="remind-done" hidden class="tw-mt-3 tw-font-semibold tw-text-green-700" role="status"></p>
+                </div>
+                <p id="reexport" hidden class="no-print tw-leading-relaxed tw-text-gray-700">Your report ends before the 3 weeks after the sale had passed. Export it again to see them.</p>
                 <p id="discount" class="tw-leading-relaxed tw-text-gray-700"></p>
                 <figure>
                     <div id="chart" class="tw-max-w-xl"></div>
@@ -189,8 +263,35 @@ figures). The chosen file is read in the browser and never uploaded.
                     <p class="tw-font-semibold">Notes</p>
                     <ul id="notes" class="tw-list-disc tw-space-y-1 tw-pl-5"></ul>
                 </div>
-                <p class="tw-text-sm"><a href="#how-it-works" class="tw-text-blue-600 hover:tw-underline">How this works and its limits</a></p>
-                <div class="tw-rounded-2xl tw-border tw-border-gray-200 tw-p-5">
+                <p class="tw-text-sm tw-text-gray-600"><span class="tw-hidden print:tw-inline">Checked with the free sale checker at statscompass.io/did-my-sale-make-money. </span><a href="#how-it-works" class="no-print tw-text-blue-600 hover:tw-underline">How this works and its limits</a></p>
+                <div class="no-print">
+                    <button id="pdf-open" type="button" class="tw-rounded-lg tw-border tw-border-black tw-px-4 tw-py-2 tw-font-semibold hover:tw-bg-gray-50">Save as PDF</button>
+                </div>
+                <dialog id="pdf-dialog" class="no-print tw-w-[min(28rem,calc(100vw-2rem))] tw-rounded-2xl tw-p-6 backdrop:tw-bg-black/40">
+                    <h2 class="tw-text-xl tw-font-semibold">Save this result as a PDF</h2>
+                    <label class="tw-mt-4 tw-block tw-text-sm tw-text-gray-700">Prepared by (optional)
+                        <input id="prepared-by" type="text" placeholder="Your name or agency" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                    </label>
+                    <p class="tw-mt-2 tw-text-sm tw-text-gray-600">Your browser's print window opens: choose "Save as PDF". It's made here, on your computer.</p>
+                    <div class="tw-mt-4 tw-flex tw-gap-2">
+                        <button id="pdf-print" type="button" class="tw-rounded-lg tw-bg-black tw-px-4 tw-py-2 tw-font-semibold tw-text-white">Save as PDF</button>
+                        <button id="pdf-cancel" type="button" class="tw-rounded-lg tw-px-4 tw-py-2 tw-font-semibold tw-text-gray-700">Cancel</button>
+                    </div>
+                    <form id="multi-form" class="tw-mt-6 tw-space-y-2 tw-border-t tw-border-gray-200 tw-pt-4" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank">
+                        <p class="tw-text-sm tw-text-gray-700">Doing this for several clients? Tell me when the multi-store version is ready.</p>
+                        <input type="hidden" name="embed" value="1" />
+                        <input type="hidden" name="tag" value="multi-store" />
+                        <div class="tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row">
+                            <input name="email" type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Your email"
+                                class="tw-w-full tw-min-w-0 tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-flex-1" />
+                            <button type="submit" class="tw-rounded-lg tw-border tw-border-black tw-px-4 tw-py-2 tw-font-semibold hover:tw-bg-gray-50">Tell me</button>
+                        </div>
+                        <p class="tw-text-xs tw-text-gray-500">Sent by Stats Compass using Buttondown. You'll get a confirmation email first.
+                            <a href="/privacy" class="tw-underline">Privacy notice</a></p>
+                    </form>
+                    <p id="multi-done" hidden class="tw-mt-3 tw-font-semibold tw-text-green-700" role="status">Check your inbox to confirm.</p>
+                </dialog>
+                <div class="no-print tw-rounded-2xl tw-border tw-border-gray-200 tw-p-5">
                     <p class="tw-font-semibold">Stats Compass does this for every promotion, every week.</p>
                     <p class="tw-mt-1 tw-text-gray-700">
                         The Stats Compass app for Shopify judges each week's sales and every discount against what you'd
@@ -211,6 +312,8 @@ figures). The chosen file is read in the browser and never uploaded.
                         <input id="list-email" name="email" type="email" required autocomplete="email" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-max-w-sm" />
                     </label>
                     <input type="hidden" name="embed" value="1" />
+                    <input type="hidden" name="tag" value="early-access" />
+                    <input type="hidden" name="tag" value="checker" />
                     <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-700">
                         <input id="list-consent" type="checkbox" required class="tw-mt-1" />
                         <span>Email me about early access to Stats Compass. I can unsubscribe at any time.</span>
@@ -272,7 +375,7 @@ figures). The chosen file is read in the browser and never uploaded.
                     <li>Sales run by lowering prices don't show in Shopify's discounts; enter the average cut.</li>
                 </ul>
 
-                <h3 class="tw-mt-5 tw-font-semibold tw-text-black">How it did on real data</h3>
+                <h3 id="real-data" class="tw-mt-5 tw-scroll-mt-4 tw-font-semibold tw-text-black">How it did on real data</h3>
                 <p class="tw-mt-2">
                     We tested it on two years of a real UK online retailer's daily sales (the UCI Online Retail II
                     dataset), on hundreds of dates with no sale, and with sales of a known size added in:

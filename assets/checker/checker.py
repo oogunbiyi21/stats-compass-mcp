@@ -420,6 +420,7 @@ def analyse(
             ),
             "after": None, "amount": None, "discount_depth": discount_depth(in_sale), "break_even": None, "break_even_headline": None,
             "profit": None, "span": wording.span(first.date(), last.date()), "added": None, "after_line": None, "discount_line": None,
+            "remind": None,
         }
     state = DataFrameState()
     state.set_dataframe(rows, name="sales", operation="upload")
@@ -447,6 +448,7 @@ def analyse(
         "added": added_line(row.value, row.amount, row.verdict, row.interval_pct),
         "after_line": after_line(row.after_summary),
         "discount_line": None,
+        "remind": reminder(last, rows["Day"].max(), today) if row.verdict != "insufficient" else None,
     }
     if row.verdict == "insufficient" or margin_pct is None:
         return out
@@ -492,6 +494,23 @@ def analyse(
             ad_spend(spend, symbol) if spend else None, covers,
         )
     return out
+
+
+def reminder(last: pd.Timestamp, report_ends: pd.Timestamp, today: str | None) -> dict | None:
+    """When the report doesn't yet cover the 3 weeks after the sale, the date to check again.
+
+    The weeks after are reported on their own line ("After the sale …"), so a reminder
+    is offered whenever they're missing, whatever the headline: the day after they end,
+    "15 December", with the tag that schedules it. If that day has passed already, the
+    report is just out of date: export it again.
+    """
+    if report_ends >= last + pd.Timedelta(days=21):
+        return None
+    on = last + pd.Timedelta(days=22)
+    if today and on <= pd.Timestamp(today):
+        return {"reexport": True}
+    return {"reexport": False, "date": on.date().isoformat(), "label": f"{on.day} {MONTHS[on.month - 1]}",
+            "tag": f"remind-{on.date().isoformat()}"}
 
 
 def sale_discount(csv_text: str, start: str, end: str, today: str | None = None) -> dict:

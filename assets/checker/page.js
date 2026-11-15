@@ -1,13 +1,25 @@
-// The checker page: starts the checker (worker.js) as soon as the page opens,
-// reads the chosen file here in the browser, and shows the result. The file's
-// text goes to the worker by postMessage; it is never sent over the network.
+// The checker page: starts the checker (worker.js) when the visitor first reaches for a
+// file or the sample, reads the chosen file here in the browser, and shows the result.
+// The file's text goes to the worker by postMessage; it is never sent over the network.
 import { CAPTION, promotionDaily } from "./chart.js";
 
 const $ = (id) => document.getElementById(id);
-const worker = new Worker("/assets/checker/worker.js");
+let worker = null;
 let ready = false;
 
-worker.onmessage = ({ data }) => {
+// About 32 MB the first time, so it isn't fetched for a visit that only reads the page:
+// it starts on the first touch of the file box (only once a file is chosen with Save-Data on).
+function startChecker() {
+  if (worker) return;
+  worker = new Worker("/assets/checker/worker.js");
+  worker.onmessage = onMessage;
+  $("status").textContent = "Getting the checker ready…";
+  $("first-visit").hidden = false;
+}
+const saveData = Boolean(navigator.connection && navigator.connection.saveData);
+for (const type of saveData ? ["change", "input"] : ["pointerdown", "focus", "change", "input"]) $("file").addEventListener(type, startChecker);
+
+function onMessage({ data }) {
   if (data.type === "progress") {
     $("status").textContent = `Getting the checker ready… ${data.loadedMb} of about ${data.totalMb} MB`;
   } else if (data.type === "ready") {
@@ -31,12 +43,12 @@ worker.onmessage = ({ data }) => {
     $("error").textContent = data.message;
     $("error").hidden = false;
   }
-};
+}
 
 // What's still missing before a check, said on the click rather than by a greyed-out button.
 function missing() {
-  if (!ready) return "The checker is still getting ready: it'll take a moment.";
   if (!$("file").files.length) return "Choose your report first.";
+  if (!ready) return "The checker is still getting ready: it'll take a moment.";
   if (!$("start").value || !$("end").value) return "Choose which sale to check, or enter its first and last day.";
   return null;
 }
@@ -104,7 +116,32 @@ function suggest(sales) {
   for (const s of sales) addOther(s.start, s.end, true);
   offerChoices();
   showFound();
+  // The sample: its Black Friday, ready to check.
+  const friday = sample ? found.findIndex((s) => s.start === SAMPLE_SALE) : -1;
+  if (friday >= 0) {
+    select(String(friday));
+    $("name").value = "Black Friday (sample)";
+    $("name").dataset.auto = "";  // filled in, so it gives way to the next report's sale
+    $("check").focus();
+  }
 }
+
+// "Try it with a sample file": a made-up store's export (scripts/make_checker_sample.py),
+// fetched before the checker starts, then read like any other file.
+const SAMPLE_SALE = "2025-11-28";
+let sample = false;
+$("try-sample").addEventListener("click", async () => {
+  const text = await (await fetch("/assets/checker/sample-export.csv")).text();
+  const files = new DataTransfer();
+  files.items.add(new File([text], "sample-export.csv", { type: "text/csv" }));
+  $("file").files = files.files;
+  sample = true;
+  startChecker();
+  if ($("margin").value === "") $("margin").value = "45";
+  $("file").dispatchEvent(new Event("input"));
+  $("file").scrollIntoView({ behavior: "smooth", block: "center" });
+});
+$("file").addEventListener("change", () => { sample = false; });
 
 // The found sales are offered as the sale to check. The one chosen fills the dates
 // (still editable); the rest stay other sales. A lone sale is chosen for the merchant.
@@ -247,15 +284,55 @@ $("form").addEventListener("submit", async (event) => {
 // The ad spend is in the store's currency.
 $("currency").addEventListener("change", () => { $("ads-symbol").textContent = $("currency").value; });
 
-// The early-access list: the form posts the visitor's email to Buttondown in a new tab
-// (the browser checks the email and the consent box first), and this page keeps the result.
-// Only this form sends anything, and only when the visitor joins.
-$("list-form").addEventListener("submit", (event) => {
-  const form = event.currentTarget;
-  setTimeout(() => {
+// The sign-ups: each form posts the visitor's email to Buttondown in a new tab (the
+// browser checks the email, and any required box, first), and this page keeps the result.
+// Only these forms send anything, and only when the visitor asks.
+function signUp(form, done, text) {
+  form.addEventListener("submit", () => setTimeout(() => {
     form.hidden = true;
-    $("list-done").hidden = false;
-  });
+    if (text) done.textContent = text();
+    done.hidden = false;
+  }));
+}
+signUp($("list-form"), $("list-done"));
+signUp($("multi-form"), $("multi-done"));
+signUp($("remind-form"), $("remind-done"), () => `Check your inbox to confirm, and we'll email you on ${$("remind-form").dataset.label}.`);
+signUp($("running-form"), $("running-done"), () => `Check your inbox to confirm, and we'll email you on ${dayMonth($("running-date").value)}.`);
+
+const dayMonth = (iso) => {
+  const [, m, d] = parts(iso);
+  return `${d} ${MONTHS[m - 1]}`;
+};
+
+// "Sale still running?": a reminder about a week after it ends. The default is 7 December,
+// a week after Cyber Monday, while that's ahead; otherwise two weeks from today. The date
+// is the tag Buttondown's scheduled email goes to.
+function runningDefault() {
+  const now = new Date();
+  const december = new Date(now.getFullYear(), 11, 7);
+  const day = now <= december ? december : new Date(now.getTime() + 14 * 86_400_000);
+  return day.toLocaleDateString("en-CA");
+}
+function runningDate() {
+  const iso = $("running-date").value || runningDefault();
+  $("running-tag").value = `remind-${iso}`;
+  $("running-note").textContent = `We'll email you once, on ${dayMonth(iso)}, with a link back here. Nothing else.`;
+}
+$("running-date").value = runningDefault();
+$("running-date").min = new Date().toLocaleDateString("en-CA");
+$("running-date").addEventListener("input", runningDate);
+runningDate();
+
+// "Save as PDF": the browser's print window, with only the result (see the page's print styles).
+$("pdf-open").addEventListener("click", () => $("pdf-dialog").showModal());
+$("pdf-cancel").addEventListener("click", () => $("pdf-dialog").close());
+$("pdf-print").addEventListener("click", () => {
+  const by = $("prepared-by").value.trim();
+  const today = new Date().toLocaleDateString("en-CA");
+  $("print-meta").textContent = `${by ? `Prepared by ${by} · ` : ""}Checked on ${dayMonth(today)} ${today.slice(0, 4)}`;
+  $("worked-box").open = true;
+  $("pdf-dialog").close();
+  setTimeout(() => window.print(), 100);
 });
 
 const BADGE = {
@@ -301,6 +378,18 @@ function show(r) {
   $("notes").replaceChildren(...(r.warnings || []).map((w) => Object.assign(document.createElement("li"), { textContent: w })));
   $("notes-box").hidden = !(r.warnings && r.warnings.length);
   $("result").hidden = false;
-  $("signup").hidden = false;
+  // While the report doesn't cover the 3 weeks after, the main ask is a reminder to check
+  // again (with early access as a separate, unticked box); otherwise, early access.
+  const remind = r.remind && !r.remind.reexport ? r.remind : null;
+  $("remind-box").hidden = !remind;
+  if (remind) {
+    $("remind-tag").value = remind.tag;
+    $("remind-form").dataset.label = remind.label;
+    $("remind-button").textContent = `Remind me on ${remind.label}`;
+    $("remind-form").hidden = false;
+    $("remind-done").hidden = true;
+  }
+  $("reexport").hidden = !(r.remind && r.remind.reexport);
+  $("signup").hidden = Boolean(remind);
   $("result").scrollIntoView({ behavior: "smooth", block: "start" });
 }

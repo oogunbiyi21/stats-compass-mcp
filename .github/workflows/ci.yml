@@ -37,3 +37,22 @@ jobs:
 
       - name: Run the test suite
         run: poetry run pytest -q -p no:cacheprovider
+
+  site-css:
+    # The site's compiled Tailwind (css/tailwind.css) has every class its pages use:
+    # rebuilt here, it must match the committed file. Run scripts/build-css.sh if not.
+    name: site css
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Rebuild the site's CSS
+        run: scripts/build-css.sh
+
+      - name: The committed CSS is up to date
+        run: git diff --exit-code css/tailwind.css

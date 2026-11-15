@@ -85,7 +85,7 @@
           "name": "How fair was this test?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Generated data. The orders were generated so the answers are known. One leading question. We added the comparison to the second question's wording. The third and fourth followed it in the same conversation, so Sidekick may have carried that comparison forward. Each question was asked once. Stats Compass's answers aren't generated: they come from fixed, versioned calculations, so the same question on the same data gives the same answer every time, and every figure can be traced to how it was worked out. Sidekick's answers are generated, so, like any generated answer, they can differ from one asking to the next."
+            "text": "Generated data. The orders were generated so the answers are known. One leading question. We added the comparison to the second question's wording. The third and fourth followed it in the same conversation, so Sidekick may have carried that comparison forward. Each question was asked once. Sidekick's answers are generated, so, like any generated answer, they can differ from one asking to the next. Stats Compass's don't: the same question on the same data gives the same answer."
           }
         }
       ]
@@ -95,9 +95,8 @@
     </script>
     <link rel="shortcut icon" href="./assets/logo/logo1.png" type="image/x-icon" />
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { prefix: 'tw-' }</script>
     <link rel="stylesheet" href="./css/index.css" />
+    <link rel="stylesheet" href="/css/tailwind.css" />
     <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5acfd6a4cd23427cbea5c6c689599dfc"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 
@@ -135,10 +134,11 @@ Sidekick is named in plain text only: no Shopify logos or branding.
                     <li>Stats Compass compares every promotion with what would have happened anyway, adjusted for the
                         season, and says whether it made money, with a range. It doesn't need the question phrased
                         the right way, and it checks again every week.</li>
-                    <li>Stats Compass doesn't generate its numbers. The same question on the same data always gives
-                        the same answer, and you can see how each one was worked out.</li>
                 </ul>
             </section>
+            <p class="tw-mb-10 -tw-mt-6">
+                <a href="/did-my-sale-make-money" class="tw-font-semibold tw-text-blue-600 hover:tw-underline">Check your own sale the same way, free →</a>
+            </p>
 
             <section class="tw-mb-10">
                 <h2 class="tw-mb-3 tw-text-2xl tw-font-semibold">Same question, same answer</h2>
@@ -160,7 +160,8 @@ Sidekick is named in plain text only: no Shopify logos or branding.
                 <p class="tw-mb-3 tw-leading-relaxed tw-text-gray-700">
                     We asked Sidekick and Stats Compass the same five questions on a Shopify development store with
                     generated orders, so the right answers are known. It holds 4,181 orders from April 2025 to
-                    October 2026 and two discount promotions:
+                    October 2026 and two discount promotions. It's a smaller copy of the demo store on our homepage,
+                    with about a quarter of its orders, so its SUMMER40 figures differ from the homepage's:
                 </p>
                 <ul class="tw-list-disc tw-space-y-2 tw-pl-6 tw-leading-relaxed tw-text-gray-700">
                     <li><strong>SUMMER40:</strong> 40% off, 14 May to 3 June 2026, 310 orders. It brought more sales
@@ -295,20 +296,24 @@ Sidekick is named in plain text only: no Shopify logos or branding.
                     <li><strong>One leading question.</strong> We added the comparison to the second question's
                         wording. The third and fourth followed it in the same conversation, so Sidekick may have
                         carried that comparison forward.</li>
-                    <li><strong>Each question was asked once.</strong> Stats Compass's answers aren't generated:
-                        they come from fixed, versioned calculations, so the same question on the same data gives the
-                        same answer every time, and every figure can be traced to how it was worked out. Sidekick's
-                        answers are generated, so, like any generated answer, they can differ from one asking to the
-                        next.</li>
+                    <li><strong>Each question was asked once.</strong> Sidekick's answers are generated, so, like any
+                        generated answer, they can differ from one asking to the next. Stats Compass's don't (see
+                        "Same question, same answer" above).</li>
                 </ul>
             </section>
 
-            <section class="tw-mb-10 tw-flex tw-flex-col tw-items-start tw-gap-3">
-                <a class="btn tw-h-[50px] tw-px-6 tw-text-lg tw-transition-colors tw-duration-[0.3s]"
-                    href="mailto:tunji@statscompass.io?subject=Stats%20Compass%20Commerce%20early%20access">
-                    Get early access
-                </a>
-                <p class="tw-text-sm tw-text-gray-500">Stats Compass Commerce is free during early access.</p>
+            <section class="tw-mb-10">
+                <h2 class="tw-mb-3 tw-text-2xl tw-font-semibold">Try Stats Compass on your store</h2>
+                <form class="tw-flex tw-w-full tw-max-w-lg tw-flex-col tw-gap-2 sm:tw-flex-row" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank" data-join="join-done">
+                    <input type="hidden" name="embed" value="1" />
+                    <input type="hidden" name="tag" value="early-access" />
+                    <input type="hidden" name="tag" value="vs-sidekick" />
+                    <input name="email" type="email" required autocomplete="email" placeholder="you@yourstore.com" aria-label="Your email"
+                        class="tw-h-[50px] tw-w-full tw-min-w-0 tw-rounded-[10px] tw-border tw-border-gray-300 tw-px-4 sm:tw-flex-1" />
+                    <button type="submit" class="btn tw-h-[50px] tw-shrink-0 tw-px-6 tw-text-lg tw-transition-colors tw-duration-[0.3s]">Join the early-access list</button>
+                </form>
+                <p class="tw-mt-2 tw-text-sm tw-text-gray-500">Free during early access. We'll only email you about early access.</p>
+                <p id="join-done" hidden class="tw-mt-2 tw-font-semibold tw-text-green-700" role="status">Check your inbox to confirm.</p>
             </section>
 
             <p class="tw-text-sm tw-leading-relaxed tw-text-gray-500">
@@ -345,6 +350,7 @@ Sidekick is named in plain text only: no Shopify logos or branding.
             </div>
         </div>
     </footer>
+    <script src="/assets/join.js"></script>
 </body>
 
 </html>
