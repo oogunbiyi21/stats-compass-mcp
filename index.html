@@ -348,19 +348,23 @@
             <a href="/data-tools" class="tw-font-semibold tw-text-blue-600 hover:tw-underline">See Stats Compass for data →</a></p>
     </section>
 
-    <!-- Founder. Hidden until Tunji's photo and two lines of background are in: fill both marked
-         spots, then remove the hidden attribute from this wrapper. -->
-    <div id="founder" hidden>
+    <!-- Founder. The bio is Tunji's own wording (approved 15 Nov 2026). The photo is cropped from his
+         own, re-encoded with no metadata (no EXIF, GPS, XMP or colour profile), with the shop sign
+         beside his head blurred. -->
+    <div id="founder">
     <section class="tw-flex tw-w-full tw-flex-col tw-items-center tw-bg-gray-50 tw-px-6 tw-py-16 max-md:tw-px-4">
         <div class="tw-flex tw-max-w-[760px] tw-items-center tw-gap-6 max-sm:tw-flex-col max-sm:tw-text-center">
-            <!-- PHOTO: replace this placeholder with Tunji's photo (square, at least 240 px). -->
-            <div class="tw-flex tw-h-28 tw-w-28 tw-shrink-0 tw-items-center tw-justify-center tw-rounded-full tw-bg-gray-200 tw-text-sm tw-text-gray-500">[Photo]</div>
+            <picture class="tw-shrink-0">
+                <source type="image/webp" srcset="/assets/founder/tunji.webp" />
+                <img src="/assets/founder/tunji.jpg" width="112" height="112" alt="Tunji Ogunbiyi" loading="lazy"
+                    class="tw-h-28 tw-w-28 tw-rounded-full" />
+            </picture>
             <div>
-                <p class="tw-text-xl tw-font-semibold">Tunji, founder of Stats Compass</p>
-                <!-- BIO: two lines of background from Tunji. -->
-                <p class="tw-mt-2 tw-leading-relaxed tw-text-gray-700">[Two lines of background from Tunji.]</p>
-                <p class="tw-mt-2 tw-text-gray-700">Questions? Email me directly:
-                    <a href="mailto:tunji@statscompass.io" class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a></p>
+                <p class="tw-text-xl tw-font-semibold">Tunji Ogunbiyi</p>
+                <p class="tw-mt-2 tw-leading-relaxed tw-text-gray-700">Hi, I'm Tunji, an applied scientist and the creator of
+                    Stats Compass. I build tools that tell Shopify stores whether a change in their numbers is real, and
+                    whether a sale actually made money, with the working shown. Questions or feedback? Email me directly
+                    at <a href="mailto:tunji@statscompass.io" class="tw-text-blue-600 hover:tw-underline">tunji@statscompass.io</a>.</p>
             </div>
         </div>
     </section>
