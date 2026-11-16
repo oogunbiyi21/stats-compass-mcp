@@ -39,6 +39,17 @@ MONTHS = ("January", "February", "March", "April", "May", "June", "July", "Augus
 NEEDED = ("net sales", "gross sales", "discounts")
 
 
+class ReportError(ValueError):
+    """A report the checker can't use, said for the merchant, with a short code the page counts.
+
+    The codes are a closed set (the page's step names): "not-daily", "not-report", "bad-days", "no-days".
+    """
+
+    def __init__(self, message: str, code: str):
+        super().__init__(message)
+        self.code = code
+
+
 # -- reading the export -------------------------------------------------------------
 
 
@@ -51,20 +62,24 @@ def read_export(csv_text: str, today: str | None = None) -> pd.DataFrame:
     ``today`` on, and trailing rows with no orders and no sales, are dropped:
     they're incomplete, not days with no sales.
     """
-    df = pd.read_csv(io.StringIO(csv_text.lstrip("\ufeff")))
+    not_report = ReportError("This doesn't look like Shopify's Total sales over time report: it needs the columns "
+                             "Day, Gross sales, Discounts, Net sales.", "not-report")
+    try:
+        df = pd.read_csv(io.StringIO(csv_text.lstrip("\ufeff")))
+    except ValueError:
+        raise not_report from None
     by_lower = {c.strip().lower(): c for c in df.columns}
     if not any(k in by_lower for k in DATE_COLUMNS):
         period = next((k for k in ("hour", "week", "month", "quarter", "year") if k in by_lower), None)
         if period:
-            raise ValueError(f"This export is by {period}; set it to Day and export again.")
+            raise ReportError(f"This export is by {period}; set it to Day and export again.", "not-daily")
     date_col = next((by_lower[k] for k in DATE_COLUMNS if k in by_lower), None)
     missing = [k for k in NEEDED if k not in by_lower]
     if date_col is None or missing:
-        wanted = ", ".join(["Day", "Gross sales", "Discounts", "Net sales"])
-        raise ValueError(f"This doesn't look like Shopify's Total sales over time report: it needs the columns {wanted}.")
+        raise not_report
     out = pd.DataFrame({"Day": pd.to_datetime(df[date_col], errors="coerce")})
     if out["Day"].isna().any():
-        raise ValueError("Some days in the report couldn't be read.")
+        raise ReportError("Some days in the report couldn't be read.", "bad-days")
     parsed = []
     for key, name in (("gross sales", "Gross sales"), ("discounts", "Discounts"), ("net sales", "Net sales")):
         values, example = to_numbers(df[by_lower[key]])
@@ -137,6 +152,17 @@ def find_sales(rows: pd.DataFrame) -> list[dict]:
         for a, b, n in found
         if n >= MIN_SALE_DAYS and (b - a).days + 1 <= ALWAYS_ON_SPAN_DAYS
     ]
+
+
+def report(csv_text: str, today: str | None = None) -> dict:
+    """A chosen report, read: the sales its discounts show, and its last complete day.
+
+    Raises ReportError when it can't be used, so the page says why as soon as it's chosen.
+    """
+    rows = read_export(csv_text, today)
+    if rows.empty:
+        raise ReportError("The report has no complete days with sales in it.", "no-days")
+    return {"sales": find_sales(rows), "ends": rows["Day"].max().date().isoformat()}
 
 
 def detect(csv_text: str, today: str | None = None) -> list[dict]:
@@ -279,8 +305,8 @@ def discount_line(m0: float, m1: float, brought: float, ads_share: float = 0.0, 
 
 
 def added_line(value: str | None, amount: str | None, verdict: str, interval_pct: tuple | None) -> str | None:
-    """"+82%: £2,126 more than expected (likely +40% to +160%)."; no range beside an
-    expected verdict, as in the app."""
+    """"Revenue +82%: £2,126 more than expected (likely +40% to +160%)."; no range beside an
+    expected verdict, as in the app. Signed ends, so the range says "to", not a dash."""
     if not value or not amount:
         return None
     likely = ""
@@ -288,7 +314,7 @@ def added_line(value: str | None, amount: str | None, verdict: str, interval_pct
         low, high = interval_pct
         likely = f" (likely above {wording.signed_pct(low)})" if high is None else (
             f" (likely {wording.signed_pct(low)} to {wording.signed_pct(high)})")
-    return f"{value}: {amount}{likely}."
+    return f"Revenue {value}: {amount}{likely}."
 
 
 def after_line(after: str | None) -> str | None:
@@ -328,6 +354,8 @@ NO_DISCOUNT_NOTE = (
 )
 
 MADE_MONEY = "It made money."
+# The profit call as the page counts it (its step names): "insufficient" when there's too little history.
+OUTCOMES = {"yes": "made", "no": "lost", "unclear": "unclear"}
 LOST_MONEY = "It lost money."
 CANT_TELL = "Can't tell: it could have gone either way."
 
@@ -350,7 +378,11 @@ def profitability(
         return {"call": "no", "headline": LOST_MONEY, "sub": sentence}
     cover = f"to cover {covers} and {ads} of ads," if ads else f"to cover {covers} (ad spend not included)"
     since = ", as it earned as much or more on each sale," if needed <= 1 else ""
-    likely = f"likely above {multiple(got_low)}" if got_high is None else f"likely {multiple(got_low)} to {multiple(got_high)}"
+    if got_high is None:
+        likely = f"likely above {multiple(got_low)}"
+    else:
+        # An en-dash range, "1.4–2.6×"; "to" if it starts below zero, where a dash would read as a minus.
+        likely = f"likely {multiple(got_low)[:-1]}–{multiple(got_high)}" if got_low >= 0 else f"likely {multiple(got_low)} to {multiple(got_high)}"
     sub = f"It needed about {multiple(needed)} your normal sales {cover}{since} and brought about {multiple(got)} ({likely})."
     if got_low >= needed:
         return {"call": "yes", "headline": MADE_MONEY, "sub": sub}
@@ -383,6 +415,13 @@ def other_sales(others: list[dict] | None, first: pd.Timestamp, last: pd.Timesta
     return windows
 
 
+def _given(value):
+    """A value from the page, or None: Pyodide hands JavaScript's null over as JsNull, not None."""
+    if value is None or type(value).__name__ in ("JsNull", "JsUndefined") or value == "":
+        return None
+    return value
+
+
 def analyse(
     csv_text: str, start: str, end: str, margin_pct: float | None, symbol: str = "£",
     name: str | None = None, today: str | None = None, others: list[dict] | None = None, ads: float | None = None,
@@ -396,9 +435,13 @@ def analyse(
     average price cut in percent, for a sale run by lowering prices, which Shopify's
     discounts don't show.
     """
+    margin_pct, ads, cut, name, today, others = (_given(v) for v in (margin_pct, ads, cut, name, today, others))
+    if margin_pct is not None and not 0 < float(margin_pct) < 100:
+        raise ValueError("Your margin needs to be a number from 1 to 99.")
+    margin_pct = None if margin_pct is None else float(margin_pct)
     rows = read_export(csv_text, today)
     if rows.empty:
-        raise ValueError("The report has no complete days with sales in it.")
+        raise ReportError("The report has no complete days with sales in it.", "no-days")
     first, last = pd.Timestamp(start), pd.Timestamp(end)
     if last < first:
         raise ValueError("The sale ends before it starts.")
@@ -420,7 +463,7 @@ def analyse(
             ),
             "after": None, "amount": None, "discount_depth": discount_depth(in_sale), "break_even": None, "break_even_headline": None,
             "profit": None, "span": wording.span(first.date(), last.date()), "added": None, "after_line": None, "discount_line": None,
-            "remind": None,
+            "remind": None, "margin_note": None, "outcome": "insufficient",
         }
     state = DataFrameState()
     state.set_dataframe(rows, name="sales", operation="upload")
@@ -449,6 +492,8 @@ def analyse(
         "after_line": after_line(row.after_summary),
         "discount_line": None,
         "remind": reminder(last, rows["Day"].max(), today) if row.verdict != "insufficient" else None,
+        "margin_note": None,
+        "outcome": "insufficient" if row.verdict == "insufficient" else "unclear",
     }
     if row.verdict == "insufficient" or margin_pct is None:
         return out
@@ -493,24 +538,36 @@ def analyse(
             1 + low / 100, None if high is None else 1 + high / 100, b["sentence"],
             ad_spend(spend, symbol) if spend else None, covers,
         )
+        out["margin_note"] = f"Worked out at a {percent(margin_pct)} margin. Change it above if yours is different."
+        out["outcome"] = OUTCOMES[out["profit"]["call"]]
     return out
 
 
-def reminder(last: pd.Timestamp, report_ends: pd.Timestamp, today: str | None) -> dict | None:
-    """When the report doesn't yet cover the 3 weeks after the sale, the date to check again.
+# The reminders' Buttondown tags: one for the kind, one for the date the email goes on.
+REMINDER_TAGS = {"running": "sale-running", "after": "dip-reminder"}
 
-    The weeks after are reported on their own line ("After the sale …"), so a reminder
-    is offered whenever they're missing, whatever the headline: the day after they end,
-    "15 December", with the tag that schedules it. If that day has passed already, the
-    report is just out of date: export it again.
+
+def reminder(last: pd.Timestamp, report_ends: pd.Timestamp, today: str | None) -> dict | None:
+    """When the result isn't complete yet, the date to check again, and the tags that schedule it.
+
+    - "running": the report ends on or before the sale's last day, so it may still be
+      running: a week after it ends, when its own numbers are in.
+    - "after": the sale is over, but the report doesn't cover the 3 weeks after it,
+      reported on their own line ("After the sale …"): the day after they end.
+    Otherwise None. If the day has passed already, the report is just out of date:
+    export it again.
     """
-    if report_ends >= last + pd.Timedelta(days=21):
+    if last >= report_ends:
+        kind, on = "running", last + pd.Timedelta(days=8)
+    elif report_ends < last + pd.Timedelta(days=21):
+        kind, on = "after", last + pd.Timedelta(days=22)
+    else:
         return None
-    on = last + pd.Timedelta(days=22)
     if today and on <= pd.Timestamp(today):
         return {"reexport": True}
-    return {"reexport": False, "date": on.date().isoformat(), "label": f"{on.day} {MONTHS[on.month - 1]}",
-            "tag": f"remind-{on.date().isoformat()}"}
+    date = on.date().isoformat()
+    return {"reexport": False, "kind": kind, "date": date, "label": f"{on.day} {MONTHS[on.month - 1]}",
+            "tags": [REMINDER_TAGS[kind], f"remind-{date}"]}
 
 
 def sale_discount(csv_text: str, start: str, end: str, today: str | None = None) -> dict:

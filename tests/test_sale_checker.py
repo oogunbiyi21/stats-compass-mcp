@@ -285,14 +285,14 @@ class TestDidItMakeMoney:
         made = checker.profitability(1.17, 1.82, 1.40, 2.60, "")
         assert (made["call"], made["headline"]) == ("yes", "It made money.")
         assert made["sub"] == ("It needed about 1.17× your normal sales to cover the discount (ad spend not included) and brought "
-                               "about 1.82× (likely 1.4× to 2.6×).")
+                               "about 1.82× (likely 1.4–2.6×).")
         lost = checker.profitability(2.29, 1.29, 1.10, 1.83, "")
         assert (lost["call"], lost["headline"]) == ("no", "It lost money.")
-        assert lost["sub"].endswith("and brought about 1.29× (likely 1.1× to 1.83×).")
+        assert lost["sub"].endswith("and brought about 1.29× (likely 1.1–1.83×).")
         unclear = checker.profitability(1.63, 1.62, 1.42, 1.89, "")
         assert (unclear["call"], unclear["headline"]) == ("unclear", "Can't tell: it could have gone either way.")
         assert unclear["sub"] == ("It needed about 1.63× your normal sales to cover the discount (ad spend not included) and brought "
-                                  "about 1.62× (likely 1.42× to 1.89×).")
+                                  "about 1.62× (likely 1.42–1.89×).")
 
     def test_not_one_of_the_four_verdicts(self):
         for call in (checker.MADE_MONEY, checker.LOST_MONEY, checker.CANT_TELL):
@@ -306,7 +306,7 @@ class TestDidItMakeMoney:
         out = checker.profitability(0.92, 1.1, 0.95, 1.3, "")
         assert out["call"] == "yes"
         assert out["sub"] == ("It needed about 0.92× your normal sales to cover the discount (ad spend not included), as it earned "
-                              "as much or more on each sale, and brought about 1.1× (likely 0.95× to 1.3×).")
+                              "as much or more on each sale, and brought about 1.1× (likely 0.95–1.3×).")
         assert checker.profitability(0.92, 1.0, 0.85, 1.2, "")["call"] == "unclear"
 
     def test_unbounded_above(self):
@@ -350,7 +350,7 @@ class TestAdSpend:
     def test_the_headline_line_names_the_ads(self):
         out = checker.profitability(1.62, 1.82, 1.40, 2.60, "", ads="£500")
         assert out["call"] == "unclear"
-        assert out["sub"] == "It needed about 1.62× your normal sales to cover the discount and £500 of ads, and brought about 1.82× (likely 1.4× to 2.6×)."
+        assert out["sub"] == "It needed about 1.62× your normal sales to cover the discount and £500 of ads, and brought about 1.82× (likely 1.4–2.6×)."
 
     def test_enough_ads_turn_a_sale_that_made_money(self):
         # Black Friday at +90%, 30% off, 50% margin: it needs about 1.63× without ads.
@@ -366,10 +366,10 @@ class TestEachFactOnce:
 
     def test_what_the_sale_added(self):
         assert checker.added_line("+82%", "£2,126 more than expected", "real change", (40.2, 160.4)) == (
-            "+82%: £2,126 more than expected (likely +40% to +160%).")
-        assert checker.added_line("+29%", "£2,031 more than expected", "expected", (-1.0, 83.0)) == "+29%: £2,031 more than expected."
+            "Revenue +82%: £2,126 more than expected (likely +40% to +160%).")
+        assert checker.added_line("+29%", "£2,031 more than expected", "expected", (-1.0, 83.0)) == "Revenue +29%: £2,031 more than expected."
         assert checker.added_line("−15%", "£150 less than expected", "real change", (-30.0, None)) == (
-            "−15%: £150 less than expected (likely above −30%).")
+            "Revenue −15%: £150 less than expected (likely above −30%).")
         assert checker.added_line(None, None, "insufficient", None) is None
 
     def test_after_the_sale(self):
@@ -388,7 +388,7 @@ class TestEachFactOnce:
     def test_each_fact_once_on_a_black_friday(self):
         out = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50, "£", "Black Friday")
         assert out["span"] == "27–30 November 2026"
-        assert out["added"].startswith("+") and "Real change" not in out["added"] and "November" not in out["added"]
+        assert out["added"].startswith("Revenue +") and "Real change" not in out["added"] and "November" not in out["added"]
         assert out["after_line"].startswith("After the sale (")
         assert out["discount_line"].startswith("Discount: you gave about 28% off on average")  # 30% off, against the usual 3%
         assert out["break_even"]["sentence"].startswith("It earned less on each sale")  # kept for "How this was worked out"
@@ -432,21 +432,113 @@ class TestUntilTheNextSale:
 
 
 class TestCheckAgain:
-    """The reminder: offered while the report doesn't cover the 3 weeks after the sale."""
+    """The one email ask after a result: a reminder while the result isn't complete, else early access."""
 
-    def test_a_recent_sale(self):
+    def test_a_sale_over_without_the_weeks_after(self):
         # Black Friday 27–30 Nov 2026, report to 14 Dec: the 3 weeks after end on 21 Dec.
         r = checker.reminder(pd.Timestamp("2026-11-30"), pd.Timestamp("2026-12-14"), "2026-12-15")
-        assert r == {"reexport": False, "date": "2026-12-22", "label": "22 December", "tag": "remind-2026-12-22"}
+        assert r == {"reexport": False, "kind": "after", "date": "2026-12-22", "label": "22 December",
+                     "tags": ["dip-reminder", "remind-2026-12-22"]}
+
+    def test_a_sale_that_may_still_be_running(self):
+        # The report ends on the sale's last day (or before it): a week after it ends.
+        r = checker.reminder(pd.Timestamp("2026-11-30"), pd.Timestamp("2026-11-30"), "2026-12-01")
+        assert r == {"reexport": False, "kind": "running", "date": "2026-12-08", "label": "8 December",
+                     "tags": ["sale-running", "remind-2026-12-08"]}
+        later = checker.reminder(pd.Timestamp("2026-12-02"), pd.Timestamp("2026-11-29"), "2026-11-30")
+        assert later["kind"] == "running" and later["tags"] == ["sale-running", "remind-2026-12-10"]
 
     def test_the_weeks_after_are_in_the_report(self):
         assert checker.reminder(pd.Timestamp("2026-06-21"), pd.Timestamp("2026-11-01"), "2026-11-15") is None
 
     def test_a_report_that_is_out_of_date(self):
         assert checker.reminder(pd.Timestamp("2026-11-30"), pd.Timestamp("2026-12-05"), "2027-01-10") == {"reexport": True}
+        assert checker.reminder(pd.Timestamp("2026-10-01"), pd.Timestamp("2026-10-01"), "2026-11-15") == {"reexport": True}
 
     def test_on_a_check(self):
         out = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50, today="2026-12-15")
-        assert out["remind"]["label"] == "22 December"
+        assert out["remind"]["label"] == "22 December" and out["remind"]["kind"] == "after"
+        running = checker.analyse(shopify_export(days=745), "2026-11-27", "2026-11-30", 50, today="2026-12-01")
+        assert running["remind"]["kind"] == "running"
         old = checker.analyse(shopify_export(days=900), "2025-11-28", "2025-12-01", 50, today="2026-12-15")
         assert old["remind"] is None
+
+    def test_only_the_tags_the_lists_use(self):
+        # Buttondown's tags, unchanged: the kind, then the date the scheduled email goes to.
+        assert set(checker.REMINDER_TAGS.values()) == {"sale-running", "dip-reminder"}
+
+
+class TestReadingTheReport:
+    """A chosen report is read at once: the sales it shows, or why it can't be used, with a code the page counts."""
+
+    def test_a_report(self):
+        read = checker.report(shopify_export(), "2026-12-15")
+        assert read["ends"] == "2026-12-14" and {"start": "2026-11-27", "end": "2026-11-30"} in read["sales"]
+
+    @pytest.mark.parametrize("text, code, message", [
+        ('"Month","Gross sales","Discounts","Net sales"\n"2026-09-01",1,0,1\n', "not-daily", "This export is by month; set it to Day and export again."),
+        ("Product,Units\nMug,3\n", "not-report", "This doesn't look like Shopify's Total sales over time report"),
+        ("", "not-report", "This doesn't look like Shopify's Total sales over time report"),
+        ('"Day","Gross sales","Discounts","Net sales"\n"soon",1,0,1\n', "bad-days", "Some days in the report couldn't be read."),
+        ('"Day","Gross sales","Discounts","Net sales"\n"2026-09-01",0,0,0\n', "no-days", "The report has no complete days with sales in it."),
+    ])
+    def test_why_it_cannot_be_used(self, text, code, message):
+        with pytest.raises(checker.ReportError, match=f"^{message}") as raised:
+            checker.report(text, "2026-12-15")
+        assert raised.value.code == code
+
+    def test_the_outcome_counted(self):
+        assert checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 50)["outcome"] == "made"
+        assert checker.analyse(shopify_export(lift_share=0.05), "2026-11-27", "2026-11-30", 50)["outcome"] in ("lost", "unclear")
+        assert checker.analyse(shopify_export(days=200), "2026-11-27", "2026-11-30", 50)["outcome"] == "insufficient"
+
+
+class TestWhatThePageCounts:
+    """Step counting: only names from the page's fixed list, each a page in checker-steps/. Never a figure,
+    a file name or an email: a name is lowercase words and hyphens, nothing else."""
+
+    SITE = Path(__file__).parents[1]
+
+    def steps(self):
+        import re
+        page = (self.SITE / "assets" / "checker" / "page.js").read_text()
+        listed = re.search(r"const STEPS = new Set\(\[(.*?)\]\)", page, re.S).group(1)
+        return re.findall(r'"([^"]*)"', listed)
+
+    def test_names_are_words(self):
+        import re
+        names = self.steps()
+        assert names and all(re.fullmatch(r"[a-z]+(-[a-z]+)*", n) for n in names)
+
+    def test_every_code_and_outcome_has_a_step(self):
+        names = set(self.steps())
+        assert {f"file-error-{c}" for c in ("not-daily", "not-report", "bad-days", "no-days", "other")} <= names
+        assert {f"result-{o}" for o in (*checker.OUTCOMES.values(), "insufficient")} <= names
+
+    def test_each_step_is_a_page_with_only_the_beacon(self):
+        for name in self.steps():
+            html = (self.SITE / "checker-steps" / f"{name}.html").read_text()
+            assert '<meta name="robots" content="noindex" />' in html
+            assert "static.cloudflareinsights.com/beacon.min.js" in html
+            assert "<body></body>" in html  # nothing on the page but the count
+        assert "checker-steps" not in (self.SITE / "sitemap.xml").read_text()
+
+
+class TestWhatThePageSends:
+    """Empty fields reach the glue as None, or as Pyodide's JsNull for JavaScript's null."""
+
+    def test_an_empty_margin_is_no_margin(self):
+        class JsNull:
+            def __bool__(self):
+                return False
+        out = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", JsNull(), ads=JsNull(), cut=JsNull())
+        assert out["profit"] is None and out["break_even"] is None and out["verdict"] == "real change"
+
+    def test_the_margin_used_is_named(self):
+        out = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 40)
+        assert out["margin_note"] == "Worked out at a 40% margin. Change it above if yours is different."
+        assert checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", None)["margin_note"] is None
+
+    def test_a_margin_out_of_range_is_refused_plainly(self):
+        with pytest.raises(ValueError, match="^Your margin needs to be a number from 1 to 99.$"):
+            checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 120)
