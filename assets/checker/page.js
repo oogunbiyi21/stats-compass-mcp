@@ -192,6 +192,9 @@ function chosen() {
 }
 $("file").addEventListener("change", () => {
   sample = false;
+  // The sample's margin gives way to the default for the visitor's own file, unless they changed it.
+  if ("auto" in $("margin").dataset) $("margin").value = $("margin").defaultValue;
+  delete $("margin").dataset.auto;
   step("file");
   chosen();
 });
@@ -228,6 +231,8 @@ $("try-sample").addEventListener("click", async () => {
   files.items.add(new File([text], "sample-export.csv", { type: "text/csv" }));
   $("file").files = files.files;
   sample = true;
+  $("margin").value = "45";  // the sample store's margin
+  $("margin").dataset.auto = "";
   chosen();
 });
 
@@ -301,6 +306,7 @@ function choose(value) {
 $("choice-list").addEventListener("change", (event) => choose(event.target.value));
 for (const id of ["start", "end"]) $(id).addEventListener("input", () => delete $("start").dataset.found);
 $("name").addEventListener("input", () => delete $("name").dataset.auto);
+$("margin").addEventListener("input", () => delete $("margin").dataset.auto);
 
 function markChosen() {
   for (const row of $("choice-list").children) {
