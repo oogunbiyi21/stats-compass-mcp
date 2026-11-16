@@ -383,6 +383,13 @@ def other_sales(others: list[dict] | None, first: pd.Timestamp, last: pd.Timesta
     return windows
 
 
+def _given(value):
+    """A value from the page, or None: Pyodide hands JavaScript's null over as JsNull, not None."""
+    if value is None or type(value).__name__ in ("JsNull", "JsUndefined") or value == "":
+        return None
+    return value
+
+
 def analyse(
     csv_text: str, start: str, end: str, margin_pct: float | None, symbol: str = "£",
     name: str | None = None, today: str | None = None, others: list[dict] | None = None, ads: float | None = None,
@@ -396,6 +403,10 @@ def analyse(
     average price cut in percent, for a sale run by lowering prices, which Shopify's
     discounts don't show.
     """
+    margin_pct, ads, cut, name, today, others = (_given(v) for v in (margin_pct, ads, cut, name, today, others))
+    if margin_pct is not None and not 0 < float(margin_pct) < 100:
+        raise ValueError("Your margin needs to be a number from 1 to 99.")
+    margin_pct = None if margin_pct is None else float(margin_pct)
     rows = read_export(csv_text, today)
     if rows.empty:
         raise ValueError("The report has no complete days with sales in it.")
@@ -420,7 +431,7 @@ def analyse(
             ),
             "after": None, "amount": None, "discount_depth": discount_depth(in_sale), "break_even": None, "break_even_headline": None,
             "profit": None, "span": wording.span(first.date(), last.date()), "added": None, "after_line": None, "discount_line": None,
-            "remind": None,
+            "remind": None, "margin_note": None,
         }
     state = DataFrameState()
     state.set_dataframe(rows, name="sales", operation="upload")
@@ -449,6 +460,7 @@ def analyse(
         "after_line": after_line(row.after_summary),
         "discount_line": None,
         "remind": reminder(last, rows["Day"].max(), today) if row.verdict != "insufficient" else None,
+        "margin_note": None,
     }
     if row.verdict == "insufficient" or margin_pct is None:
         return out
@@ -493,6 +505,7 @@ def analyse(
             1 + low / 100, None if high is None else 1 + high / 100, b["sentence"],
             ad_spend(spend, symbol) if spend else None, covers,
         )
+        out["margin_note"] = f"Worked out at a {percent(margin_pct)} margin. Change it above if yours is different."
     return out
 
 

@@ -90,7 +90,7 @@ figures). The chosen file is read in the browser and never uploaded.
                 <p id="first-visit" hidden class="tw-mt-1 tw-text-xs tw-text-gray-500">First visit downloads about 30 MB; on a slow connection this can take a few minutes.</p>
             </section>
 
-            <form id="form" class="tw-space-y-6">
+            <form id="form" class="tw-space-y-6" novalidate>
                 <div>
                     <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">1. Export your daily sales from Shopify</h2>
                     <p class="tw-leading-relaxed tw-text-gray-700">
@@ -142,13 +142,13 @@ figures). The chosen file is read in the browser and never uploaded.
                                 <input id="end" type="date" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                             </label>
                             <label class="tw-block tw-text-sm tw-text-gray-700">Name (optional)
-                                <input id="name" type="text" placeholder="Black Friday" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                                <input id="name" type="text" placeholder="e.g. Black Friday" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                             </label>
                         </div>
                         <!-- Shopify's discounts don't show a sale run by lowering prices: the cut is asked for. -->
                         <div id="cut-box" class="tw-mt-4 tw-rounded-lg tw-border tw-border-transparent tw-p-3 sm:tw-max-w-md">
                             <label class="tw-block tw-text-sm tw-text-gray-700">Did you lower prices for this sale (instead of, or as well as, discount codes)? Average price cut, % (optional)
-                                <input id="cut" type="number" min="0" max="95" step="1" placeholder="0" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                                <input id="cut" type="number" min="0" max="95" step="1" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                             </label>
                             <p id="cut-hint" hidden class="tw-mt-2 tw-text-sm tw-font-semibold tw-text-amber-900">
                                 We didn't find discounts for these dates. If you cut prices instead, enter the average cut so break-even counts it.
@@ -183,7 +183,7 @@ figures). The chosen file is read in the browser and never uploaded.
                     <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">4. Your margin, and any ad spend</h2>
                     <div class="tw-grid tw-gap-4 sm:tw-grid-cols-3">
                         <label class="tw-block tw-text-sm tw-text-gray-700 sm:tw-col-span-2">Your margin on the items in the sale, after product costs, shipping you pay and payment fees, roughly (%)
-                            <input id="margin" type="number" min="1" max="99" step="1" placeholder="40" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                            <input id="margin" type="number" min="1" max="99" step="1" value="40" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                         </label>
                         <label class="tw-block tw-text-sm tw-text-gray-700">Currency
                             <select id="currency" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2">
@@ -193,14 +193,17 @@ figures). The chosen file is read in the browser and never uploaded.
                             </select>
                         </label>
                         <label class="tw-block tw-text-sm tw-text-gray-700 sm:tw-col-span-2">Extra ad spend for this sale (<span id="ads-symbol">£</span>, optional)
-                            <input id="ads" type="number" min="0" step="1" placeholder="0" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                            <input id="ads" type="number" min="0" step="1" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                         </label>
                     </div>
                 </div>
                 <button id="check" type="submit"
                     class="tw-rounded-lg tw-bg-black tw-px-5 tw-py-3 tw-font-semibold tw-text-white disabled:tw-cursor-not-allowed disabled:tw-opacity-40">Check my sale</button>
                 <p id="hint" hidden class="tw-text-amber-800" role="status"></p>
-                <p id="error" hidden class="tw-rounded-lg tw-bg-red-50 tw-p-3 tw-text-red-800" role="alert"></p>
+                <div id="error" hidden class="tw-rounded-lg tw-bg-red-50 tw-p-3 tw-text-red-800" role="alert">
+                    <p id="error-text"></p>
+                    <button id="retry" type="button" class="tw-mt-2 tw-font-semibold tw-underline">Try again</button>
+                </div>
             </form>
             <form id="running-form" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank">
                 <input type="hidden" name="embed" value="1" />
@@ -218,6 +221,7 @@ figures). The chosen file is read in the browser and never uploaded.
                 <div id="profit-box" hidden>
                     <p id="profit" class="tw-text-3xl tw-font-semibold tw-leading-tight"></p>
                     <p id="profit-sub" class="tw-mt-2 tw-text-lg tw-leading-relaxed tw-text-gray-700"></p>
+                    <p id="margin-note" hidden class="tw-mt-1 tw-text-sm tw-text-gray-600"></p>
                 </div>
                 <p id="no-margin" hidden class="tw-text-gray-600">Add your margin to see whether it made money.</p>
                 <div class="tw-space-y-2">

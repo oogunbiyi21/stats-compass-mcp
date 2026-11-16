@@ -55,7 +55,8 @@ const ready = (async () => {
   postMessage({ type: "ready" });
   return pyodide;
 })().catch((err) => {
-  postMessage({ type: "error", message: "The checker couldn't load: " + String(err && err.message || err) });
+  console.error("The checker couldn't load:", err);
+  postMessage({ type: "error", message: "The checker couldn't load. Check your connection, then try again." });
   throw err;
 });
 
@@ -92,11 +93,16 @@ async function discount({ csv, start, end, today }) {
   }
 }
 
+// JavaScript's null reaches Python as JsNull, not None, so empty values go as undefined (None).
+const given = (value) => (value === null || value === "" ? undefined : value);
+
 async function check({ csv, start, end, margin, currency, name, today, others, ads, cut }) {
   try {
     const pyodide = await ready;
     pyodide.globals.set("_csv", csv);
-    pyodide.globals.set("_args", pyodide.toPy({ start, end, margin, currency, name, today, others, ads, cut }));
+    pyodide.globals.set("_args", pyodide.toPy({
+      start, end, currency, today, others, margin: given(margin), name: given(name), ads: given(ads), cut: given(cut),
+    }));
     const json = await pyodide.runPythonAsync(`
 import json
 _a = _args.to_py() if hasattr(_args, "to_py") else _args
@@ -104,9 +110,15 @@ json.dumps(checker.analyse(_csv, _a["start"], _a["end"], _a["margin"], _a["curre
 `);
     postMessage({ type: "result", data: JSON.parse(json) });
   } catch (err) {
-    // A ValueError from the glue is written for the merchant: show its last line.
+    // The glue's ValueErrors are written for the merchant: show the sentence. Anything else is a
+    // fault, not something they can fix: say so plainly, and keep the details for the console.
     const text = String(err && err.message || err);
-    const line = text.trim().split("\n").pop().replace(/^ValueError: /, "");
-    postMessage({ type: "error", message: line });
+    const last = text.trim().split("\n").pop();
+    if (/^ValueError: /.test(last)) {
+      postMessage({ type: "error", message: last.replace(/^ValueError: /, "") });
+    } else {
+      console.error("The check failed:", text);
+      postMessage({ type: "error", message: "Something went wrong while checking this file." });
+    }
   }
 }

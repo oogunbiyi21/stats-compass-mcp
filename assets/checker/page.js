@@ -38,14 +38,44 @@ function onMessage({ data }) {
   } else if (data.type === "result") {
     show(data.data);
   } else if (data.type === "error") {
-    $("check").disabled = false;
-    $("check").textContent = "Check my sale";
-    $("error").textContent = data.message;
-    $("error").hidden = false;
+    showError(data.message);
   }
 }
 
-// What's still missing before a check, said on the click rather than by a greyed-out button.
+// Errors: one plain sentence and "Try again". The details, when there are any, are in the console.
+function showError(message) {
+  $("check").disabled = false;
+  $("check").textContent = "Check my sale";
+  $("error-text").textContent = message;
+  $("error").hidden = false;
+}
+$("retry").addEventListener("click", () => {
+  $("error").hidden = true;
+  $("form").requestSubmit();
+});
+
+// What's wrong or missing before a check, naming the field, said on the click rather than by
+// a greyed-out button. Nothing goes to the checker until it's all valid.
+function invalid() {
+  const needs = missing();
+  if (needs) return { message: needs };
+  if ($("end").value < $("start").value) return { message: "The sale's last day is before its first day.", field: "end" };
+  const margin = $("margin");
+  if (margin.validity.badInput || margin.value.trim() === "" || !(Number(margin.value) >= 1 && Number(margin.value) <= 99)) {
+    return { message: "Enter your margin: a number from 1 to 99.", field: "margin" };
+  }
+  const ads = $("ads");
+  if (ads.validity.badInput || (ads.value !== "" && !(Number(ads.value) >= 0))) {
+    return { message: `Enter the ad spend as an amount in ${$("currency").value}, or leave it blank.`, field: "ads" };
+  }
+  const cut = $("cut");
+  if (cut.validity.badInput || (cut.value !== "" && !(Number(cut.value) >= 0 && Number(cut.value) <= 95))) {
+    return { message: "Enter the price cut as a number from 0 to 95, or leave it blank.", field: "cut" };
+  }
+  return null;
+}
+for (const id of ["margin", "ads", "cut", "start", "end"]) $(id).addEventListener("input", () => $(id).removeAttribute("aria-invalid"));
+
 function missing() {
   if (!$("file").files.length) return "Choose your report first.";
   if (!ready) return "The checker is still getting ready: it'll take a moment.";
@@ -137,7 +167,7 @@ $("try-sample").addEventListener("click", async () => {
   $("file").files = files.files;
   sample = true;
   startChecker();
-  if ($("margin").value === "") $("margin").value = "45";
+  $("margin").value = "45";  // the example result above is at 45%
   $("file").dispatchEvent(new Event("input"));
   $("file").scrollIntoView({ behavior: "smooth", block: "center" });
 });
@@ -257,16 +287,31 @@ function otherSales() {
 $("form").addEventListener("submit", async (event) => {
   event.preventDefault();
   $("error").hidden = true;
-  const needs = missing();
-  $("hint").textContent = needs || "";
-  $("hint").hidden = !needs;
-  if (needs) return;
+  const problem = invalid();
+  $("hint").textContent = problem ? problem.message : "";
+  $("hint").hidden = !problem;
+  if (problem) {
+    if (problem.field) {
+      $(problem.field).setAttribute("aria-invalid", "true");
+      $(problem.field).focus();
+    }
+    return;
+  }
+  try {
+    await send();
+  } catch (err) {
+    console.error("The check couldn't start:", err);
+    showError("Something went wrong while checking this file.");
+  }
+});
+
+async function send() {
   let others;
   try {
     others = otherSales();
   } catch (err) {
-    $("error").textContent = err.message;
-    $("error").hidden = false;
+    $("hint").textContent = err.message;
+    $("hint").hidden = false;
     return;
   }
   $("result").hidden = true;
@@ -279,7 +324,7 @@ $("form").addEventListener("submit", async (event) => {
   const ads = $("ads").value === "" ? null : Math.max(0, Number($("ads").value));
   const cut = $("cut").value === "" ? null : Math.min(95, Math.max(0, Number($("cut").value)));
   worker.postMessage({ csv, start: $("start").value, end: $("end").value, margin, currency: $("currency").value, name: $("name").value.trim(), today, others, ads, cut });
-});
+}
 
 // The ad spend is in the store's currency.
 $("currency").addEventListener("change", () => { $("ads-symbol").textContent = $("currency").value; });
@@ -355,6 +400,8 @@ function show(r) {
     $("profit").textContent = r.profit.headline;
     $("profit").className = `tw-text-3xl tw-font-semibold tw-leading-tight ${PROFIT[r.profit.call]}`;
     $("profit-sub").textContent = r.profit.sub;
+    $("margin-note").textContent = r.margin_note || "";
+    $("margin-note").hidden = !r.margin_note;
   }
   $("verdict").textContent = r.label;
   $("verdict").className = `tw-inline-block tw-rounded-full tw-px-3 tw-py-1 tw-text-sm tw-font-semibold ${BADGE[r.verdict] || BADGE.expected}`;

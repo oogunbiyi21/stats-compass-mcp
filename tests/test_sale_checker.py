@@ -450,3 +450,23 @@ class TestCheckAgain:
         assert out["remind"]["label"] == "22 December"
         old = checker.analyse(shopify_export(days=900), "2025-11-28", "2025-12-01", 50, today="2026-12-15")
         assert old["remind"] is None
+
+
+class TestWhatThePageSends:
+    """Empty fields reach the glue as None, or as Pyodide's JsNull for JavaScript's null."""
+
+    def test_an_empty_margin_is_no_margin(self):
+        class JsNull:
+            def __bool__(self):
+                return False
+        out = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", JsNull(), ads=JsNull(), cut=JsNull())
+        assert out["profit"] is None and out["break_even"] is None and out["verdict"] == "real change"
+
+    def test_the_margin_used_is_named(self):
+        out = checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 40)
+        assert out["margin_note"] == "Worked out at a 40% margin. Change it above if yours is different."
+        assert checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", None)["margin_note"] is None
+
+    def test_a_margin_out_of_range_is_refused_plainly(self):
+        with pytest.raises(ValueError, match="^Your margin needs to be a number from 1 to 99.$"):
+            checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 120)
