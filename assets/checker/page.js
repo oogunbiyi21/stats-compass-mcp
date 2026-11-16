@@ -1,5 +1,5 @@
-// The checker page: starts the checker (worker.js) when the visitor first reaches for a
-// file or the sample, reads the chosen file here in the browser, and shows the result.
+// The checker page: starts the checker (worker.js) as the page opens, reads the chosen file
+// here in the browser, then shows the steps that need it and the result.
 // The file's text goes to the worker by postMessage; it is never sent over the network.
 import { CAPTION, promotionDaily } from "./chart.js";
 
@@ -7,42 +7,82 @@ const $ = (id) => document.getElementById(id);
 let worker = null;
 let ready = false;
 
-// About 32 MB the first time, so it isn't fetched for a visit that only reads the page:
-// it starts on the first touch of the file box (only once a file is chosen with Save-Data on).
+// Step counting, with Cloudflare Web Analytics and nothing else: each step is a page view of a
+// tiny page in /checker-steps/ that carries only Cloudflare's beacon, loaded in a hidden frame.
+// The step's name is all it says, never a figure, a file name or an email. The names are this
+// fixed list: scripts/make_checker_steps.py makes their pages, and tests/test_sale_checker.py
+// checks each is plain words.
+const STEPS = new Set([
+  "sample", "file", "check", "pdf", "email",
+  "file-error-not-daily", "file-error-not-report", "file-error-bad-days", "file-error-no-days", "file-error-other",
+  "result-made", "result-lost", "result-unclear", "result-insufficient",
+]);
+function step(name) {
+  if (!STEPS.has(name)) return;
+  const frame = document.createElement("iframe");
+  frame.src = `/checker-steps/${name}`;  // set before the frame is added, so Back doesn't stop on it
+  frame.hidden = true;
+  frame.tabIndex = -1;
+  frame.setAttribute("aria-hidden", "true");
+  // The beacon reports just after the frame's load: give it time, then tidy up.
+  frame.addEventListener("load", () => setTimeout(() => frame.remove(), 10_000));
+  document.body.append(frame);
+}
+
+// About 32 MB the first time, fetched quietly while the visitor exports their report. With
+// Save-Data on, it waits until a file or the sample is chosen.
 function startChecker() {
   if (worker) return;
   worker = new Worker("/assets/checker/worker.js");
   worker.onmessage = onMessage;
-  $("status").textContent = "Getting the checker ready…";
-  $("first-visit").hidden = false;
 }
 const saveData = Boolean(navigator.connection && navigator.connection.saveData);
-for (const type of saveData ? ["change", "input"] : ["pointerdown", "focus", "change", "input"]) $("file").addEventListener(type, startChecker);
+if (!saveData) startChecker();
+
+// Progress shows only if the visitor is waiting for it: a file chosen before the checker is ready.
+let waiting = false;
+function wait() {
+  startChecker();
+  if (ready) return;
+  waiting = true;
+  $("status").hidden = false;
+}
 
 function onMessage({ data }) {
   if (data.type === "progress") {
-    $("status").textContent = `Getting the checker ready… ${data.loadedMb} of about ${data.totalMb} MB`;
+    $("status").textContent = `Getting the checker ready: ${data.loadedMb} of about ${data.totalMb} MB…`;
   } else if (data.type === "ready") {
     ready = true;
-    $("status").textContent = "The checker is ready.";
-    $("first-visit").hidden = true;
-    $("status").classList.add("tw-text-green-700");
-    $("hint").hidden = true;
+    $("status").textContent = "Reading your file…";
     findSales();
-    checkDiscount();
   } else if (data.type === "found") {
-    suggest(data.sales);
+    $("status").hidden = true;
+    loaded(data.sales);
+  } else if (data.type === "file-error") {
+    $("status").hidden = true;
+    fileError(data.message, data.code);
   } else if (data.type === "discount") {
     // Only for the dates still chosen: the merchant may have moved on.
     if (data.start === $("start").value && data.end === $("end").value) showCutHint(!data.found);
   } else if (data.type === "result") {
     show(data.data);
   } else if (data.type === "error") {
-    showError(data.message);
+    if (!ready) {
+      $("status").hidden = !waiting;
+      $("status").textContent = data.message;
+    } else showError(data.message);
   }
 }
 
-// Errors: one plain sentence and "Try again". The details, when there are any, are in the console.
+// A report that can't be used is said at once, under the file box, and the steps stay hidden.
+function fileError(message, code) {
+  $("form").hidden = true;
+  $("file-error-text").textContent = message;
+  $("file-error").hidden = false;
+  step(STEPS.has(`file-error-${code}`) ? `file-error-${code}` : "file-error-other");
+}
+
+// Errors from a check: one plain sentence and "Try again". The details, when there are any, are in the console.
 function showError(message) {
   $("check").disabled = false;
   $("check").textContent = "Check my sale";
@@ -57,8 +97,9 @@ $("retry").addEventListener("click", () => {
 // What's wrong or missing before a check, naming the field, said on the click rather than by
 // a greyed-out button. Nothing goes to the checker until it's all valid.
 function invalid() {
-  const needs = missing();
-  if (needs) return { message: needs };
+  if (!$("file").files.length) return { message: "Choose your report first." };
+  if (!ready) return { message: "The checker is still getting ready: it'll take a moment." };
+  if (!$("start").value || !$("end").value) return { message: "Choose which sale to check, or enter its first and last day." };
   if ($("end").value < $("start").value) return { message: "The sale's last day is before its first day.", field: "end" };
   const margin = $("margin");
   if (margin.validity.badInput || margin.value.trim() === "" || !(Number(margin.value) >= 1 && Number(margin.value) <= 99)) {
@@ -70,22 +111,17 @@ function invalid() {
   }
   const cut = $("cut");
   if (cut.validity.badInput || (cut.value !== "" && !(Number(cut.value) >= 0 && Number(cut.value) <= 95))) {
+    $("more").open = true;
     return { message: "Enter the price cut as a number from 0 to 95, or leave it blank.", field: "cut" };
   }
   return null;
 }
 for (const id of ["margin", "ads", "cut", "start", "end"]) $(id).addEventListener("input", () => $(id).removeAttribute("aria-invalid"));
-
-function missing() {
-  if (!$("file").files.length) return "Choose your report first.";
-  if (!ready) return "The checker is still getting ready: it'll take a moment.";
-  if (!$("start").value || !$("end").value) return "Choose which sale to check, or enter its first and last day.";
-  return null;
-}
-for (const id of ["file", "start", "end"]) $(id).addEventListener("input", () => { $("hint").hidden = true; });
+for (const id of ["start", "end"]) $(id).addEventListener("input", () => { $("hint").hidden = true; });
 
 // A sale run by lowering prices shows no discount in the report: when the chosen dates
-// show none, the price-cut field is pointed out, so break-even doesn't read full price.
+// show none, the price-cut field is pointed out (More options opens), so break-even doesn't
+// read full price.
 async function checkDiscount() {
   if (!ready || !$("file").files.length || !$("start").value || !$("end").value) {
     showCutHint(false);
@@ -96,10 +132,10 @@ async function checkDiscount() {
 }
 function showCutHint(on) {
   $("cut-hint").hidden = !on;
-  for (const c of ["tw-border-amber-300", "tw-bg-amber-50"]) $("cut-box").classList.toggle(c, on);
-  $("cut-box").classList.toggle("tw-border-transparent", !on);
+  if (on) $("more").open = true;
+  for (const c of ["tw-border", "tw-border-amber-300", "tw-bg-amber-50", "tw-p-3"]) $("cut-box").classList.toggle(c, on);
 }
-for (const id of ["file", "start", "end"]) $(id).addEventListener("input", checkDiscount);
+for (const id of ["start", "end"]) $(id).addEventListener("input", checkDiscount);
 
 // Dates as the app writes them: "15–21 June 2026", "14 May – 3 June 2026".
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -113,6 +149,10 @@ function span(a, b) {
   if (ya === yb) return `${da} ${MONTHS[ma - 1]} – ${last}`;
   return `${da} ${MONTHS[ma - 1]} ${ya} – ${last}`;
 }
+const dayMonth = (iso) => {
+  const [, m, d] = parts(iso);
+  return `${d} ${MONTHS[m - 1]}`;
+};
 
 // Other sales in the period: each a row of two dates, left out of the comparison.
 function addOther(start = "", end = "", found = false) {
@@ -129,49 +169,67 @@ function addOther(start = "", end = "", found = false) {
 }
 $("add-other").addEventListener("click", () => addOther().querySelector("[data-start]").focus());
 
-// When a report is chosen, the sales its discounts show are suggested as other sales:
-// the merchant removes any that weren't. The sale being checked is never one of them.
+// A chosen file is read at once: the sales its discounts show, or why it can't be used.
 async function findSales() {
   if (!ready || !$("file").files.length) return;
   const csv = await $("file").files[0].text();
   worker.postMessage({ type: "find", csv, today: new Date().toLocaleDateString("en-CA") });
 }
-$("file").addEventListener("input", findSales);
+
+// A new file: the steps that need it, and any result, wait until it's read.
+function chosen() {
+  $("form").hidden = true;
+  $("result").hidden = true;
+  $("file-error").hidden = true;
+  $("hint").hidden = true;
+  $("error").hidden = true;
+  wait();
+  if (ready) {
+    $("status").hidden = false;
+    $("status").textContent = "Reading your file…";
+    findSales();
+  }
+}
+$("file").addEventListener("change", () => {
+  sample = false;
+  step("file");
+  chosen();
+});
 
 let found = [];
 
-function suggest(sales) {
+// The report is read: the sales it shows are offered as the sale to check, and as the other
+// sales the merchant removes any that weren't. The sale being checked is never one of them.
+function loaded(sales) {
   found = sales;
   for (const row of $("others").querySelectorAll("[data-found]")) row.remove();
   for (const s of sales) addOther(s.start, s.end, true);
   offerChoices();
   showFound();
+  $("form").hidden = false;
   // The sample: its Black Friday, ready to check.
   const friday = sample ? found.findIndex((s) => s.start === SAMPLE_SALE) : -1;
   if (friday >= 0) {
     select(String(friday));
     $("name").value = "Black Friday (sample)";
     $("name").dataset.auto = "";  // filled in, so it gives way to the next report's sale
-    $("check").focus();
   }
+  if (waiting || sample) $("form").scrollIntoView({ behavior: "smooth", block: "start" });
+  waiting = false;
 }
 
-// "Try it with a sample file": a made-up store's export (scripts/make_checker_sample.py),
-// fetched before the checker starts, then read like any other file.
+// "Try a sample": a made-up store's export (scripts/make_checker_sample.py), read like any other file.
 const SAMPLE_SALE = "2025-11-28";
 let sample = false;
 $("try-sample").addEventListener("click", async () => {
+  step("sample");
   const text = await (await fetch("/assets/checker/sample-export.csv")).text();
   const files = new DataTransfer();
   files.items.add(new File([text], "sample-export.csv", { type: "text/csv" }));
   $("file").files = files.files;
   sample = true;
-  startChecker();
-  $("margin").value = "45";  // the example result above is at 45%
-  $("file").dispatchEvent(new Event("input"));
-  $("file").scrollIntoView({ behavior: "smooth", block: "center" });
+  chosen();
 });
-$("file").addEventListener("change", () => { sample = false; });
 
 // The found sales are offered as the sale to check. The one chosen fills the dates
 // (still editable); the rest stay other sales. A lone sale is chosen for the merchant.
@@ -187,20 +245,20 @@ function offerChoices() {
     if ("auto" in $("name").dataset) $("name").value = "";
     delete $("name").dataset.auto;
   }
-  $("choices").hidden = found.length === 0;
+  $("found-lead").hidden = found.length === 0;
+  $("none-lead").hidden = found.length > 0;
   if (!found.length) {
     $("dates").hidden = false;
     return;
   }
-  const add = (value, text, action) => {
+  const add = (value, text) => {
     const row = $("choice-row").content.firstElementChild.cloneNode(true);
     row.querySelector("input").value = value;
     row.querySelector("[data-span]").textContent = text;
-    row.querySelector("[data-action]").textContent = action;
     list.append(row);
   };
-  found.forEach((s, i) => add(String(i), span(s.start, s.end), " · Check this one"));
-  add("other", "A different sale or period", "");
+  found.forEach((s, i) => add(String(i), span(s.start, s.end)));
+  add("other", "A different sale or period");
   const same = found.findIndex((s) => s.start === $("start").value && s.end === $("end").value);
   if (same >= 0) select(String(same));
   else if (found.length === 1 && !$("start").value && !$("end").value) select("0");
@@ -286,6 +344,7 @@ function otherSales() {
 
 $("form").addEventListener("submit", async (event) => {
   event.preventDefault();
+  step("check");
   $("error").hidden = true;
   const problem = invalid();
   $("hint").textContent = problem ? problem.message : "";
@@ -310,6 +369,7 @@ async function send() {
   try {
     others = otherSales();
   } catch (err) {
+    $("more").open = true;
     $("hint").textContent = err.message;
     $("hint").hidden = false;
     return;
@@ -329,49 +389,48 @@ async function send() {
 // The ad spend is in the store's currency.
 $("currency").addEventListener("change", () => { $("ads-symbol").textContent = $("currency").value; });
 
-// The sign-ups: each form posts the visitor's email to Buttondown in a new tab (the
-// browser checks the email, and any required box, first), and this page keeps the result.
-// Only these forms send anything, and only when the visitor asks.
-function signUp(form, done, text) {
-  form.addEventListener("submit", () => setTimeout(() => {
-    form.hidden = true;
-    if (text) done.textContent = text();
-    done.hidden = false;
-  }));
+// The one email ask, after the result. While the result isn't complete (the sale may still be
+// running, or the 3 weeks after aren't in the report), a reminder to check again, with early
+// access as a separate, unticked box; otherwise, early access. The form posts the email and
+// that case's Buttondown tags in a new tab (the browser checks the email, and any required box,
+// first); controls for the other cases are disabled, so they send nothing.
+let remindOn = "";  // the reminder's date, "22 December", or "" for early access
+function ask(remind) {
+  const kind = remind ? remind.kind : "early";
+  for (const text of document.querySelectorAll("[data-ask]")) text.hidden = text.dataset.ask !== kind;
+  for (const label of document.querySelectorAll("[data-label]")) label.textContent = remind ? remind.label : "";
+  const tags = remind ? remind.tags : ["early-access", "checker"];
+  $("ask-kind").value = tags[0];
+  $("ask-tag").value = tags[1];
+  $("ask-button").textContent = remind ? `Remind me on ${remind.label}` : "Join the list";
+  $("ask-once").hidden = !remind;
+  $("ask-also").hidden = !remind;
+  $("ask-also-box").disabled = !remind;
+  $("ask-also-box").checked = false;  // consent is asked afresh for each result
+  $("ask-consent-box").checked = false;
+  $("ask-consent").hidden = Boolean(remind);
+  $("ask-consent-box").disabled = Boolean(remind);
+  remindOn = remind ? remind.label : "";
+  $("ask-form").hidden = false;
+  $("ask-done").hidden = true;
 }
-signUp($("list-form"), $("list-done"));
-signUp($("multi-form"), $("multi-done"));
-signUp($("remind-form"), $("remind-done"), () => `Check your inbox to confirm, and we'll email you on ${$("remind-form").dataset.label}.`);
-signUp($("running-form"), $("running-done"), () => `Check your inbox to confirm, and we'll email you on ${dayMonth($("running-date").value)}.`);
-
-const dayMonth = (iso) => {
-  const [, m, d] = parts(iso);
-  return `${d} ${MONTHS[m - 1]}`;
-};
-
-// "Sale still running?": a reminder about a week after it ends. The default is 7 December,
-// a week after Cyber Monday, while that's ahead; otherwise two weeks from today. The date
-// is the tag Buttondown's scheduled email goes to.
-function runningDefault() {
-  const now = new Date();
-  const december = new Date(now.getFullYear(), 11, 7);
-  const day = now <= december ? december : new Date(now.getTime() + 14 * 86_400_000);
-  return day.toLocaleDateString("en-CA");
-}
-function runningDate() {
-  const iso = $("running-date").value || runningDefault();
-  $("running-tag").value = `remind-${iso}`;
-  $("running-note").textContent = `We'll email you once, on ${dayMonth(iso)}, with a link back here. Nothing else.`;
-}
-$("running-date").value = runningDefault();
-$("running-date").min = new Date().toLocaleDateString("en-CA");
-$("running-date").addEventListener("input", runningDate);
-runningDate();
+$("ask-form").addEventListener("submit", () => {
+  step("email");
+  const on = remindOn;
+  setTimeout(() => {
+    $("ask-form").hidden = true;
+    $("ask-done").textContent = on
+      ? `Check your inbox to confirm, and we'll email you on ${on}.`
+      : "Check your inbox to confirm. Buttondown, which keeps our list, opened in a new tab: if it asks for anything more, finish there.";
+    $("ask-done").hidden = false;
+  });
+});
 
 // "Save as PDF": the browser's print window, with only the result (see the page's print styles).
 $("pdf-open").addEventListener("click", () => $("pdf-dialog").showModal());
 $("pdf-cancel").addEventListener("click", () => $("pdf-dialog").close());
 $("pdf-print").addEventListener("click", () => {
+  step("pdf");
   const by = $("prepared-by").value.trim();
   const today = new Date().toLocaleDateString("en-CA");
   $("print-meta").textContent = `${by ? `Prepared by ${by} · ` : ""}Checked on ${dayMonth(today)} ${today.slice(0, 4)}`;
@@ -399,22 +458,18 @@ function show(r) {
   if (r.profit) {
     $("profit").textContent = r.profit.headline;
     $("profit").className = `tw-text-3xl tw-font-semibold tw-leading-tight ${PROFIT[r.profit.call]}`;
-    $("profit-sub").textContent = r.profit.sub;
-    $("margin-note").textContent = r.margin_note || "";
-    $("margin-note").hidden = !r.margin_note;
+    // "(likely 1.69–2.64×)" kept on one line, so a narrow screen doesn't break the range at its dash.
+    const [before, likely = "", after = ""] = r.profit.sub.split(/(\(likely [^)]*\))/);
+    const range = Object.assign(document.createElement("span"), { className: "tw-whitespace-nowrap", textContent: likely });
+    $("profit-sub").replaceChildren(before, range, after);
   }
   $("verdict").textContent = r.label;
   $("verdict").className = `tw-inline-block tw-rounded-full tw-px-3 tw-py-1 tw-text-sm tw-font-semibold ${BADGE[r.verdict] || BADGE.expected}`;
-  // What the sale added, then the weeks after and the discount, each said once.
+  // What the sale added, with the weeks after.
   $("added").textContent = r.added || r.summary;
   $("after").textContent = r.after_line || "";
   $("after").hidden = !r.after_line;
-  $("discount").textContent = r.discount_line || "";
-  $("discount").hidden = !r.discount_line;
-  const b = r.break_even;
-  $("worked").textContent = b ? b.sentence : "";
-  $("worked-box").hidden = !b;
-  $("no-margin").hidden = !(r.verdict !== "insufficient" && !r.profit && $("margin").value === "");
+  $("reexport").hidden = !(r.remind && r.remind.reexport);
   $("chart").replaceChildren();
   $("caption").hidden = true;
   if (r.chart && r.chart.length) {
@@ -422,21 +477,20 @@ function show(r) {
     $("caption").textContent = CAPTION;
     $("caption").hidden = false;
   }
-  $("notes").replaceChildren(...(r.warnings || []).map((w) => Object.assign(document.createElement("li"), { textContent: w })));
-  $("notes-box").hidden = !(r.warnings && r.warnings.length);
+  $("margin-note").textContent = r.margin_note || "";
+  $("margin-note").hidden = !r.margin_note;
+  // How this was worked out: break-even's sentence, the discount, and any notes.
+  const b = r.break_even;
+  $("worked").textContent = b ? b.sentence : "";
+  $("worked").hidden = !b;
+  $("discount").textContent = r.discount_line || "";
+  $("discount").hidden = !r.discount_line;
+  const notes = r.warnings || [];
+  $("notes").replaceChildren(...notes.map((w) => Object.assign(document.createElement("li"), { textContent: w })));
+  $("notes").hidden = !notes.length;
+  $("worked-box").hidden = !(b || r.discount_line || notes.length);
+  ask(r.remind && !r.remind.reexport ? r.remind : null);
   $("result").hidden = false;
-  // While the report doesn't cover the 3 weeks after, the main ask is a reminder to check
-  // again (with early access as a separate, unticked box); otherwise, early access.
-  const remind = r.remind && !r.remind.reexport ? r.remind : null;
-  $("remind-box").hidden = !remind;
-  if (remind) {
-    $("remind-tag").value = remind.tag;
-    $("remind-form").dataset.label = remind.label;
-    $("remind-button").textContent = `Remind me on ${remind.label}`;
-    $("remind-form").hidden = false;
-    $("remind-done").hidden = true;
-  }
-  $("reexport").hidden = !(r.remind && r.remind.reexport);
-  $("signup").hidden = Boolean(remind);
+  step(`result-${r.outcome}`);
   $("result").scrollIntoView({ behavior: "smooth", block: "start" });
 }

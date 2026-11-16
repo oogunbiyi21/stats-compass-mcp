@@ -46,7 +46,8 @@ The "Did my sale make money?" checker. It runs stats-compass-core's
 promotion_lift in the visitor's browser (Pyodide, in a Web Worker:
 assets/checker/worker.js), with the app's break-even formula ported in
 assets/checker/checker.py (tests/test_sale_checker.py holds it to the app's
-figures). The chosen file is read in the browser and never uploaded.
+figures). The chosen file is read in the browser and never uploaded. How it
+works and its limits: how-the-checker-works.html.
 -->
 <body class="tw-flex tw-min-h-[100vh] tw-flex-col tw-bg-[#ffffff]">
     <header
@@ -64,111 +65,114 @@ figures). The chosen file is read in the browser and never uploaded.
     <main class="tw-mt-[100px] tw-px-[10%] tw-pb-20 max-lg:tw-px-4">
         <div class="tw-mx-auto tw-max-w-3xl">
             <h1 class="tw-mb-3 tw-text-4xl tw-font-semibold tw-leading-tight">Did my sale make money?</h1>
-            <p class="tw-mb-6 tw-text-lg tw-leading-relaxed tw-text-gray-700">
-                Check a Black Friday, or any sale, against the sales you'd have had anyway, and see whether the
-                discount paid for itself. It's free, and it uses the same calculations as the Stats Compass app.
+            <p class="tw-text-lg tw-leading-relaxed tw-text-gray-700">
+                Find out if your last Shopify sale paid for itself. Free and takes about two minutes. Your file never
+                leaves your computer.
             </p>
+            <ol class="tw-mt-5 tw-flex tw-flex-wrap tw-gap-x-2 tw-gap-y-1 tw-text-sm tw-font-semibold tw-text-gray-600" aria-label="How it goes">
+                <li>Export from Shopify <span aria-hidden="true" class="tw-ml-1 tw-text-gray-400">→</span></li>
+                <li>Upload <span aria-hidden="true" class="tw-ml-1 tw-text-gray-400">→</span></li>
+                <li>Get your answer</li>
+            </ol>
 
-            <section class="tw-mb-8">
-                <h2 class="tw-mb-3 tw-text-xl tw-font-semibold">What you'll see</h2>
-                <figure>
-                    <img src="/assets/checker/example-result.png" width="780" height="1698" loading="lazy"
-                        alt="An example result: It made money. It needed about 1.61× its normal sales to cover the discount and brought about 2.06×."
-                        class="tw-w-full tw-rounded-xl tw-border tw-border-gray-200 sm:tw-max-w-sm" />
-                    <figcaption class="tw-mt-2 tw-text-sm tw-text-gray-600">An example result, from a made-up store's sample file.</figcaption>
-                </figure>
-                <button id="try-sample" type="button" class="tw-mt-3 tw-rounded-lg tw-border tw-border-black tw-px-4 tw-py-2 tw-font-semibold hover:tw-bg-gray-50">Try it with a sample file</button>
-            </section>
-
-            <section class="tw-mb-8 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-5">
-                <p class="tw-font-semibold">Your file never leaves your computer.</p>
-                <p class="tw-mt-1 tw-text-gray-700">
-                    It's read and analysed in this page, and not sent anywhere. See our
-                    <a href="/privacy" class="tw-underline">privacy policy</a>.
+            <section class="tw-mt-8" aria-labelledby="export-title">
+                <h2 id="export-title" class="tw-mb-2 tw-text-xl tw-font-semibold">1. Export your daily sales</h2>
+                <p class="tw-leading-relaxed tw-text-gray-700">
+                    In Shopify, open <strong>Analytics → Reports → Total sales over time</strong>, set it to
+                    <strong>Day</strong> and <strong>Last 730 days</strong>, then <strong>Export</strong> it as a CSV.
                 </p>
-                <p id="status" class="tw-mt-3 tw-text-sm tw-text-gray-600" role="status" aria-live="polite">The checker starts when you choose your file.</p>
-                <p id="first-visit" hidden class="tw-mt-1 tw-text-xs tw-text-gray-500">First visit downloads about 30 MB; on a slow connection this can take a few minutes.</p>
+                <details id="show-me" class="tw-mt-2">
+                    <summary class="tw-cursor-pointer tw-font-semibold tw-text-blue-600">Show me</summary>
+                    <!-- Screenshots from the demo store; the shop's figures there are made up. -->
+                    <div class="tw-mt-3 tw-space-y-5">
+                        <figure>
+                            <img src="/assets/checker/export/1-reports.webp" width="1075" height="786" loading="lazy" alt="Shopify admin: Analytics, then Reports, with the reports searched for Total sales over time." class="tw-w-full tw-rounded-lg tw-border tw-border-gray-200" />
+                            <figcaption class="tw-mt-1 tw-text-sm tw-text-gray-600">Open Total sales over time.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="/assets/checker/export/2-day.webp" width="1568" height="732" loading="lazy" alt="The Total sales over time report, with the date range at the top left and Day under Dimensions on the right." class="tw-w-full tw-rounded-lg tw-border tw-border-gray-200" />
+                            <figcaption class="tw-mt-1 tw-text-sm tw-text-gray-600">Set the dates. Check it shows Day.</figcaption>
+                        </figure>
+                        <figure>
+                            <img src="/assets/checker/export/3-export.webp" width="880" height="1010" loading="lazy" alt="More actions, then Export, and the Export report window with CSV and all results chosen." class="tw-w-full tw-rounded-lg tw-border tw-border-gray-200 sm:tw-max-w-md" />
+                            <figcaption class="tw-mt-1 tw-text-sm tw-text-gray-600">More actions → Export, as a CSV.</figcaption>
+                        </figure>
+                    </div>
+                </details>
+                <details class="tw-mt-1 tw-text-sm tw-text-gray-600">
+                    <summary class="tw-cursor-pointer">Only exports by month?</summary>
+                    <p class="tw-mt-1">Ask Sidekick: "Export Total sales over time by day as a CSV for the last 730 days."</p>
+                </details>
+
+                <div class="tw-mt-6 tw-flex tw-flex-wrap tw-items-center tw-gap-x-4 tw-gap-y-2">
+                    <input id="file" type="file" accept=".csv,text/csv" class="tw-peer tw-sr-only" />
+                    <label for="file"
+                        class="tw-cursor-pointer tw-rounded-lg tw-bg-black tw-px-5 tw-py-3 tw-font-semibold tw-text-white peer-focus-visible:tw-ring-2 peer-focus-visible:tw-ring-blue-600 peer-focus-visible:tw-ring-offset-2">Choose your sales file</label>
+                    <span class="tw-text-gray-600">or <button id="try-sample" type="button" class="tw-font-semibold tw-text-blue-600 tw-underline">try a sample</button></span>
+                </div>
+                <p id="status" hidden class="tw-mt-3 tw-text-sm tw-text-gray-600" role="status" aria-live="polite"></p>
+                <div id="file-error" hidden class="tw-mt-3 tw-rounded-lg tw-bg-red-50 tw-p-3 tw-text-red-800" role="alert">
+                    <p id="file-error-text"></p>
+                </div>
             </section>
 
-            <form id="form" class="tw-space-y-6" novalidate>
-                <div>
-                    <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">1. Export your daily sales from Shopify</h2>
-                    <p class="tw-leading-relaxed tw-text-gray-700">
-                        In Shopify, go to <strong>Analytics → Reports</strong> and open <strong>Total sales over
-                        time</strong>. Set it to show <strong>Day</strong>, from at least 13 months before your sale
-                        to 3 weeks after it, then <strong>Export</strong> it as a CSV.
-                    </p>
-                    <p class="tw-mt-2 tw-text-sm tw-leading-relaxed tw-text-gray-600">
-                        Tip: if your report only exports by month, ask Sidekick: "Export Total sales over time by day
-                        as a CSV, from <em>start date</em> to <em>end date</em>."
-                    </p>
-                </div>
-                <div>
-                    <label for="file" class="tw-mb-2 tw-block tw-text-xl tw-font-semibold">2. Choose the file</label>
-                    <input id="file" type="file" accept=".csv,text/csv" class="tw-block tw-w-full tw-text-sm" />
-                    <!-- Its inputs belong to running-form, below the main form (forms can't nest). -->
-                    <div id="running" class="tw-mt-4 tw-text-sm tw-text-gray-700">
-                        <p>Sale still running? Your numbers won't be ready until about a week after it ends.</p>
-                        <div class="tw-mt-2 tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row sm:tw-items-center">
-                            <input form="running-form" name="email" type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Your email"
-                                class="tw-w-full tw-min-w-0 tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-max-w-xs" />
-                            <label class="tw-sr-only" for="running-date">Remind me on</label>
-                            <input id="running-date" form="running-form" type="date" class="tw-rounded tw-border tw-border-gray-300 tw-p-2" />
-                            <button form="running-form" type="submit" class="tw-self-start tw-rounded-lg tw-border tw-border-black tw-px-4 tw-py-2 tw-font-semibold hover:tw-bg-gray-50">Remind me</button>
-                        </div>
-                        <p id="running-note" class="tw-mt-1 tw-text-xs tw-text-gray-500"></p>
-                        <p id="running-done" hidden class="tw-mt-2 tw-font-semibold tw-text-green-700" role="status"></p>
-                    </div>
-                </div>
-                <div>
-                    <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">3. Which sale do you want to check?</h2>
-                    <!-- Sales found in the report, to choose from; hidden when none are found. -->
-                    <fieldset id="choices" hidden class="tw-mb-4">
-                        <legend class="tw-mb-2 tw-text-sm tw-text-gray-700">We found these sales in your report from their discounts.</legend>
-                        <div id="choice-list" class="tw-space-y-2 sm:tw-max-w-md"></div>
-                    </fieldset>
+            <!-- Steps 2 and 3: shown once a file has been read. -->
+            <form id="form" hidden class="tw-mt-10 tw-space-y-8" novalidate>
+                <fieldset>
+                    <legend class="tw-mb-2 tw-text-xl tw-font-semibold">2. Which sale?</legend>
+                    <p id="found-lead" class="tw-mb-2 tw-text-sm tw-text-gray-700">We found these from your report's discounts.</p>
+                    <p id="none-lead" hidden class="tw-mb-2 tw-text-sm tw-text-gray-700">We didn't find a sale in your report. Enter its dates.</p>
+                    <div id="choice-list" class="tw-space-y-2 sm:tw-max-w-md"></div>
                     <template id="choice-row">
                         <label class="tw-flex tw-cursor-pointer tw-items-center tw-gap-3 tw-rounded-lg tw-border tw-border-gray-300 tw-p-3">
                             <input type="radio" name="sale" class="tw-h-4 tw-w-4 tw-shrink-0" />
-                            <span><span data-span class="tw-font-semibold"></span><span data-action class="tw-text-gray-600"></span></span>
+                            <span data-span class="tw-font-semibold"></span>
                         </label>
                     </template>
-                    <div id="dates">
-                        <div class="tw-grid tw-gap-4 sm:tw-grid-cols-3">
+                    <div id="dates" hidden class="tw-mt-4">
+                        <div class="tw-grid tw-grid-cols-2 tw-gap-4 sm:tw-max-w-md">
                             <label class="tw-block tw-text-sm tw-text-gray-700">First day
                                 <input id="start" type="date" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                             </label>
                             <label class="tw-block tw-text-sm tw-text-gray-700">Last day
                                 <input id="end" type="date" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                             </label>
+                        </div>
+                    </div>
+                    <details id="more" class="tw-mt-4">
+                        <summary class="tw-cursor-pointer tw-text-sm tw-font-semibold tw-text-blue-600">More options</summary>
+                        <div class="tw-mt-3 tw-space-y-4 sm:tw-max-w-md">
                             <label class="tw-block tw-text-sm tw-text-gray-700">Name (optional)
                                 <input id="name" type="text" placeholder="e.g. Black Friday" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                             </label>
-                        </div>
-                        <!-- Shopify's discounts don't show a sale run by lowering prices: the cut is asked for. -->
-                        <div id="cut-box" class="tw-mt-4 tw-rounded-lg tw-border tw-border-transparent tw-p-3 sm:tw-max-w-md">
-                            <label class="tw-block tw-text-sm tw-text-gray-700">Did you lower prices for this sale (instead of, or as well as, discount codes)? Average price cut, % (optional)
-                                <input id="cut" type="number" min="0" max="95" step="1" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                            <!-- Shopify's discounts don't show a sale run by lowering prices: the cut is asked for. -->
+                            <div id="cut-box" class="tw-rounded-lg">
+                                <label class="tw-block tw-text-sm tw-text-gray-700">Price cut, if you lowered prices (%)
+                                    <input id="cut" type="number" min="0" max="95" step="1" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                                </label>
+                                <p id="cut-hint" hidden class="tw-mt-2 tw-text-sm tw-font-semibold tw-text-amber-900">
+                                    No discounts found for these dates. Lowered prices instead? Enter the average cut.
+                                </p>
+                            </div>
+                            <label class="tw-block tw-text-sm tw-text-gray-700">Currency
+                                <select id="currency" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2">
+                                    <option value="£">£</option>
+                                    <option value="$">$</option>
+                                    <option value="€">€</option>
+                                </select>
                             </label>
-                            <p id="cut-hint" hidden class="tw-mt-2 tw-text-sm tw-font-semibold tw-text-amber-900">
-                                We didn't find discounts for these dates. If you cut prices instead, enter the average cut so break-even counts it.
-                            </p>
+                            <!-- Other sales: shown once the sale to check is known. -->
+                            <div id="other-sales" hidden>
+                                <p class="tw-text-sm tw-font-semibold">Other sales</p>
+                                <p id="found-note" class="tw-mt-1 tw-text-sm tw-text-gray-700">Left out of what's expected. Remove any that weren't sales.</p>
+                                <p id="none-note" class="tw-mt-1 tw-text-sm tw-text-gray-700">Ran other sales in this period? Add them.</p>
+                                <div id="others" class="tw-mt-2 tw-space-y-2"></div>
+                                <button id="add-other" type="button" class="tw-mt-2 tw-text-sm tw-font-semibold tw-text-blue-600 hover:tw-underline">+ Add a sale we missed</button>
+                            </div>
                         </div>
-                    </div>
-                    <!-- Other sales: shown once the sale to check is known. -->
-                    <div id="other-sales" hidden class="tw-mt-6">
-                        <h3 class="tw-font-semibold">Other sales</h3>
-                        <p id="found-note" class="tw-mt-1 tw-text-sm tw-text-gray-700">
-                            Found from your discounts and left out of what counts as normal. Remove any that weren't sales.
-                        </p>
-                        <p id="none-note" class="tw-mt-1 tw-text-sm tw-text-gray-700">
-                            Ran any other sales in this period? Add them so they aren't counted as normal.
-                        </p>
-                        <div id="others" class="tw-mt-2 tw-space-y-2"></div>
-                        <button id="add-other" type="button" class="tw-mt-2 tw-text-sm tw-font-semibold tw-text-blue-600 hover:tw-underline">+ Add a sale we missed</button>
-                    </div>
+                    </details>
                     <template id="other-row">
-                        <div class="tw-grid tw-grid-cols-[1fr_1fr_auto] tw-items-end tw-gap-2 sm:tw-max-w-md">
+                        <div class="tw-grid tw-grid-cols-[1fr_1fr_auto] tw-items-end tw-gap-2">
                             <label class="tw-block tw-text-sm tw-text-gray-700">First day
                                 <input data-start type="date" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                             </label>
@@ -178,41 +182,30 @@ figures). The chosen file is read in the browser and never uploaded.
                             <button data-remove type="button" aria-label="Remove this sale" class="tw-p-2 tw-text-xl tw-leading-none tw-text-gray-500 hover:tw-text-black">×</button>
                         </div>
                     </template>
-                </div>
+                </fieldset>
                 <div>
-                    <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">4. Your margin, and any ad spend</h2>
-                    <div class="tw-grid tw-gap-4 sm:tw-grid-cols-3">
-                        <label class="tw-block tw-text-sm tw-text-gray-700 sm:tw-col-span-2">Your margin on the items in the sale, after product costs, shipping you pay and payment fees, roughly (%)
-                            <input id="margin" type="number" min="1" max="99" step="1" value="40" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
+                    <h2 class="tw-mb-2 tw-text-xl tw-font-semibold">3. Your margin</h2>
+                    <div class="tw-grid tw-gap-4 sm:tw-max-w-md sm:tw-grid-cols-2">
+                        <label class="tw-block tw-text-sm tw-text-gray-700">Margin after product costs, shipping and fees (%)
+                            <input id="margin" type="number" min="1" max="99" step="1" value="40" required class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                         </label>
-                        <label class="tw-block tw-text-sm tw-text-gray-700">Currency
-                            <select id="currency" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2">
-                                <option value="£">£</option>
-                                <option value="$">$</option>
-                                <option value="€">€</option>
-                            </select>
-                        </label>
-                        <label class="tw-block tw-text-sm tw-text-gray-700 sm:tw-col-span-2">Extra ad spend for this sale (<span id="ads-symbol">£</span>, optional)
+                        <label class="tw-block tw-text-sm tw-text-gray-700">Ad spend for this sale (<span id="ads-symbol">£</span>, optional)
                             <input id="ads" type="number" min="0" step="1" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                         </label>
                     </div>
                 </div>
-                <button id="check" type="submit"
-                    class="tw-rounded-lg tw-bg-black tw-px-5 tw-py-3 tw-font-semibold tw-text-white disabled:tw-cursor-not-allowed disabled:tw-opacity-40">Check my sale</button>
-                <p id="hint" hidden class="tw-text-amber-800" role="status"></p>
-                <div id="error" hidden class="tw-rounded-lg tw-bg-red-50 tw-p-3 tw-text-red-800" role="alert">
-                    <p id="error-text"></p>
-                    <button id="retry" type="button" class="tw-mt-2 tw-font-semibold tw-underline">Try again</button>
+                <div class="tw-space-y-3">
+                    <button id="check" type="submit"
+                        class="tw-rounded-lg tw-bg-black tw-px-5 tw-py-3 tw-font-semibold tw-text-white disabled:tw-cursor-not-allowed disabled:tw-opacity-40">Check my sale</button>
+                    <p id="hint" hidden class="tw-text-amber-800" role="status"></p>
+                    <div id="error" hidden class="tw-rounded-lg tw-bg-red-50 tw-p-3 tw-text-red-800" role="alert">
+                        <p id="error-text"></p>
+                        <button id="retry" type="button" class="tw-mt-2 tw-font-semibold tw-underline">Try again</button>
+                    </div>
                 </div>
             </form>
-            <form id="running-form" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank">
-                <input type="hidden" name="embed" value="1" />
-                <input type="hidden" name="tag" value="sale-running" />
-                <input id="running-tag" type="hidden" name="tag" value="" />
-            </form>
 
-            <section id="result" hidden class="tw-mt-10 tw-space-y-4" aria-live="polite">
-                <!-- Each fact once: the call and why, what the sale added, the weeks after, the discount, the chart. -->
+            <section id="result" hidden class="tw-mt-10 tw-space-y-5" aria-live="polite">
                 <div id="print-head" class="tw-hidden tw-text-sm tw-text-gray-600">
                     <p class="tw-font-semibold tw-text-black">Did my sale make money? Stats Compass</p>
                     <p id="print-meta"></p>
@@ -221,179 +214,86 @@ figures). The chosen file is read in the browser and never uploaded.
                 <div id="profit-box" hidden>
                     <p id="profit" class="tw-text-3xl tw-font-semibold tw-leading-tight"></p>
                     <p id="profit-sub" class="tw-mt-2 tw-text-lg tw-leading-relaxed tw-text-gray-700"></p>
-                    <p id="margin-note" hidden class="tw-mt-1 tw-text-sm tw-text-gray-600"></p>
                 </div>
-                <p id="no-margin" hidden class="tw-text-gray-600">Add your margin to see whether it made money.</p>
                 <div class="tw-space-y-2">
                     <h3 class="tw-font-semibold">What the sale added</h3>
                     <span id="verdict"></span>
                     <p id="added" class="tw-leading-relaxed"></p>
+                    <p id="after" class="tw-leading-relaxed tw-text-gray-700"></p>
+                    <p id="reexport" hidden class="no-print tw-leading-relaxed tw-text-gray-700">Export your report again to see the 3 weeks after.</p>
                 </div>
-                <p id="after" class="tw-leading-relaxed tw-text-gray-700"></p>
-                <!-- The main ask, while the report doesn't cover the 3 weeks after the sale. -->
-                <div id="remind-box" hidden class="no-print tw-rounded-2xl tw-border tw-border-gray-300 tw-bg-gray-50 tw-p-4">
-                    <p class="tw-leading-relaxed">The 3 weeks after a sale often look quieter, because some customers bought early. Your report
-                        doesn't cover them yet. Check again once they've passed, and the result will show them.</p>
-                    <form id="remind-form" class="tw-mt-3 tw-space-y-2" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank">
-                        <input type="hidden" name="embed" value="1" />
-                        <input type="hidden" name="tag" value="dip-reminder" />
-                        <input id="remind-tag" type="hidden" name="tag" value="" />
-                        <div class="tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row">
-                            <input name="email" type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Your email"
-                                class="tw-w-full tw-min-w-0 tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-max-w-xs" />
-                            <button id="remind-button" type="submit" class="tw-self-start tw-rounded-lg tw-bg-black tw-px-4 tw-py-2 tw-font-semibold tw-text-white">Remind me</button>
-                        </div>
-                        <p class="tw-text-sm tw-text-gray-600">One email on that date. Your file stays on your computer, so you'll upload it again then.</p>
-                        <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-700">
-                            <input type="checkbox" name="tag" value="early-access" class="tw-mt-1" />
-                            <span>Also email me about early access to the Stats Compass Shopify app (a few emails, unsubscribe any time).</span>
-                        </label>
-                        <p class="tw-text-xs tw-text-gray-500">Sent by Stats Compass using Buttondown. You'll get a confirmation email first.
-                            <a href="/privacy" class="tw-underline">Privacy notice</a></p>
-                    </form>
-                    <p id="remind-done" hidden class="tw-mt-3 tw-font-semibold tw-text-green-700" role="status"></p>
-                </div>
-                <p id="reexport" hidden class="no-print tw-leading-relaxed tw-text-gray-700">Your report ends before the 3 weeks after the sale had passed. Export it again to see them.</p>
-                <p id="discount" class="tw-leading-relaxed tw-text-gray-700"></p>
                 <figure>
                     <div id="chart" class="tw-max-w-xl"></div>
                     <figcaption id="caption" hidden class="tw-mt-2 tw-max-w-xl tw-text-sm tw-text-gray-600"></figcaption>
                 </figure>
-                <details id="worked-box" hidden class="tw-text-sm tw-text-gray-700">
+                <p id="margin-note" hidden class="tw-text-sm tw-text-gray-600"></p>
+                <details id="worked-box" hidden class="tw-text-sm tw-leading-relaxed tw-text-gray-700">
                     <summary class="tw-cursor-pointer tw-font-semibold">How this was worked out</summary>
-                    <p id="worked" class="tw-mt-2 tw-leading-relaxed"></p>
+                    <p id="worked" class="tw-mt-2"></p>
+                    <p id="discount" class="tw-mt-2"></p>
+                    <ul id="notes" class="tw-mt-2 tw-list-disc tw-space-y-1 tw-pl-5"></ul>
                 </details>
-                <div id="notes-box" hidden class="tw-text-sm tw-text-gray-600">
-                    <p class="tw-font-semibold">Notes</p>
-                    <ul id="notes" class="tw-list-disc tw-space-y-1 tw-pl-5"></ul>
-                </div>
-                <p class="tw-text-sm tw-text-gray-600"><span class="tw-hidden print:tw-inline">Checked with the free sale checker at statscompass.io/did-my-sale-make-money. </span><a href="#how-it-works" class="no-print tw-text-blue-600 hover:tw-underline">How this works and its limits</a></p>
+                <p class="tw-text-sm tw-text-gray-600"><span class="tw-hidden print:tw-inline">Checked with the free sale checker at statscompass.io/did-my-sale-make-money.</span><a href="/how-the-checker-works" class="no-print tw-text-blue-600 hover:tw-underline">How the checker works, and its limits</a></p>
                 <div class="no-print">
                     <button id="pdf-open" type="button" class="tw-rounded-lg tw-border tw-border-black tw-px-4 tw-py-2 tw-font-semibold hover:tw-bg-gray-50">Save as PDF</button>
                 </div>
                 <dialog id="pdf-dialog" class="no-print tw-w-[min(28rem,calc(100vw-2rem))] tw-rounded-2xl tw-p-6 backdrop:tw-bg-black/40">
-                    <h2 class="tw-text-xl tw-font-semibold">Save this result as a PDF</h2>
+                    <h2 class="tw-text-xl tw-font-semibold">Save as PDF</h2>
                     <label class="tw-mt-4 tw-block tw-text-sm tw-text-gray-700">Prepared by (optional)
                         <input id="prepared-by" type="text" placeholder="Your name or agency" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2" />
                     </label>
-                    <p class="tw-mt-2 tw-text-sm tw-text-gray-600">Your browser's print window opens: choose "Save as PDF". It's made here, on your computer.</p>
+                    <p class="tw-mt-2 tw-text-sm tw-text-gray-600">Choose "Save as PDF" in the print window.</p>
                     <div class="tw-mt-4 tw-flex tw-gap-2">
                         <button id="pdf-print" type="button" class="tw-rounded-lg tw-bg-black tw-px-4 tw-py-2 tw-font-semibold tw-text-white">Save as PDF</button>
                         <button id="pdf-cancel" type="button" class="tw-rounded-lg tw-px-4 tw-py-2 tw-font-semibold tw-text-gray-700">Cancel</button>
                     </div>
-                    <form id="multi-form" class="tw-mt-6 tw-space-y-2 tw-border-t tw-border-gray-200 tw-pt-4" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank">
-                        <p class="tw-text-sm tw-text-gray-700">Doing this for several clients? Tell me when the multi-store version is ready.</p>
+                </dialog>
+
+                <!-- The one email ask: a reminder while the result isn't complete, otherwise early access
+                     (page.js, ask()). It posts to Buttondown in a new tab, as Buttondown asks; Buttondown
+                     sends the confirmation email (double opt-in). -->
+                <div id="ask" class="no-print tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-5">
+                    <div data-ask="running" hidden>
+                        <p class="tw-font-semibold">Your sale may still be running.</p>
+                        <p class="tw-mt-1 tw-text-gray-700">Check it again a week after it ends.</p>
+                    </div>
+                    <div data-ask="after" hidden>
+                        <p class="tw-font-semibold">Check again on <span data-label></span>.</p>
+                        <p class="tw-mt-1 tw-text-gray-700">Sales often dip in the 3 weeks after a sale. Your report doesn't cover them yet.</p>
+                    </div>
+                    <div data-ask="early" hidden>
+                        <p class="tw-font-semibold">Get this for every sale, automatically.</p>
+                        <p class="tw-mt-1 tw-text-gray-700">Join the early-access list for the Stats Compass Shopify app.</p>
+                    </div>
+                    <form id="ask-form" class="tw-mt-3 tw-space-y-2" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank">
                         <input type="hidden" name="embed" value="1" />
-                        <input type="hidden" name="tag" value="multi-store" />
+                        <input id="ask-kind" type="hidden" name="tag" value="early-access" />
+                        <input id="ask-tag" type="hidden" name="tag" value="checker" />
                         <div class="tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row">
                             <input name="email" type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Your email"
-                                class="tw-w-full tw-min-w-0 tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-flex-1" />
-                            <button type="submit" class="tw-rounded-lg tw-border tw-border-black tw-px-4 tw-py-2 tw-font-semibold hover:tw-bg-gray-50">Tell me</button>
+                                class="tw-w-full tw-min-w-0 tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-max-w-xs" />
+                            <button id="ask-button" type="submit" class="tw-self-start tw-rounded-lg tw-bg-black tw-px-4 tw-py-2 tw-font-semibold tw-text-white">Join the list</button>
+                        </div>
+                        <p id="ask-once" hidden class="tw-text-sm tw-text-gray-600">One email on that date. You'll upload your file again then.</p>
+                        <div id="ask-also" hidden>
+                            <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-700">
+                                <input id="ask-also-box" type="checkbox" name="tag" value="early-access" disabled class="tw-mt-1" />
+                                <span>Also email me about early access to the Stats Compass Shopify app (a few emails, unsubscribe any time).</span>
+                            </label>
+                        </div>
+                        <div id="ask-consent">
+                            <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-700">
+                                <input id="ask-consent-box" type="checkbox" required class="tw-mt-1" />
+                                <span>Email me about early access to Stats Compass. I can unsubscribe at any time.</span>
+                            </label>
                         </div>
                         <p class="tw-text-xs tw-text-gray-500">Sent by Stats Compass using Buttondown. You'll get a confirmation email first.
                             <a href="/privacy" class="tw-underline">Privacy notice</a></p>
                     </form>
-                    <p id="multi-done" hidden class="tw-mt-3 tw-font-semibold tw-text-green-700" role="status">Check your inbox to confirm.</p>
-                </dialog>
-                <div class="no-print tw-rounded-2xl tw-border tw-border-gray-200 tw-p-5">
-                    <p class="tw-font-semibold">Stats Compass does this for every promotion, every week.</p>
-                    <p class="tw-mt-1 tw-text-gray-700">
-                        The Stats Compass app for Shopify judges each week's sales and every discount against what you'd
-                        have had anyway, with margins from your own costs.
-                        <a href="/#commerce" class="tw-text-blue-600 hover:tw-underline">See the app</a>.
-                    </p>
+                    <p id="ask-done" hidden class="tw-mt-3 tw-font-semibold tw-text-green-700" role="status"></p>
                 </div>
-            </section>
-
-            <section id="signup" hidden class="tw-mt-10 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-5">
-                <h2 class="tw-text-xl tw-font-semibold">Get this every week automatically</h2>
-                <p class="tw-mt-1 tw-text-gray-700">Join the early-access list, and we'll tell you when you can try Stats Compass on your store.</p>
-                <!-- The list is on Buttondown, which sends the confirmation email (double opt-in). The form posts
-                     to Buttondown in a new tab, as Buttondown asks (it may need a CAPTCHA or a correction there),
-                     so the visitor's result stays on this page. -->
-                <form id="list-form" class="tw-mt-4 tw-space-y-3" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank">
-                    <label class="tw-block tw-text-sm tw-text-gray-700">Email
-                        <input id="list-email" name="email" type="email" required autocomplete="email" class="tw-mt-1 tw-block tw-w-full tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-max-w-sm" />
-                    </label>
-                    <input type="hidden" name="embed" value="1" />
-                    <input type="hidden" name="tag" value="early-access" />
-                    <input type="hidden" name="tag" value="checker" />
-                    <label class="tw-flex tw-items-start tw-gap-2 tw-text-sm tw-text-gray-700">
-                        <input id="list-consent" type="checkbox" required class="tw-mt-1" />
-                        <span>Email me about early access to Stats Compass. I can unsubscribe at any time.</span>
-                    </label>
-                    <button id="list-join" type="submit"
-                        class="tw-rounded-lg tw-bg-black tw-px-5 tw-py-2 tw-font-semibold tw-text-white disabled:tw-cursor-not-allowed disabled:tw-opacity-40">Join the list</button>
-                </form>
-                <div id="list-done" hidden class="tw-mt-4" role="status">
-                    <p class="tw-font-semibold tw-text-green-700">Check your inbox to confirm.</p>
-                    <p class="tw-mt-1 tw-text-sm tw-text-gray-700">We've sent you a link: you're on the list once you click it. Buttondown, which keeps our list, opened in a new tab; if it asks for anything more, finish there.</p>
-                </div>
-                <p class="tw-mt-3 tw-text-xs tw-text-gray-500">
-                    We only email you about early access. See our <a href="/privacy" class="tw-underline">privacy policy</a>.
-                </p>
-            </section>
-
-            <section id="how-it-works" class="tw-mt-16 tw-border-t tw-border-gray-200 tw-pt-8 tw-leading-relaxed tw-text-gray-700">
-                <h2 class="tw-text-xl tw-font-semibold tw-text-black">How this works and its limits</h2>
-
-                <h3 class="tw-mt-5 tw-font-semibold tw-text-black">How it works</h3>
-                <p class="tw-mt-2">
-                    The checker works out what you'd have sold without the sale, from your own report: the level of
-                    the four weeks before it, and the shape of your year and your week. What you sold, minus that, is
-                    what the sale added. The range is where the true figure probably lies, nine times in ten. It says
-                    "Real change" only when the difference is bigger than your sales usually move on their own.
-                </p>
-                <p class="tw-mt-2">
-                    For break-even, it uses the margin you type, the discount in your report, any price cut and
-                    any ad spend you add: a deeper discount earns less on each sale, and ads have to be paid for, so the sale needed
-                    more extra sales to pay for itself.
-                </p>
-
-                <h3 class="tw-mt-5 tw-font-semibold tw-text-black">Its limits</h3>
-                <ul class="tw-mt-2 tw-list-disc tw-space-y-1 tw-pl-5">
-                    <li>It can't tell your sale from anything else that happened at the same time. A busier season
-                        than last year, press coverage or a competitor running out of stock all look the same in your
-                        sales.</li>
-                    <li>With under two years of history, the shape of your year comes from one earlier year, so a
-                        season that's busier than last year for other reasons can look like a sale effect.</li>
-                    <li>Days in a row with no sales are taken as a closure. Orders held over from a closure can make a
-                        sale just after it look better than it was.</li>
-                    <li>Other sales in the period are left out of what's expected. We suggest them from your report's
-                        discounts: add any we missed, such as one run by lowering prices rather than with a discount.</li>
-                    <li>Small effects are hard to see when your daily sales jump around a lot. "Expected" means any
-                        effect was too small to tell apart from your usual ups and downs, not that the sale did
-                        nothing.</li>
-                    <li>Customers who bought during the sale instead of later make it look better than it was. That's
-                        why the result also shows the three weeks after it.</li>
-                    <li>Your margin is the one you type, and product costs are taken as unchanged for each pound of
-                        full-price sales.</li>
-                    <li>One margin for the whole sale: if it moved buyers towards lower-margin products, it'll look a
-                        little better than it was. The Stats Compass app uses each product's actual cost.</li>
-                    <li>Returns are taken off on the day Shopify records them (Net sales). Returns of sale orders that
-                        come back during the sale are taken off its sales; ones that come back later show in the three
-                        weeks after, not in its break-even, and ones that haven't come back by the end of your report
-                        aren't counted.</li>
-                    <li>Other campaign costs (design, influencers, free gifts) aren't included unless you add them to
-                        ad spend.</li>
-                    <li>Sales run by lowering prices don't show in Shopify's discounts; enter the average cut.</li>
-                </ul>
-
-                <h3 id="real-data" class="tw-mt-5 tw-scroll-mt-4 tw-font-semibold tw-text-black">How it did on real data</h3>
-                <p class="tw-mt-2">
-                    We tested it on two years of a real UK online retailer's daily sales (the UCI Online Retail II
-                    dataset), on hundreds of dates with no sale, and with sales of a known size added in:
-                </p>
-                <ul class="tw-mt-2 tw-list-disc tw-space-y-1 tw-pl-5">
-                    <li>On dates with no sale, it said "Real change" at most 4% of the time.</li>
-                    <li>A sale that lifted sales by 80% for one to three weeks was picked out about two times in three,
-                        and one that lifted them by 50% about one time in three. Smaller lifts were rarely picked out.</li>
-                    <li>The "likely between" range held the true effect about nine times in ten.</li>
-                </ul>
-                <p class="tw-mt-2 tw-text-sm">
-                    That retailer sold mostly to wholesalers, in fewer and larger orders than a typical Shopify store,
-                    so its daily sales jump around more than most.
-                </p>
+                <p class="no-print tw-text-gray-700">Stats Compass does this for every sale, every week.
+                    <a href="/#commerce" class="tw-text-blue-600 hover:tw-underline">See the app</a>.</p>
             </section>
         </div>
     </main>

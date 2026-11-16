@@ -1,5 +1,5 @@
 // The checker's engine: Python (Pyodide) in a Web Worker, so the page stays
-// responsive while it loads. It starts loading as soon as the page opens.
+// responsive while it loads. The page starts it as soon as it opens.
 //
 // Everything is fetched here, at load: Pyodide and its packages from jsdelivr
 // (pinned), stats-compass-core and joblib from this site (/assets/wheels/,
@@ -67,16 +67,27 @@ onmessage = (event) => {
   queue = queue.then(() => job(event.data));
 };
 
-// The other sales in a chosen report, found from its discounts, to suggest on the page.
+// A chosen report, read at once: the sales its discounts show, to offer on the page, or why
+// it can't be used, with the glue's code for it (a fixed set, which the page counts).
 async function find({ csv, today }) {
   try {
     const pyodide = await ready;
     pyodide.globals.set("_csv", csv);
     pyodide.globals.set("_today", today);
-    const json = await pyodide.runPythonAsync("import json\njson.dumps(checker.detect(_csv, _today))");
-    postMessage({ type: "found", sales: JSON.parse(json) });
-  } catch {
-    postMessage({ type: "found", sales: [] });
+    const json = await pyodide.runPythonAsync(`
+import json
+try:
+    _out = {"report": checker.report(_csv, _today)}
+except checker.ReportError as _e:
+    _out = {"error": str(_e), "code": _e.code}
+json.dumps(_out)
+`);
+    const out = JSON.parse(json);
+    if (out.error) postMessage({ type: "file-error", message: out.error, code: out.code });
+    else postMessage({ type: "found", sales: out.report.sales, ends: out.report.ends });
+  } catch (err) {
+    console.error("The report couldn't be read:", err);
+    postMessage({ type: "file-error", message: "This file couldn't be read. Export the report again, then choose it here.", code: "other" });
   }
 }
 

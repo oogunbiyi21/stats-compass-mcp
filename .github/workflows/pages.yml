@@ -7,6 +7,7 @@ on:
       # Every page at the root (pricing.html was missing from the old list) and the blog.
       - '*.html'
       - 'blog/**'
+      - 'checker-steps/**'
       - 'sitemap.xml'
       - 'robots.txt'
       - 'index.js'
