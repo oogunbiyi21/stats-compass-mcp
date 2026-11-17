@@ -542,3 +542,58 @@ class TestWhatThePageSends:
     def test_a_margin_out_of_range_is_refused_plainly(self):
         with pytest.raises(ValueError, match="^Your margin needs to be a number from 1 to 99.$"):
             checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 120)
+
+
+class TestTheName:
+    """It's "the calculator" (Tunji, 17 Nov 2026): no visitor sees "checker". The exceptions are names
+    no visitor reads: file paths, the step pages, Buttondown's "checker" source tag and the old
+    address's redirect page."""
+
+    SITE = Path(__file__).parents[1]
+
+    def visible(self, html):
+        from html.parser import HTMLParser
+
+        class Text(HTMLParser):
+            def __init__(self):
+                super().__init__(convert_charrefs=True)
+                self.skip, self.parts = 0, []
+
+            def handle_starttag(self, tag, attrs):
+                self.skip += tag in ("script", "style")
+                attrs = dict(attrs)
+                if not (tag == "input" and attrs.get("type") == "hidden"):  # the list's tags are data
+                    self.parts += [v for k, v in attrs.items()
+                                   if k in ("title", "alt", "aria-label", "placeholder", "content", "value") and v and not v.startswith(("/", "http"))]
+
+            def handle_endtag(self, tag):
+                self.skip -= tag in ("script", "style")
+
+            def handle_data(self, data):
+                if not self.skip:
+                    self.parts.append(data)
+
+        text = Text()
+        text.feed(html)
+        return " ".join(text.parts)
+
+    def test_no_page_says_checker(self):
+        pages = [p for p in [*self.SITE.glob("*.html"), *self.SITE.glob("blog/*.html")] if p.name != "how-the-checker-works.html"]
+        assert len(pages) > 5
+        said = [p.name for p in pages if "checker" in self.visible(p.read_text()).lower()]
+        assert said == []
+
+    def test_no_message_says_checker(self):
+        import re
+        for js in ("page.js", "worker.js"):
+            code = (self.SITE / "assets" / "checker" / js).read_text()
+            strings = [s for _, s in re.findall(r"([\"`])((?:(?!\1).)*)\1", code)]
+            assert [s for s in strings if "checker" in s.lower() and "/" not in s and "checker." not in s and s != "checker"] == []
+
+    def test_the_old_address_goes_to_the_new_one(self):
+        stub = (self.SITE / "how-the-checker-works.html").read_text()
+        assert '<meta http-equiv="refresh" content="0; url=/how-the-calculator-works" />' in stub
+        assert '<link rel="canonical" href="https://statscompass.io/how-the-calculator-works" />' in stub
+        assert 'location.replace("/how-the-calculator-works" + location.hash)' in stub
+        sitemap = (self.SITE / "sitemap.xml").read_text()
+        assert "https://statscompass.io/how-the-calculator-works" in sitemap and "how-the-checker-works" not in sitemap

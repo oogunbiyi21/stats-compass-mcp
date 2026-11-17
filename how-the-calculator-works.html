@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>How the calculator works | Stats Compass</title>
+    <meta name="description"
+        content="How the free promotion profitability calculator works out whether a Shopify sale made money, where it can be wrong, and how it did on two years of a real retailer's sales." />
+    <link rel="canonical" href="https://statscompass.io/how-the-calculator-works" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="How the calculator works" />
+    <meta property="og:description" content="How the free promotion profitability calculator works out whether a Shopify sale made money, and its limits." />
+    <meta property="og:url" content="https://statscompass.io/how-the-calculator-works" />
+    <meta property="og:image" content="https://statscompass.io/assets/commerce/promotions-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="shortcut icon" href="/assets/logo/logo1.png" type="image/x-icon" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/tailwind.css" />
+    <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "5acfd6a4cd23427cbea5c6c689599dfc"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+<!--
+How the "Did my sale make money?" calculator (did-my-sale-make-money.html) works:
+its method, its limits, how it did on real data, the download, and the
+multi-store list. The calculator's page links here from its result.
+/how-the-checker-works, the page's old address, redirects here.
+-->
+<body class="tw-flex tw-min-h-[100vh] tw-flex-col tw-bg-[#ffffff]">
+    <header
+        class="tw-absolute tw-top-0 tw-z-20 tw-flex tw-h-[60px] tw-w-full tw-items-center tw-bg-white tw-px-[10%] tw-text-black max-lg:tw-px-4 lg:tw-justify-around">
+        <a class="tw-flex tw-shrink-0 tw-items-center tw-gap-2" href="/">
+            <img src="/assets/logo/mark.svg" alt="" width="44" height="44" class="tw-h-11 tw-w-11" />
+            <span class="tw-text-lg tw-font-semibold tw-tracking-tight">Stats Compass</span>
+        </a>
+        <div class="tw-ml-auto tw-flex tw-gap-5 tw-text-base lg:tw-mx-auto">
+            <a class="header-links" href="/"> Home </a>
+            <a class="header-links" href="/#commerce"> Commerce </a>
+            <a class="header-links max-sm:tw-hidden" href="/blog/"> Blog </a>
+        </div>
+    </header>
+    <main class="tw-mt-[100px] tw-px-[10%] tw-pb-20 max-lg:tw-px-4">
+        <div class="tw-mx-auto tw-max-w-3xl tw-leading-relaxed tw-text-gray-700">
+            <h1 class="tw-mb-3 tw-text-4xl tw-font-semibold tw-leading-tight tw-text-black">How the calculator works</h1>
+            <p class="tw-text-lg">
+                The free <a href="/did-my-sale-make-money" class="tw-text-blue-600 hover:tw-underline">promotion profitability calculator</a>
+                answers one question: did your last Shopify sale make money? Here's how it works, where it can be
+                wrong, and how it did on real data.
+            </p>
+
+            <h2 class="tw-mt-10 tw-text-xl tw-font-semibold tw-text-black">How it works</h2>
+            <p class="tw-mt-2">
+                The calculator works out what you'd have sold without the sale, from your own report. It uses the level
+                of the four weeks before it and the shape of your year and your week. What you sold, minus that, is
+                what the sale added. The range is where the true figure probably lies, nine times in ten. It says
+                "Real change" only when the difference is bigger than your sales usually move on their own.
+            </p>
+            <p class="tw-mt-2">
+                For break-even it uses the margin you type, the discount in your report, any price cut and any ad
+                spend you add. A deeper discount earns less on each sale, and ads have to be paid for. So the sale
+                needed more extra sales to pay for itself.
+            </p>
+            <p class="tw-mt-2">
+                "It made money" means even the low end of the range covered break-even. "It lost money" means even
+                the high end fell short. Otherwise it can't tell: the sale could have gone either way.
+            </p>
+
+            <h2 class="tw-mt-10 tw-text-xl tw-font-semibold tw-text-black">Its limits</h2>
+            <ul class="tw-mt-2 tw-list-disc tw-space-y-1 tw-pl-5">
+                <li>It can't tell your sale from anything else that happened at the same time. A busier season than
+                    last year, press coverage or a competitor running out of stock all look the same in your sales.</li>
+                <li>With under two years of history, the shape of your year comes from one earlier year. A season
+                    that's busier than last year for other reasons can look like a sale effect.</li>
+                <li>Days in a row with no sales are taken as a closure. Orders held over from a closure can make a
+                    sale just after it look better than it was.</li>
+                <li>Other sales in the period are left out of what's expected. We suggest them from your report's
+                    discounts. Add any we missed, such as one run by lowering prices.</li>
+                <li>Small effects are hard to see when your daily sales jump around a lot. "Expected" means any
+                    effect was too small to tell apart from your usual ups and downs. It doesn't mean the sale did
+                    nothing.</li>
+                <li>Customers who bought during the sale instead of later make it look better than it was. That's
+                    why the result also shows the 3 weeks after it.</li>
+                <li>Your margin is the one you type. Product costs are taken as unchanged for each pound of
+                    full-price sales.</li>
+                <li>One margin covers the whole sale. If it moved buyers towards lower-margin products, it'll look a
+                    little better than it was. The Stats Compass app uses each product's actual cost.</li>
+                <li>Returns are taken off on the day Shopify records them (Net sales). Returns of sale orders during
+                    the sale are taken off its sales. Later ones show in the 3 weeks after, not in its break-even.
+                    Ones that haven't come back by the end of your report aren't counted.</li>
+                <li>Other campaign costs (design, influencers, free gifts) aren't included unless you add them to ad
+                    spend.</li>
+                <li>Sales run by lowering prices don't show in Shopify's discounts. Enter the average cut under
+                    More options.</li>
+            </ul>
+
+            <h2 id="real-data" class="tw-mt-10 tw-scroll-mt-4 tw-text-xl tw-font-semibold tw-text-black">How it did on real data</h2>
+            <p class="tw-mt-2">
+                We tested it on two years of a real UK online retailer's daily sales (the UCI Online Retail II
+                dataset). We used hundreds of dates with no sale, and added sales of a known size:
+            </p>
+            <ul class="tw-mt-2 tw-list-disc tw-space-y-1 tw-pl-5">
+                <li>On dates with no sale, it said "Real change" at most 4% of the time.</li>
+                <li>A sale that lifted sales by 80% for 1–3 weeks was picked out about two times in three. One that
+                    lifted them by 50% was picked out about one time in three. Smaller lifts were rarely picked out.</li>
+                <li>The "likely" range held the true effect about nine times in ten.</li>
+            </ul>
+            <p class="tw-mt-2 tw-text-sm">
+                That retailer sold mostly to wholesalers, in fewer and larger orders than a typical Shopify store. So
+                its daily sales jump around more than most.
+            </p>
+
+            <h2 class="tw-mt-10 tw-text-xl tw-font-semibold tw-text-black">Your file and the download</h2>
+            <p class="tw-mt-2">
+                The calculator runs in your browser. Your file is read on your computer and isn't uploaded anywhere. To
+                run, the page downloads Python and its statistics libraries from jsdelivr, about 32 MB the first
+                time. It starts as the page opens, so it's usually ready by the time you've exported your report. On
+                a slow connection the first visit can take a few minutes. After that your browser keeps a copy. If
+                your browser's data saver is on, the download waits until you choose a file. See our
+                <a href="/privacy" class="tw-text-blue-600 hover:tw-underline">privacy policy</a>.
+            </p>
+
+            <section class="tw-mt-10 tw-rounded-2xl tw-border tw-border-gray-200 tw-bg-gray-50 tw-p-5">
+                <h2 class="tw-text-xl tw-font-semibold tw-text-black">Checking sales for several stores?</h2>
+                <p class="tw-mt-1">Tell me when the multi-store version is ready.</p>
+                <!-- Posts to Buttondown in a new tab, as Buttondown asks; it sends the confirmation email. -->
+                <form id="multi-form" class="tw-mt-3 tw-space-y-2" action="https://buttondown.com/api/emails/embed-subscribe/stats-compass" method="post" target="_blank">
+                    <input type="hidden" name="embed" value="1" />
+                    <input type="hidden" name="tag" value="multi-store" />
+                    <div class="tw-flex tw-flex-col tw-gap-2 sm:tw-flex-row">
+                        <input name="email" type="email" required autocomplete="email" placeholder="you@example.com" aria-label="Your email"
+                            class="tw-w-full tw-min-w-0 tw-rounded tw-border tw-border-gray-300 tw-p-2 sm:tw-max-w-xs" />
+                        <button type="submit" class="tw-self-start tw-rounded-lg tw-border tw-border-black tw-px-4 tw-py-2 tw-font-semibold tw-text-black hover:tw-bg-white">Tell me</button>
+                    </div>
+                    <p class="tw-text-xs tw-text-gray-500">Sent by Stats Compass using Buttondown. You'll get a confirmation email first.
+                        <a href="/privacy" class="tw-underline">Privacy notice</a></p>
+                </form>
+                <p id="multi-done" hidden class="tw-mt-3 tw-font-semibold tw-text-green-700" role="status">Check your inbox to confirm.</p>
+            </section>
+
+            <p class="tw-mt-10">
+                <a href="/did-my-sale-make-money" class="tw-font-semibold tw-text-blue-600 hover:tw-underline">Check your sale →</a>
+            </p>
+        </div>
+    </main>
+    <footer
+        class="tw-mt-auto tw-flex tw-w-full tw-place-content-around tw-gap-3 tw-p-[5%] tw-px-[10%] tw-text-black max-md:tw-flex-col">
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-place-items-center tw-gap-6 max-md:tw-w-full">
+            <img src="/assets/logo/mark.svg" alt="" width="72" height="72" class="tw-h-[72px] tw-w-[72px]" />
+            <div>
+                Stats Compass
+                <br />
+                Know what's real.
+                <br />
+                Act on what matters.
+            </div>
+        </div>
+        <div class="tw-flex tw-h-full tw-w-[250px] tw-flex-col tw-gap-4">
+            <h2 class="tw-text-sm tw-font-semibold tw-uppercase tw-tracking-wider tw-text-gray-500">Commerce</h2>
+            <div class="tw-flex tw-flex-col tw-gap-3 max-md:tw-text-sm">
+                <a href="/#commerce" class="footer-link">Stats Compass Commerce</a>
+                <a href="/did-my-sale-make-money" class="footer-link">Did my sale make money?</a>
+                <a href="/blog/" class="footer-link">Blog</a>
+                <a href="/privacy" class="footer-link">Privacy policy</a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        // The form posts to Buttondown in a new tab (the browser checks the email first); this page says what's next.
+        const form = document.getElementById("multi-form");
+        form.addEventListener("submit", () => setTimeout(() => {
+            form.hidden = true;
+            document.getElementById("multi-done").hidden = false;
+        }));
+    </script>
+</body>
+
+</html>

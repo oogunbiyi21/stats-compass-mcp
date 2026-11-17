@@ -50,7 +50,7 @@ function wait() {
 
 function onMessage({ data }) {
   if (data.type === "progress") {
-    $("status").textContent = `Getting the checker ready: ${data.loadedMb} of about ${data.totalMb} MB…`;
+    $("status").textContent = `Getting the calculator ready: ${data.loadedMb} of about ${data.totalMb} MB…`;
   } else if (data.type === "ready") {
     ready = true;
     $("status").textContent = "Reading your file…";
@@ -98,7 +98,7 @@ $("retry").addEventListener("click", () => {
 // a greyed-out button. Nothing goes to the checker until it's all valid.
 function invalid() {
   if (!$("file").files.length) return { message: "Choose your report first." };
-  if (!ready) return { message: "The checker is still getting ready: it'll take a moment." };
+  if (!ready) return { message: "The calculator is still getting ready: it'll take a moment." };
   if (!$("start").value || !$("end").value) return { message: "Choose which sale to check, or enter its first and last day." };
   if ($("end").value < $("start").value) return { message: "The sale's last day is before its first day.", field: "end" };
   const margin = $("margin");

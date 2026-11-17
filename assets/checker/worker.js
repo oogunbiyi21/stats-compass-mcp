@@ -55,8 +55,8 @@ const ready = (async () => {
   postMessage({ type: "ready" });
   return pyodide;
 })().catch((err) => {
-  console.error("The checker couldn't load:", err);
-  postMessage({ type: "error", message: "The checker couldn't load. Check your connection, then try again." });
+  console.error("The calculator couldn't load:", err);
+  postMessage({ type: "error", message: "The calculator couldn't load. Check your connection, then try again." });
   throw err;
 });
 
