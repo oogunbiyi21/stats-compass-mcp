@@ -9,6 +9,7 @@ browser does.
 
 import csv
 import importlib.util
+import io
 from pathlib import Path
 
 import numpy as np
@@ -166,7 +167,7 @@ class TestCheck:
         assert out["verdict"] == "insufficient" and out["break_even"] is None
         assert out["summary"] == (
             "Not enough data yet: promotions need about 13 months of sales before them, so each can be compared "
-            "with the same weeks a year earlier. Your report starts on 29 May 2026: export it from 27 October 2025 or earlier."
+            "with the same weeks a year earlier. Your report's sales start on 29 May 2026: export it from 27 October 2025 or earlier."
         )
 
     def test_a_monthly_export_is_refused_plainly(self):
@@ -185,6 +186,26 @@ class TestCheck:
         assert rows["Day"].max() == pd.Timestamp("2026-12-14")  # the all-zero last row is gone
         rows = checker.read_export(shopify_export(), today="2026-12-14")
         assert rows["Day"].max() == pd.Timestamp("2026-12-13")  # and today's own row, still under way
+
+    def test_the_days_before_the_store_opened_are_left_out(self):
+        # "Last 730 days" from a store open 200 days: the 530 days before it are all zeros, not history.
+        days = shopify_export(days=200)
+        header, rows = days.split("\n", 1)
+        first = pd.Timestamp(rows.split(",", 1)[0].strip('"'))
+        before = "".join(f'"{(first - pd.Timedelta(days=n)).date()}",0,0,0,0,0,0,0,0,0,0\n' for n in range(530, 0, -1))
+        report = f"{header}\n{before}{rows}"
+        assert checker.read_export(report)["Day"].min() == first
+        out = checker.analyse(report, "2026-11-27", "2026-11-30", 50)
+        assert out["verdict"] == "insufficient" and out["outcome"] == "insufficient"
+        assert "Your report's sales start on 29 May 2026" in out["summary"]
+
+    def test_a_day_with_no_sales_in_between_is_kept(self):
+        # A closed day mid-report is a day with no sales (core judges a run of them), not one to drop.
+        frame = pd.read_csv(io.StringIO(shopify_export()))
+        frame.loc[frame["Day"] == "2026-06-02", ["Orders", "Gross sales", "Discounts", "Net sales", "Taxes", "Total sales"]] = 0
+        rows = checker.read_export(frame.to_csv(index=False, quoting=csv.QUOTE_NONNUMERIC))
+        assert rows.loc[rows["Day"] == "2026-06-02", "Net sales"].tolist() == [0]
+        assert len(rows) == len(checker.read_export(shopify_export()))
 
     def test_discounts_given_as_negatives(self):
         rows = checker.read_export(shopify_export())
@@ -542,3 +563,58 @@ class TestWhatThePageSends:
     def test_a_margin_out_of_range_is_refused_plainly(self):
         with pytest.raises(ValueError, match="^Your margin needs to be a number from 1 to 99.$"):
             checker.analyse(shopify_export(), "2026-11-27", "2026-11-30", 120)
+
+
+class TestTheName:
+    """It's "the calculator" (Tunji, 17 Nov 2026): no visitor sees "checker". The exceptions are names
+    no visitor reads: file paths, the step pages, Buttondown's "checker" source tag and the old
+    address's redirect page."""
+
+    SITE = Path(__file__).parents[1]
+
+    def visible(self, html):
+        from html.parser import HTMLParser
+
+        class Text(HTMLParser):
+            def __init__(self):
+                super().__init__(convert_charrefs=True)
+                self.skip, self.parts = 0, []
+
+            def handle_starttag(self, tag, attrs):
+                self.skip += tag in ("script", "style")
+                attrs = dict(attrs)
+                if not (tag == "input" and attrs.get("type") == "hidden"):  # the list's tags are data
+                    self.parts += [v for k, v in attrs.items()
+                                   if k in ("title", "alt", "aria-label", "placeholder", "content", "value") and v and not v.startswith(("/", "http"))]
+
+            def handle_endtag(self, tag):
+                self.skip -= tag in ("script", "style")
+
+            def handle_data(self, data):
+                if not self.skip:
+                    self.parts.append(data)
+
+        text = Text()
+        text.feed(html)
+        return " ".join(text.parts)
+
+    def test_no_page_says_checker(self):
+        pages = [p for p in [*self.SITE.glob("*.html"), *self.SITE.glob("blog/*.html")] if p.name != "how-the-checker-works.html"]
+        assert len(pages) > 5
+        said = [p.name for p in pages if "checker" in self.visible(p.read_text()).lower()]
+        assert said == []
+
+    def test_no_message_says_checker(self):
+        import re
+        for js in ("page.js", "worker.js"):
+            code = (self.SITE / "assets" / "checker" / js).read_text()
+            strings = [s for _, s in re.findall(r"([\"`])((?:(?!\1).)*)\1", code)]
+            assert [s for s in strings if "checker" in s.lower() and "/" not in s and "checker." not in s and s != "checker"] == []
+
+    def test_the_old_address_goes_to_the_new_one(self):
+        stub = (self.SITE / "how-the-checker-works.html").read_text()
+        assert '<meta http-equiv="refresh" content="0; url=/how-the-calculator-works" />' in stub
+        assert '<link rel="canonical" href="https://statscompass.io/how-the-calculator-works" />' in stub
+        assert 'location.replace("/how-the-calculator-works" + location.hash)' in stub
+        sitemap = (self.SITE / "sitemap.xml").read_text()
+        assert "https://statscompass.io/how-the-calculator-works" in sitemap and "how-the-checker-works" not in sitemap

@@ -60,7 +60,9 @@ def read_export(csv_text: str, today: str | None = None) -> pd.DataFrame:
     discounts as negatives, "Sales reversals" (once "Returns"), and a last row
     for the period still under way, all zeros until it has sales. Rows from
     ``today`` on, and trailing rows with no orders and no sales, are dropped:
-    they're incomplete, not days with no sales.
+    they're incomplete, not days with no sales. So are leading ones: "Last 730
+    days" from a store younger than that starts with the days before it opened
+    (seen 23 Nov 2026), which mustn't count as history.
     """
     not_report = ReportError("This doesn't look like Shopify's Total sales over time report: it needs the columns "
                              "Day, Gross sales, Discounts, Net sales.", "not-report")
@@ -91,10 +93,10 @@ def read_export(csv_text: str, today: str | None = None) -> pd.DataFrame:
     out = out.groupby("Day", as_index=False).sum(min_count=1).sort_values("Day").reset_index(drop=True)
     if today:
         out = out[out["Day"] < pd.Timestamp(today)]
-    # The period still under way: trailing rows with nothing in them.
-    empty = (out["Net sales"].fillna(0) == 0) & (out["Gross sales"].fillna(0) == 0) & (out.get("Orders", 0) == 0)
-    while len(out) and empty.iloc[len(out) - 1]:
-        out, empty = out.iloc[:-1], empty.iloc[:-1]
+    # The days before the store opened, and the period still under way: rows with nothing in
+    # them at either end. Days with no sales in between are kept (core treats a run as a closure).
+    traded = ~((out["Net sales"].fillna(0) == 0) & (out["Gross sales"].fillna(0) == 0) & (out.get("Orders", 0) == 0))
+    out = out[traded.cummax() & traded[::-1].cummax()[::-1]]
     out = out.drop(columns=["Orders"], errors="ignore")
     out.attrs["notes"] = parsed[:1]
     return out
@@ -458,7 +460,7 @@ def analyse(
             "verdict": "insufficient", "label": "Not enough data", "name": label, "chart": [], "warnings": rows.attrs.get("notes", []),
             "summary": (
                 f"Not enough data yet: promotions need about {MIN_MONTHS} months of sales before them, so each can be "
-                f"compared with the same weeks a year earlier. Your report starts on {_day(starts)}: export it from "
+                f"compared with the same weeks a year earlier. Your report's sales start on {_day(starts)}: export it from "
                 f"{_day(needed_from)} or earlier."
             ),
             "after": None, "amount": None, "discount_depth": discount_depth(in_sale), "break_even": None, "break_even_headline": None,
