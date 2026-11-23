@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://statscompass.io/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-12-01</lastmod>
   </url>
   <url>
     <loc>https://statscompass.io/pricing</loc>
@@ -22,7 +22,7 @@
   </url>
   <url>
     <loc>https://statscompass.io/privacy</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-12-01</lastmod>
   </url>
   <url>
     <loc>https://statscompass.io/terms</loc>
@@ -30,15 +30,19 @@
   </url>
   <url>
     <loc>https://statscompass.io/did-my-sale-make-money</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-12-01</lastmod>
   </url>
   <url>
     <loc>https://statscompass.io/how-the-calculator-works</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-12-01</lastmod>
   </url>
   <url>
     <loc>https://statscompass.io/blog/</loc>
-    <lastmod>2026-11-17</lastmod>
+    <lastmod>2026-12-01</lastmod>
+  </url>
+  <url>
+    <loc>https://statscompass.io/blog/did-your-black-friday-sale-make-money</loc>
+    <lastmod>2026-12-01</lastmod>
   </url>
   <url>
     <loc>https://statscompass.io/data-tools</loc>
